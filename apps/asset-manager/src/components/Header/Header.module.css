@@ -1,0 +1,51 @@
+.header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.logo {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  margin-right: 8px;
+}
+
+.logoAccent {
+  color: var(--accent);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.navBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  transition: color 0.15s, background 0.15s;
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+}
+
+.navBtn:hover {
+  color: var(--text);
+  background: var(--surface-raised);
+}
+
+.navBtn[aria-current='page'] {
+  color: var(--accent);
+  background: var(--accent-active-bg);
+}

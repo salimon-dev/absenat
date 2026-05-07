@@ -1,0 +1,457 @@
+[
+  {
+    "id": "tree_00",
+    "name": "greentree",
+    "biomes": [
+      "grass"
+    ],
+    "type": "tree",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 0,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": true,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 1,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 0,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "tree_01",
+    "name": "orangetree",
+    "biomes": [
+      "grass"
+    ],
+    "type": "tree",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 2,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": true,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 3,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 0,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "tree_02",
+    "name": "pinktree",
+    "biomes": [
+      "grass"
+    ],
+    "type": "tree",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 4,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": true,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 5,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 0,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "tree_03",
+    "name": "greentree",
+    "biomes": [
+      "grass"
+    ],
+    "type": "tree",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 6,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": true,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 7,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "chest_closed_small",
+    "name": "small closed chest",
+    "biomes": [
+      "grass"
+    ],
+    "type": "chest",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 8,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 9,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "chest_opened_small",
+    "name": "small opened chest",
+    "biomes": [
+      "grass"
+    ],
+    "type": "chest",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 10,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 11,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "iron_ore",
+    "name": "iron ore",
+    "biomes": [
+      "grass"
+    ],
+    "type": "iron",
+    "size": {
+      "w": 1,
+      "h": 1
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 12,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "gold_ore",
+    "name": "gold ore",
+    "biomes": [
+      "grass"
+    ],
+    "type": "gold",
+    "size": {
+      "w": 1,
+      "h": 1
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 13,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "copper_ore",
+    "name": "copper ore",
+    "biomes": [
+      "grass"
+    ],
+    "type": "copper",
+    "size": {
+      "w": 1,
+      "h": 1
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 14,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "sign_00",
+    "name": "sign 00",
+    "biomes": [
+      "grass"
+    ],
+    "type": "sign",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 15,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": true,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 16,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "sign_01",
+    "name": "sign_01",
+    "biomes": [
+      "grass"
+    ],
+    "type": "sign",
+    "size": {
+      "w": 1,
+      "h": 2
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 17,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": true,
+          "zindex": 3,
+          "passiveDamage": 0
+        }
+      },
+      {
+        "resourceId": "entities.png",
+        "frame": 18,
+        "position": {
+          "x": 0,
+          "y": 1
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 1,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "mushroom_black",
+    "name": "mushroom black",
+    "biomes": [
+      "grass"
+    ],
+    "type": "mushroom",
+    "size": {
+      "w": 1,
+      "h": 1
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 19,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 0,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "mushroom_orange",
+    "name": "mushroom orange",
+    "biomes": [
+      "grass"
+    ],
+    "type": "mushroom",
+    "size": {
+      "w": 1,
+      "h": 1
+    },
+    "frames": [
+      {
+        "resourceId": "entities.png",
+        "frame": 20,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "attributes": {
+          "walkable": false,
+          "zindex": 0,
+          "passiveDamage": 0
+        }
+      }
+    ]
+  }
+]

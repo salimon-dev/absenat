@@ -1,0 +1,737 @@
+[
+  {
+    "id": "VKVRRZ",
+    "frame": 0,
+    "mode": "gggg"
+  },
+  {
+    "id": "TAROMX",
+    "frame": 1,
+    "mode": "gggg"
+  },
+  {
+    "id": "8L577A",
+    "frame": 2,
+    "mode": "gggg"
+  },
+  {
+    "id": "5EBC88",
+    "frame": 3,
+    "mode": "gggg"
+  },
+  {
+    "id": "8IVGCD",
+    "frame": 4,
+    "mode": "gggg"
+  },
+  {
+    "id": "P6SOG1",
+    "frame": 5,
+    "mode": "gggg"
+  },
+  {
+    "id": "EMDU72",
+    "frame": 6,
+    "mode": "gggg"
+  },
+  {
+    "id": "DJLA7I",
+    "frame": 7,
+    "mode": "gggg"
+  },
+  {
+    "id": "7FU259",
+    "frame": 8,
+    "mode": "gggg"
+  },
+  {
+    "id": "6ZHKLR",
+    "frame": 9,
+    "mode": "gggg"
+  },
+  {
+    "id": "VAU37O",
+    "frame": 10,
+    "mode": "gggg"
+  },
+  {
+    "id": "KC68PC",
+    "frame": 11,
+    "mode": "gggg"
+  },
+  {
+    "id": "VDKOR9",
+    "frame": 12,
+    "mode": "gggg"
+  },
+  {
+    "id": "6MOU8T",
+    "frame": 13,
+    "mode": "wwwg"
+  },
+  {
+    "id": "93OZ1P",
+    "frame": 14,
+    "mode": "wwgg"
+  },
+  {
+    "id": "62WFDZ",
+    "frame": 15,
+    "mode": "wwgw"
+  },
+  {
+    "id": "UO7T4D",
+    "frame": 16,
+    "mode": "gggw"
+  },
+  {
+    "id": "1RUPF4",
+    "frame": 17,
+    "mode": "ggwg"
+  },
+  {
+    "id": "40GE7G",
+    "frame": 18,
+    "mode": "wwwg"
+  },
+  {
+    "id": "BNEW38",
+    "frame": 19,
+    "mode": "wgwg"
+  },
+  {
+    "id": "37R2I0",
+    "frame": 20,
+    "mode": "gwgw"
+  },
+  {
+    "id": "C7L96B",
+    "frame": 21,
+    "mode": "gwgg"
+  },
+  {
+    "id": "62Y1VE",
+    "frame": 22,
+    "mode": "wggg"
+  },
+  {
+    "id": "2F62XQ",
+    "frame": 23,
+    "mode": "wgww"
+  },
+  {
+    "id": "D0W1Y6",
+    "frame": 24,
+    "mode": "ggww"
+  },
+  {
+    "id": "RDPQVE",
+    "frame": 25,
+    "mode": "gwww"
+  },
+  {
+    "id": "U1ERZ0",
+    "frame": 26,
+    "mode": "wwww"
+  },
+  {
+    "id": "E9BQ3A",
+    "frame": 27,
+    "mode": "dddg"
+  },
+  {
+    "id": "ZQDJEL",
+    "frame": 28,
+    "mode": "ddgg"
+  },
+  {
+    "id": "G9M8QG",
+    "frame": 29,
+    "mode": "ddgd"
+  },
+  {
+    "id": "F6GBAM",
+    "frame": 30,
+    "mode": "gggd"
+  },
+  {
+    "id": "O4QXX8",
+    "frame": 31,
+    "mode": "ggdg"
+  },
+  {
+    "id": "KARHTU",
+    "frame": 32,
+    "mode": "dddd"
+  },
+  {
+    "id": "CGP4E5",
+    "frame": 33,
+    "mode": "dgdg"
+  },
+  {
+    "id": "ADN1SA",
+    "frame": 34,
+    "mode": "gdgd"
+  },
+  {
+    "id": "KAOJV3",
+    "frame": 35,
+    "mode": "gdgg"
+  },
+  {
+    "id": "1LXWEA",
+    "frame": 36,
+    "mode": "dggg"
+  },
+  {
+    "id": "GAR93G",
+    "frame": 37,
+    "mode": "dddd"
+  },
+  {
+    "id": "OTHX3Z",
+    "frame": 38,
+    "mode": "dgdd"
+  },
+  {
+    "id": "HWXQ6F",
+    "frame": 39,
+    "mode": "ggdd"
+  },
+  {
+    "id": "1HVRJR",
+    "frame": 40,
+    "mode": "gddd"
+  },
+  {
+    "id": "ENS9Y9",
+    "frame": 41,
+    "mode": "dddd"
+  },
+  {
+    "id": "7YUJOK",
+    "frame": 42,
+    "mode": "dddd"
+  },
+  {
+    "id": "9AEGK8",
+    "frame": 43,
+    "mode": "dddd"
+  },
+  {
+    "id": "IGFM20",
+    "frame": 44,
+    "mode": "aaaa"
+  },
+  {
+    "id": "SKGJ6S",
+    "frame": 45,
+    "mode": "aaaa"
+  },
+  {
+    "id": "5U7B7D",
+    "frame": 46,
+    "mode": "aaaa"
+  },
+  {
+    "id": "ZM7H00",
+    "frame": 47,
+    "mode": "aaaa"
+  },
+  {
+    "id": "AN60KX",
+    "frame": 48,
+    "mode": "aaaa"
+  },
+  {
+    "id": "PVM66G",
+    "frame": 49,
+    "mode": "aaaa"
+  },
+  {
+    "id": "I7G8TE",
+    "frame": 50,
+    "mode": "aaaa"
+  },
+  {
+    "id": "EZ11DV",
+    "frame": 51,
+    "mode": "aaaa"
+  },
+  {
+    "id": "TY7611",
+    "frame": 52,
+    "mode": "aaaa"
+  },
+  {
+    "id": "HXRSX1",
+    "frame": 53,
+    "mode": "aaaa"
+  },
+  {
+    "id": "JYWGTY",
+    "frame": 54,
+    "mode": "aaaa"
+  },
+  {
+    "id": "6VCHGX",
+    "frame": 55,
+    "mode": "aaaa"
+  },
+  {
+    "id": "S4OYRG",
+    "frame": 56,
+    "mode": "wwwa"
+  },
+  {
+    "id": "YG6MDC",
+    "frame": 57,
+    "mode": "wwaa"
+  },
+  {
+    "id": "44WT3K",
+    "frame": 58,
+    "mode": "wwaw"
+  },
+  {
+    "id": "UPY20F",
+    "frame": 59,
+    "mode": "aaaw"
+  },
+  {
+    "id": "O3OUXP",
+    "frame": 60,
+    "mode": "aawa"
+  },
+  {
+    "id": "IP32M6",
+    "frame": 61,
+    "mode": "ddda"
+  },
+  {
+    "id": "JVEB8P",
+    "frame": 62,
+    "mode": "ddad"
+  },
+  {
+    "id": "KT4TAS",
+    "frame": 63,
+    "mode": "aada"
+  },
+  {
+    "id": "SE1PSQ",
+    "frame": 64,
+    "mode": "dada"
+  },
+  {
+    "id": "ZQTKPE",
+    "frame": 65,
+    "mode": "adaa"
+  },
+  {
+    "id": "Y7I53F",
+    "frame": 66,
+    "mode": "aadd"
+  },
+  {
+    "id": "T78BGP",
+    "frame": 67,
+    "mode": "daaa"
+  },
+  {
+    "id": "JM0EV6",
+    "frame": 68,
+    "mode": "dadd"
+  },
+  {
+    "id": "SKZUZF",
+    "frame": 69,
+    "mode": "addd"
+  },
+  {
+    "id": "Q847UE",
+    "frame": 70,
+    "mode": "adad"
+  },
+  {
+    "id": "JI5EDK",
+    "frame": 71,
+    "mode": "aaad"
+  },
+  {
+    "id": "MI940B",
+    "frame": 72,
+    "mode": "ddaa"
+  },
+  {
+    "id": "D639ME",
+    "frame": 73,
+    "mode": "awaw"
+  },
+  {
+    "id": "M6OR3O",
+    "frame": 74,
+    "mode": "wawa"
+  },
+  {
+    "id": "XBMQZP",
+    "frame": 75,
+    "mode": "waaa"
+  },
+  {
+    "id": "5CHP6X",
+    "frame": 76,
+    "mode": "aaww"
+  },
+  {
+    "id": "2YEJOJ",
+    "frame": 77,
+    "mode": "waww"
+  },
+  {
+    "id": "0VDBGQ",
+    "frame": 78,
+    "mode": "awww"
+  },
+  {
+    "id": "D2JMXF",
+    "frame": 79,
+    "mode": "aaaa"
+  },
+  {
+    "id": "FTJF9U",
+    "frame": 80,
+    "mode": "awaa"
+  },
+  {
+    "id": "4210OV",
+    "frame": 81,
+    "mode": "nnnn"
+  },
+  {
+    "id": "AC72H8",
+    "frame": 82,
+    "mode": "nnnn"
+  },
+  {
+    "id": "UVVRI9",
+    "frame": 83,
+    "mode": "nnnn"
+  },
+  {
+    "id": "SF9NHT",
+    "frame": 84,
+    "mode": "nnnn"
+  },
+  {
+    "id": "0ELFND",
+    "frame": 85,
+    "mode": "nnnn"
+  },
+  {
+    "id": "DH10WA",
+    "frame": 86,
+    "mode": "nnnn"
+  },
+  {
+    "id": "D6YTI9",
+    "frame": 87,
+    "mode": "nnnn"
+  },
+  {
+    "id": "H9U8I5",
+    "frame": 88,
+    "mode": "nnnn"
+  },
+  {
+    "id": "YXS872",
+    "frame": 89,
+    "mode": "nnnn"
+  },
+  {
+    "id": "8GGQJA",
+    "frame": 90,
+    "mode": "inii"
+  },
+  {
+    "id": "3U5X12",
+    "frame": 91,
+    "mode": "inii"
+  },
+  {
+    "id": "J0CJVB",
+    "frame": 92,
+    "mode": "iiii"
+  },
+  {
+    "id": "J7ZW0V",
+    "frame": 93,
+    "mode": "iinn"
+  },
+  {
+    "id": "EYOZOC",
+    "frame": 94,
+    "mode": "iiin"
+  },
+  {
+    "id": "3R49RF",
+    "frame": 95,
+    "mode": "nnin"
+  },
+  {
+    "id": "524BXS",
+    "frame": 96,
+    "mode": "nnni"
+  },
+  {
+    "id": "F7YZLP",
+    "frame": 97,
+    "mode": "nddd"
+  },
+  {
+    "id": "K2AUN8",
+    "frame": 98,
+    "mode": "nnnd"
+  },
+  {
+    "id": "SHG19M",
+    "frame": 99,
+    "mode": "nndn"
+  },
+  {
+    "id": "88ZX8K",
+    "frame": 100,
+    "mode": "nndd"
+  },
+  {
+    "id": "OL4PP2",
+    "frame": 101,
+    "mode": "dnnn"
+  },
+  {
+    "id": "UGKEOE",
+    "frame": 102,
+    "mode": "dndd"
+  },
+  {
+    "id": "B47NXA",
+    "frame": 103,
+    "mode": "ndnn"
+  },
+  {
+    "id": "1BHG7Q",
+    "frame": 104,
+    "mode": "ndnd"
+  },
+  {
+    "id": "8VZDEG",
+    "frame": 105,
+    "mode": "dndn"
+  },
+  {
+    "id": "4A3PMF",
+    "frame": 106,
+    "mode": "ddnd"
+  },
+  {
+    "id": "0RABE3",
+    "frame": 107,
+    "mode": "ddnn"
+  },
+  {
+    "id": "2WIE1E",
+    "frame": 108,
+    "mode": "dddn"
+  },
+  {
+    "id": "L0DB77",
+    "frame": 109,
+    "mode": "niii"
+  },
+  {
+    "id": "S1ZCST",
+    "frame": 110,
+    "mode": "nnii"
+  },
+  {
+    "id": "Z21W62",
+    "frame": 111,
+    "mode": "inin"
+  },
+  {
+    "id": "I1VKYY",
+    "frame": 112,
+    "mode": "innn"
+  },
+  {
+    "id": "PWV9NI",
+    "frame": 113,
+    "mode": "iini"
+  },
+  {
+    "id": "XIEQC9",
+    "frame": 114,
+    "mode": "wwwn"
+  },
+  {
+    "id": "6HUUNG",
+    "frame": 115,
+    "mode": "wwnn"
+  },
+  {
+    "id": "FLYZD3",
+    "frame": 116,
+    "mode": "nnnn"
+  },
+  {
+    "id": "AJLJIC",
+    "frame": 117,
+    "mode": "wwnw"
+  },
+  {
+    "id": "U4SUO1",
+    "frame": 118,
+    "mode": "nnnw"
+  },
+  {
+    "id": "GJ64HE",
+    "frame": 119,
+    "mode": "nnnn"
+  },
+  {
+    "id": "42Y4K2",
+    "frame": 120,
+    "mode": "nnwn"
+  },
+  {
+    "id": "4SOGEQ",
+    "frame": 121,
+    "mode": "nnnn"
+  },
+  {
+    "id": "S623KY",
+    "frame": 122,
+    "mode": "nini"
+  },
+  {
+    "id": "112TKM",
+    "frame": 123,
+    "mode": "nnnn"
+  },
+  {
+    "id": "J6O1I9",
+    "frame": 124,
+    "mode": "wnww"
+  },
+  {
+    "id": "BX4M3C",
+    "frame": 125,
+    "mode": "wnnn"
+  },
+  {
+    "id": "BLIWL0",
+    "frame": 126,
+    "mode": "nwnn"
+  },
+  {
+    "id": "9VCQEC",
+    "frame": 127,
+    "mode": "nwnw"
+  },
+  {
+    "id": "MNL0HR",
+    "frame": 128,
+    "mode": "nnww"
+  },
+  {
+    "id": "Z6AOM0",
+    "frame": 129,
+    "mode": "wnwn"
+  },
+  {
+    "id": "KHT28N",
+    "frame": 130,
+    "mode": "nwww"
+  },
+  {
+    "id": "ACK24X",
+    "frame": 131,
+    "mode": "wwwo"
+  },
+  {
+    "id": "5HND1C",
+    "frame": 132,
+    "mode": "wwoo"
+  },
+  {
+    "id": "L14AIU",
+    "frame": 133,
+    "mode": "wwow"
+  },
+  {
+    "id": "3XJIQZ",
+    "frame": 134,
+    "mode": "ggog"
+  },
+  {
+    "id": "F49YTR",
+    "frame": 135,
+    "mode": "oggg"
+  },
+  {
+    "id": "3NZBNI",
+    "frame": 136,
+    "mode": "ggoo"
+  },
+  {
+    "id": "RAA2Y5",
+    "frame": 137,
+    "mode": "oogg"
+  },
+  {
+    "id": "9E8DA7",
+    "frame": 138,
+    "mode": "ooww"
+  },
+  {
+    "id": "7AOUWZ",
+    "frame": 139,
+    "mode": "oooo"
+  },
+  {
+    "id": "EU3K6Z",
+    "frame": 140,
+    "mode": "oooo"
+  },
+  {
+    "id": "T50UQH",
+    "frame": 141,
+    "mode": "oooo"
+  },
+  {
+    "id": "LT2YKU",
+    "frame": 142,
+    "mode": "oooo"
+  },
+  {
+    "id": "9VW44L",
+    "frame": 143,
+    "mode": "owow"
+  },
+  {
+    "id": "51GU97",
+    "frame": 144,
+    "mode": "wowo"
+  },
+  {
+    "id": "0V140Z",
+    "frame": 145,
+    "mode": "woww"
+  },
+  {
+    "id": "5HATFE",
+    "frame": 146,
+    "mode": "owww"
+  }
+]

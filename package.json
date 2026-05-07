@@ -1,0 +1,17 @@
+{
+  "name": "absenat",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/game",
+    "build": "npm run build -w apps/game",
+    "lint": "npm run lint -w apps/game",
+    "dev:game": "npm run dev -w apps/game",
+    "build:game": "npm run build -w apps/game",
+    "dev:asset-manager": "npm run dev -w apps/asset-manager",
+    "build:asset-manager": "npm run build -w apps/asset-manager"
+  }
+}
