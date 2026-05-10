@@ -1,5 +1,4 @@
 import styles from './InventoryDialog.module.css';
-import Stats from './Stats';
 import QuickSlots from './QuickSlots';
 import Inventory from './Inventory';
 
@@ -12,10 +11,7 @@ export default function InventoryDialog({ onClose }: { onClose: () => void }) {
           <button onClick={onClose} className={styles.closeButton}>×</button>
         </div>
         <div className={styles.body}>
-          <div className={styles.topRow}>
-            <Stats />
-            <QuickSlots />
-          </div>
+          <QuickSlots />
           <Inventory />
         </div>
       </div>

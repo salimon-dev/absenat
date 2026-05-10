@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import styles from './QuickSlots.module.css';
 
 function Slot() {
@@ -8,15 +9,18 @@ export default function QuickSlots() {
   return (
     <div className={styles.quickSlots}>
       <span className={styles.sectionLabel}>Quick Slots</span>
-      {[1, 2, 3, 4].map(set => (
-        <div key={set} className={styles.row}>
-          <span className={styles.rowLabel}>{set}</span>
-          <div className={styles.slotRow}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Slot key={i} />
-            ))}
+      {[1, 2, 3, 4].map((set, idx) => (
+        <Fragment key={set}>
+          {idx > 0 && <div className={styles.groupDivider} />}
+          <div className={styles.group}>
+            <span className={styles.groupLabel}>{set}</span>
+            <div className={styles.slotRow}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Slot key={i} />
+              ))}
+            </div>
           </div>
-        </div>
+        </Fragment>
       ))}
     </div>
   );
