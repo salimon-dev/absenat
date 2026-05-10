@@ -1,60 +1,36 @@
-{
-    "specs": {
-        "w": 16,
-        "h": 16
-    },
+[
+  {
+    "id": "tree.0",
+    "biome": "grass",
+    "resources": [{ "id": "wood", "count": 2 }],
     "frames": [
-        {
-            "id": "tree_0",
-            "frames": [
-                {
-                    "n": 0,
-                    "type": "top"
-                },
-                {
-                    "n": 4,
-                    "type": "root"
-                }
-            ]
-        },
-        {
-            "id": "tree_1",
-            "frames": [
-                {
-                    "n": 1,
-                    "type": "top"
-                },
-                {
-                    "n": 5,
-                    "type": "root"
-                }
-            ]
-        },
-        {
-            "id": "tree_2",
-            "frames": [
-                {
-                    "n": 2,
-                    "type": "top"
-                },
-                {
-                    "n": 6,
-                    "type": "root"
-                }
-            ]
-        },
-        {
-            "id": "tree_3",
-            "frames": [
-                {
-                    "n": 3,
-                    "type": "top"
-                },
-                {
-                    "n": 7,
-                    "type": "root"
-                }
-            ]
-        }
+      {
+        "source": { "x": 0, "y": 0 },
+        "position": { "x": 0, "y": 0 },
+        "walkable": true
+      },
+      {
+        "source": { "x": 0, "y": 1 },
+        "position": { "x": 0, "y": 1 },
+        "walkable": false
+      }
     ]
-}
+  },
+  {
+    "id": "tree.1",
+    "biome": "grass",
+    "resources": [{ "id": "wood", "count": 2 }],
+    "frames": [
+      {
+        "source": { "x": 1, "y": 0 },
+        "position": { "x": 1, "y": 0 },
+        "walkable": true
+      },
+      {
+        "source": { "x": 1, "y": 1 },
+        "position": { "x": 1, "y": 1 },
+        "walkable": false
+      }
+    ]
+  }
+]
