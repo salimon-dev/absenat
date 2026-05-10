@@ -1,8 +1,7 @@
 import styles from './InventoryDialog.module.css';
-
-function Slot({ className }: { className?: string }) {
-  return <div className={`${styles.slot} ${className ?? ''}`} />;
-}
+import Stats from './Stats';
+import QuickSlots from './QuickSlots';
+import Inventory from './Inventory';
 
 export default function InventoryDialog({ onClose }: { onClose: () => void }) {
   return (
@@ -14,22 +13,10 @@ export default function InventoryDialog({ onClose }: { onClose: () => void }) {
         </div>
         <div className={styles.body}>
           <div className={styles.topRow}>
-            <div className={styles.stats}>
-              <span className={styles.sectionLabel}>Stats</span>
-            </div>
-            <div className={styles.quickSlots}>
-              <span className={styles.sectionLabel}>Quick Slots</span>
-              <div className={styles.slotGrid4x4}>
-                {Array.from({ length: 16 }).map((_, i) => <Slot key={i} />)}
-              </div>
-            </div>
+            <Stats />
+            <QuickSlots />
           </div>
-          <div className={styles.inventoryRow}>
-            <span className={styles.sectionLabel}>Inventory</span>
-            <div className={styles.slotGrid12x3}>
-              {Array.from({ length: 36 }).map((_, i) => <Slot key={i} />)}
-            </div>
-          </div>
+          <Inventory />
         </div>
       </div>
     </div>

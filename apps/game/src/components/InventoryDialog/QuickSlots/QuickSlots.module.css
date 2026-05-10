@@ -1,0 +1,61 @@
+.quickSlots {
+  flex: 0 0 calc(50% - 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.rowLabel {
+  font-family: monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.25);
+  width: 46px;
+  height: 46px;
+  text-align: right;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+}
+
+.slotRow {
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  margin-left: 24px;
+}
+
+.sectionLabel {
+  font-family: monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.slot {
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.slot:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.07);
+}
