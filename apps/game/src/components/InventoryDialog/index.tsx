@@ -8,7 +8,9 @@ export default function InventoryDialog({ onClose }: { onClose: () => void }) {
       <div className={styles.dialog}>
         <div className={styles.header}>
           <span className={styles.title}>Inventory</span>
-          <button onClick={onClose} className={styles.closeButton}>×</button>
+          <button onClick={onClose} className={styles.closeButton}>
+            ×
+          </button>
         </div>
         <div className={styles.body}>
           <QuickSlots />
