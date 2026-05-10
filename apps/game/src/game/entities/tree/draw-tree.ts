@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import type { Tree } from './tree';
-import type { TreeData } from './tree';
+import type { TreeData } from './types';
 import { TILE_SIZE } from '../../world/tiles';
 
 const TREES_KEY = 'trees';

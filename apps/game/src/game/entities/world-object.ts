@@ -2,7 +2,8 @@ export enum WObjectTypeEnum {
   Tree = 'tree',
   Mushroom = 'mushroom',
   Ore = 'ore',
-  Tool = 'too'
+  Tool = 'too',
+  Tile = 'tile'
 }
 export type WObjectType = `${WObjectTypeEnum}`;
 export abstract class WObject {
