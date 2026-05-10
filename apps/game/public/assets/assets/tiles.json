@@ -1,0 +1,76 @@
+[
+  {
+    "id": "",
+    "frame": 0,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 1,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 2,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 3,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 4,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 5,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 6,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 7,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 8,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 9,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 10,
+    "tags": []
+  },
+  {
+    "id": "",
+    "frame": 11,
+    "tags": []
+  },
+  {
+    "id": "grass.v1.f0",
+    "frame": 12,
+    "tags": [
+      "tile"
+    ]
+  },
+  {
+    "id": "water",
+    "frame": 13,
+    "tags": [
+      "water"
+    ]
+  }
+]

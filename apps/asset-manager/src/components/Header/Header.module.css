@@ -49,3 +49,51 @@
   color: var(--accent);
   background: var(--accent-active-bg);
 }
+
+.hiddenInput {
+  display: none;
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.uploadBtn {
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  transition: opacity 0.15s;
+}
+
+.uploadBtn:hover {
+  opacity: 0.85;
+}
+
+.exportBtn {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.exportBtn:hover:not(:disabled) {
+  background: var(--border);
+}
+
+.exportBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

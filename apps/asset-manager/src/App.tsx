@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useEffect, useState } from 'react';
 import {
   activeViewAtom,
   folderHandleAtom,
@@ -7,20 +7,27 @@ import {
   View,
 } from './store';
 import { loadHandle } from './lib/folderDb';
+import { exportTiles } from './lib/exportTiles';
 import { Header } from './components/Header/Header';
-import { TilesView } from './components/TilesView/TilesView';
-import { ObjectsView } from './components/ObjectsView/ObjectsView';
-import { MapModulesView } from './components/MapModulesView/MapModulesView';
 import { FolderGate } from './components/FolderGate/FolderGate';
+import { Assets } from './components/Assets/Assets';
+import type { AssetEntry } from './components/Assets/types';
+import { AssetUploadDialog } from './components/AssetUploadDialog/AssetUploadDialog';
 import s from './App.module.css';
 
 function App() {
-  const activeView = useAtomValue(activeViewAtom);
   const [folderHandle, setFolderHandle] = useAtom(folderHandleAtom);
   const [ready, setReady] = useAtom(folderReadyAtom);
   const [restoredHandle, setRestoredHandle] = useState<
     FileSystemDirectoryHandle | undefined
   >();
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [assets, setAssets] = useState<AssetEntry[]>([]);
+
+  const handleExport = useCallback(async () => {
+    if (!folderHandle || assets.length === 0) return;
+    await exportTiles(assets, folderHandle);
+  }, [assets, folderHandle]);
 
   useEffect(() => {
     async function tryRestore() {
@@ -53,12 +60,36 @@ function App() {
 
   return (
     <div className={s.layout}>
-      <Header />
+      <Header
+        onUpload={setUploadedFile}
+        onExport={handleExport}
+        canExport={assets.length > 0}
+      />
       <main className={s.main}>
-        {activeView === View.Tiles && <TilesView />}
-        {activeView === View.Objects && <ObjectsView />}
-        {activeView === View.MapEditor && <MapModulesView />}
+        <Assets
+          assets={assets}
+          onUpdate={(frame, id, tags) =>
+            setAssets((prev) =>
+              prev.map((a, i) => (i === frame ? { ...a, id, tags } : a)),
+            )
+          }
+          onDelete={(frame) =>
+            setAssets((prev) => prev.filter((_, i) => i !== frame))
+          }
+        />
       </main>
+      {uploadedFile && (
+        <AssetUploadDialog
+          file={uploadedFile}
+          onClose={() => setUploadedFile(null)}
+          onAddTiles={(tiles) =>
+            setAssets((prev) => [
+              ...prev,
+              ...tiles.map((dataUrl) => ({ dataUrl, id: '', tags: [] })),
+            ])
+          }
+        />
+      )}
     </div>
   );
 }
