@@ -1,19 +1,34 @@
-import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
-import {
-  activeViewAtom,
-  folderHandleAtom,
-  folderReadyAtom,
-  View,
-} from './store';
+import { useAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { folderHandleAtom, folderReadyAtom } from './store';
 import { loadHandle } from './lib/folderDb';
-import { exportTiles } from './lib/exportTiles';
 import { Header } from './components/Header/Header';
 import { FolderGate } from './components/FolderGate/FolderGate';
-import { Assets } from './components/Assets/Assets';
-import type { AssetEntry } from './components/Assets/types';
-import { AssetUploadDialog } from './components/AssetUploadDialog/AssetUploadDialog';
+import { Sidebar } from './components/Sidebar/Sidebar';
+import { AssetsPage } from './pages/AssetsPage/AssetsPage';
+import { EntitiesPage } from './pages/EntitiesPage/EntitiesPage';
+import { MapModulesPage } from './pages/MapModulesPage/MapModulesPage';
 import s from './App.module.css';
+
+function AppShell() {
+  return (
+    <div className={s.layout}>
+      <Header />
+      <div className={s.body}>
+        <Sidebar />
+        <main className={s.main}>
+          <Routes>
+            <Route index element={<Navigate to="assets" replace />} />
+            <Route path="assets" element={<AssetsPage />} />
+            <Route path="entities" element={<EntitiesPage />} />
+            <Route path="map-modules" element={<MapModulesPage />} />
+          </Routes>
+        </main>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [folderHandle, setFolderHandle] = useAtom(folderHandleAtom);
@@ -21,13 +36,6 @@ function App() {
   const [restoredHandle, setRestoredHandle] = useState<
     FileSystemDirectoryHandle | undefined
   >();
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [assets, setAssets] = useState<AssetEntry[]>([]);
-
-  const handleExport = useCallback(async () => {
-    if (!folderHandle || assets.length === 0) return;
-    await exportTiles(assets, folderHandle);
-  }, [assets, folderHandle]);
 
   useEffect(() => {
     async function tryRestore() {
@@ -55,42 +63,17 @@ function App() {
   if (!ready) return null;
 
   if (!folderHandle) {
-    return <FolderGate restoredHandle={restoredHandle} />;
+    return (
+      <BrowserRouter>
+        <FolderGate restoredHandle={restoredHandle} />
+      </BrowserRouter>
+    );
   }
 
   return (
-    <div className={s.layout}>
-      <Header
-        onUpload={setUploadedFile}
-        onExport={handleExport}
-        canExport={assets.length > 0}
-      />
-      <main className={s.main}>
-        <Assets
-          assets={assets}
-          onUpdate={(frame, id, tags) =>
-            setAssets((prev) =>
-              prev.map((a, i) => (i === frame ? { ...a, id, tags } : a)),
-            )
-          }
-          onDelete={(frame) =>
-            setAssets((prev) => prev.filter((_, i) => i !== frame))
-          }
-        />
-      </main>
-      {uploadedFile && (
-        <AssetUploadDialog
-          file={uploadedFile}
-          onClose={() => setUploadedFile(null)}
-          onAddTiles={(tiles) =>
-            setAssets((prev) => [
-              ...prev,
-              ...tiles.map((dataUrl) => ({ dataUrl, id: '', tags: [] })),
-            ])
-          }
-        />
-      )}
-    </div>
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }
 
