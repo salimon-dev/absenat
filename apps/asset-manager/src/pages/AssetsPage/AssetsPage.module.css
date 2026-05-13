@@ -1,0 +1,47 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.uploadBtn {
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  transition: opacity 0.15s;
+}
+
+.uploadBtn:hover {
+  opacity: 0.85;
+}
+
+.grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
