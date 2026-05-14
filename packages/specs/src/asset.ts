@@ -5,4 +5,4 @@ export type AssetSchema = {
   source: string;
 };
 
-export const AssetTags = ['grass', 'water', 'tile'];
+export const AssetTags = ['grass', 'water', 'tile', 'tree', 'mushroom', 'sign', 'fire', 'bush', 'chest'];
