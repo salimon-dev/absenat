@@ -34,6 +34,30 @@
   color: #e05;
 }
 
+.editBtn {
+  position: absolute;
+  top: 6px;
+  right: 30px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.card:hover .editBtn {
+  opacity: 1;
+}
+
+.editBtn:hover {
+  color: var(--accent);
+}
+
 .card:hover {
   border-color: var(--accent);
 }

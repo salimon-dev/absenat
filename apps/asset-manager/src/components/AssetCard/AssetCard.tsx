@@ -1,19 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import type { AssetSchema } from '@absenat/specs';
 import { loadTilePng } from '../../lib/assetsDb';
+import { EditTagsDialog } from '../EditTagsDialog/EditTagsDialog';
 import s from './AssetCard.module.css';
 
 interface Props {
   asset: AssetSchema;
   folderHandle: FileSystemDirectoryHandle;
   onDelete: () => void;
+  onUpdate: (updated: AssetSchema) => void;
 }
 
 const TILE = 16;
 
-export function AssetCard({ asset, folderHandle, onDelete }: Props) {
+export function AssetCard({ asset, folderHandle, onDelete, onUpdate }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -45,9 +48,15 @@ export function AssetCard({ asset, folderHandle, onDelete }: Props) {
     };
   }, [asset, folderHandle]);
 
+  function handleSave(tags: string[]) {
+    onUpdate({ ...asset, tags });
+    setEditOpen(false);
+  }
+
   return (
     <div className={s.card}>
       <button className={s.deleteBtn} onClick={onDelete} title="Delete">×</button>
+      <button className={s.editBtn} onClick={() => setEditOpen(true)} title="Edit tags">✎</button>
       <div className={s.preview}>
         <canvas
           ref={canvasRef}
@@ -65,6 +74,9 @@ export function AssetCard({ asset, folderHandle, onDelete }: Props) {
         <div className={s.tags}>
           {asset.tags.map(t => <span key={t} className={s.tag}>{t}</span>)}
         </div>
+      )}
+      {editOpen && (
+        <EditTagsDialog asset={asset} onClose={() => setEditOpen(false)} onSave={handleSave} />
       )}
     </div>
   );

@@ -28,6 +28,12 @@ export function AssetsPage() {
     await writeAssets(folderHandle, next);
   }
 
+  async function handleUpdate(updated: AssetSchema) {
+    const next = assets.map(a => a.id === updated.id ? updated : a);
+    setAssets(next);
+    await writeAssets(folderHandle, next);
+  }
+
   return (
     <div className={s.page}>
       <div className={s.header}>
@@ -42,7 +48,7 @@ export function AssetsPage() {
       ) : (
         <div className={s.grid}>
           {assets.map(asset => (
-            <AssetCard key={asset.id} asset={asset} folderHandle={folderHandle} onDelete={() => handleDelete(asset.id)} />
+            <AssetCard key={asset.id} asset={asset} folderHandle={folderHandle} onDelete={() => handleDelete(asset.id)} onUpdate={handleUpdate} />
           ))}
         </div>
       )}
