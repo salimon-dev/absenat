@@ -1,17 +1,33 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { EntityTypeEnum, Biome } from '@absenat/specs';
-import type { Entity, EntityFrame } from '@absenat/specs';
+import type { AssetSchema, Entity, EntityFrame } from '@absenat/specs';
 import { folderHandleAtom } from '../../store';
+import { readAssets } from '../../lib/assetsDb';
+import { AssetPickerDialog } from '../../components/AssetPickerDialog/AssetPickerDialog';
+import { AssetPreview } from '../../components/AssetPreview/AssetPreview';
 import s from './EntityCreatePage.module.css';
 
-function buildFrames(count: number, w: number, h: number): EntityFrame[] {
+type TileSelection = {
+  frame: number;
+  row: number;
+  col: number;
+};
+
+type TileAssetMap = Record<string, string>;
+
+function getTileKey(frame: number, col: number, row: number): string {
+  return `${frame}:${col}:${row}`;
+}
+
+function buildFrames(count: number, w: number, h: number, tileAssets: TileAssetMap): EntityFrame[] {
   return Array.from({ length: count }, (_, i) => ({
     order: i,
     tiles: Array.from({ length: h }, (_, row) =>
       Array.from({ length: w }, (_, col) => ({
         id: crypto.randomUUID(),
+        assetId: tileAssets[getTileKey(i, col, row)],
         position: { x: col, y: row },
         attributes: { walkable: true, zIndex: 0, effect: {} },
       }))
@@ -20,11 +36,13 @@ function buildFrames(count: number, w: number, h: number): EntityFrame[] {
 }
 
 async function saveEntity(root: FileSystemDirectoryHandle, entity: Entity): Promise<void> {
-  let entities: Entity[] = [];
+  let entities: Entity[];
   try {
     const fh = await root.getFileHandle('entities.json');
     entities = JSON.parse(await (await fh.getFile()).text());
-  } catch {}
+  } catch {
+    entities = [];
+  }
   entities.push(entity);
   const fh = await root.getFileHandle('entities.json', { create: true });
   const w = await fh.createWritable();
@@ -45,8 +63,15 @@ export function EntityCreatePage() {
   const [animateSpeed, setAnimateSpeed] = useState(0);
   const [frameCount, setFrameCount] = useState(1);
   const [activeFrame, setActiveFrame] = useState(0);
+  const [assets, setAssets] = useState<AssetSchema[]>([]);
+  const [tileAssets, setTileAssets] = useState<TileAssetMap>({});
+  const [pickerTile, setPickerTile] = useState<TileSelection | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    readAssets(folderHandle).then(setAssets);
+  }, [folderHandle]);
 
   function toggleBiome(biome: string) {
     setBiomes(prev => prev.includes(biome) ? prev.filter(b => b !== biome) : [...prev, biome]);
@@ -59,8 +84,17 @@ export function EntityCreatePage() {
 
   function removeFrame(fi: number) {
     if (frameCount === 1) return;
+    setTileAssets(prev => removeFrameSelections(prev, fi));
     setFrameCount(prev => prev - 1);
     setActiveFrame(prev => (prev >= fi && prev > 0) ? prev - 1 : prev);
+    setPickerTile(null);
+  }
+
+  function handleAssetSelect(asset: AssetSchema) {
+    if (!pickerTile) return;
+    const key = getTileKey(pickerTile.frame, pickerTile.col, pickerTile.row);
+    setTileAssets(prev => ({ ...prev, [key]: asset.id }));
+    setPickerTile(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -75,7 +109,7 @@ export function EntityCreatePage() {
         biomes: biomes as Entity['biomes'],
         size: { w: sizeW, h: sizeH },
         animateSpeed,
-        frames: buildFrames(frameCount, sizeW, sizeH),
+        frames: buildFrames(frameCount, sizeW, sizeH, tileAssets),
       };
       await saveEntity(folderHandle, entity);
       navigate('/entities');
@@ -175,9 +209,23 @@ export function EntityCreatePage() {
               style={{ gridTemplateColumns: `repeat(${sizeW}, 64px)`, gridTemplateRows: `repeat(${sizeH}, 64px)` }}
             >
               {Array.from({ length: sizeH }, (_, row) =>
-                Array.from({ length: sizeW }, (_, col) => (
-                  <div key={`${row}-${col}`} className={s.tileGridCell} title={`(${col}, ${row})`} />
-                ))
+                Array.from({ length: sizeW }, (_, col) => {
+                  const selectedAsset = findTileAsset(assets, tileAssets, activeFrame, col, row);
+
+                  return (
+                    <button
+                      type="button"
+                      key={`${row}-${col}`}
+                      className={`${s.tileGridCell} ${selectedAsset ? s.tileGridCellFilled : ''}`}
+                      title={`(${col}, ${row})`}
+                      onClick={() => setPickerTile({ frame: activeFrame, row, col })}
+                    >
+                      {selectedAsset && (
+                        <AssetPreview asset={selectedAsset} folderHandle={folderHandle} />
+                      )}
+                    </button>
+                  );
+                })
               )}
             </div>
           </div>
@@ -190,6 +238,46 @@ export function EntityCreatePage() {
           <button type="submit" className={s.saveBtn} disabled={saving}>{saving ? 'Saving…' : 'Save Entity'}</button>
         </div>
       </form>
+
+      {pickerTile && (
+        <AssetPickerDialog
+          assets={assets}
+          selectedAssetId={tileAssets[getTileKey(pickerTile.frame, pickerTile.col, pickerTile.row)]}
+          folderHandle={folderHandle}
+          onClose={() => setPickerTile(null)}
+          onSelect={handleAssetSelect}
+        />
+      )}
     </div>
   );
+}
+
+function findTileAsset(
+  assets: AssetSchema[],
+  tileAssets: TileAssetMap,
+  frame: number,
+  col: number,
+  row: number,
+): AssetSchema | undefined {
+  const assetId = tileAssets[getTileKey(frame, col, row)];
+  return assets.find(asset => asset.id === assetId);
+}
+
+function removeFrameSelections(tileAssets: TileAssetMap, removedFrame: number): TileAssetMap {
+  const next: TileAssetMap = {};
+
+  for (const [key, assetId] of Object.entries(tileAssets)) {
+    const movedKey = moveFrameKey(key, removedFrame);
+    if (movedKey) next[movedKey] = assetId;
+  }
+
+  return next;
+}
+
+function moveFrameKey(key: string, removedFrame: number): string | null {
+  const [framePart, col, row] = key.split(':');
+  const frame = Number(framePart);
+  if (frame === removedFrame) return null;
+  if (frame > removedFrame) return `${frame - 1}:${col}:${row}`;
+  return key;
 }

@@ -167,12 +167,28 @@
 }
 
 .tileGridCell {
+  align-items: center;
   width: 64px;
   height: 64px;
   background: var(--bg);
   border: 1px dashed var(--border);
   border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
   image-rendering: pixelated;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.tileGridCell:hover {
+  background: var(--surface-raised);
+  border-color: var(--accent);
+}
+
+.tileGridCellFilled {
+  background: #111;
+  border-style: solid;
 }
 
 /* Frames */

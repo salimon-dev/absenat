@@ -14,6 +14,7 @@ export type EntityType = `${EntityTypeEnum}`;
 
 export type EntityTile = {
   id: string;
+  assetId?: string;
   position: { x: number; y: number };
   attributes: {
     walkable: boolean;
