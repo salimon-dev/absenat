@@ -12,6 +12,21 @@ export enum EntityTypeEnum {
 }
 export type EntityType = `${EntityTypeEnum}`;
 
+export type EntityTile = {
+  id: string;
+  position: { x: number; y: number };
+  attributes: {
+    walkable: boolean;
+    zIndex: number;
+    effect: Record<string, number>;
+  };
+};
+
+export type EntityFrame = {
+  order: number;
+  tiles: EntityTile[];
+};
+
 export type Entity = {
   name: string;
   id: string;
@@ -21,17 +36,6 @@ export type Entity = {
     w: number; // number of frames in width
     h: number; // number of frames in height
   };
-  frames: {
-    resourceId: string; // resouce file png name in asset folder
-    frame: number; // index of frame in resource
-    position: {
-      x: number; // position of frame in entity when drawing (frame number in row)
-      y: number; // frame number in col
-    };
-    attributes: {
-      walkable: boolean;
-      zindex: number;
-      passiveDamage: number;
-    };
-  }[];
+  animateSpeed: number; // 0 = single frame, no animationr
+  frames: EntityFrame[];
 };
