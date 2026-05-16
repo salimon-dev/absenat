@@ -10,14 +10,15 @@ const TABS = [
 export function Sidebar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const activeRoot = pathname.split('/')[1];
 
   return (
     <nav className={s.sidebar}>
       {TABS.map(({ path, label }) => (
         <button
           key={path}
-          className={`${s.tab} ${pathname.endsWith(path) ? s.active : ''}`}
-          onClick={() => navigate(path)}
+          className={`${s.tab} ${activeRoot === path ? s.active : ''}`}
+          onClick={() => navigate(`/${path}`)}
         >
           {label}
         </button>

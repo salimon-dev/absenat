@@ -6,10 +6,8 @@ import { loadHandle } from './lib/folderDb';
 import { Header } from './components/Header/Header';
 import { FolderGate } from './components/FolderGate/FolderGate';
 import { Sidebar } from './components/Sidebar/Sidebar';
-import { AssetsPage } from './pages/AssetsPage/AssetsPage';
-import { EntitiesPage } from './pages/EntitiesPage/EntitiesPage';
-import { EntityCreatePage } from './pages/EntityCreatePage/EntityCreatePage';
-import { MapModulesPage } from './pages/MapModulesPage/MapModulesPage';
+import AssetsPage from './pages/AssetsPage/AssetsPage';
+import AssetsCreatePage from './pages/AssetsCreatePage/AssetsCreatePage';
 import s from './App.module.css';
 
 function AppShell() {
@@ -22,9 +20,10 @@ function AppShell() {
           <Routes>
             <Route index element={<Navigate to="assets" replace />} />
             <Route path="assets" element={<AssetsPage />} />
-            <Route path="entities" element={<EntitiesPage />} />
+            <Route path="assets/create" element={<AssetsCreatePage />} />
+            {/* <Route path="entities" element={<EntitiesPage />} />
             <Route path="entities/create" element={<EntityCreatePage />} />
-            <Route path="map-modules" element={<MapModulesPage />} />
+            <Route path="map-modules" element={<MapModulesPage />} /> */}
           </Routes>
         </main>
       </div>

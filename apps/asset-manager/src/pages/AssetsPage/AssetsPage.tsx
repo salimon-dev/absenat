@@ -1,66 +1,52 @@
-import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import type { AssetSchema } from '@absenat/specs';
-import { folderHandleAtom } from '../../store';
-import { readAssets, writeAssets } from '../../lib/assetsDb';
-import { AssetCard } from '../../components/AssetCard/AssetCard';
-import { UploadDialog } from '../../components/UploadDialog/UploadDialog';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AssetFileCard } from '../../components/AssetFileCard/AssetFileCard';
 import { EmptyState } from '../../components/common/EmptyState/EmptyState';
+import { readAssetFiles } from '../../lib/assetsDb';
+import { folderHandleAtom } from '../../store';
 import s from './AssetsPage.module.css';
 
-export function AssetsPage() {
-  const folderHandle = useAtomValue(folderHandleAtom)!;
-  const [assets, setAssets] = useState<AssetSchema[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
+export default function AssetsPage() {
+  const folderHandle = useAtomValue(folderHandleAtom);
+  const navigate = useNavigate();
+  const [files, setFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    readAssets(folderHandle).then(setAssets);
+    let active = true;
+    async function loadFiles() {
+      if (!folderHandle) return;
+      setLoading(true);
+      const assetFiles = await readAssetFiles(folderHandle);
+      if (active) setFiles(assetFiles);
+      if (active) setLoading(false);
+    }
+    loadFiles();
+    return () => { active = false; };
   }, [folderHandle]);
 
-  function handleAdded(newAssets: AssetSchema[]) {
-    setAssets(prev => [...prev, ...newAssets]);
-    setDialogOpen(false);
-  }
-
-  async function handleDelete(id: string) {
-    const next = assets.filter(a => a.id !== id);
-    setAssets(next);
-    await writeAssets(folderHandle, next);
-  }
-
-  async function handleUpdate(updated: AssetSchema) {
-    const next = assets.map(a => a.id === updated.id ? updated : a);
-    setAssets(next);
-    await writeAssets(folderHandle, next);
-  }
-
   return (
-    <div className={s.page}>
-      <div className={s.header}>
-        <h1 className={s.title}>Tiles</h1>
-        <button className={s.uploadBtn} onClick={() => setDialogOpen(true)}>
-          Upload
+    <section className={s.page}>
+      <header className={s.header}>
+        <div>
+          <h1 className={s.title}>Asset Files</h1>
+          <p className={s.subtitle}>PNG tile sheets stored in the assets folder.</p>
+        </div>
+        <button className={s.createBtn} onClick={() => navigate('/assets/create')}>
+          New asset file
         </button>
-      </div>
+      </header>
 
-      {assets.length === 0 ? (
-        <EmptyState icon="🖼" label="No tiles yet" sub="Upload a PNG to slice it into 16×16 tiles." />
+      {loading ? (
+        <EmptyState icon="…" label="Loading asset files" sub="Reading PNG files from disk." />
+      ) : files.length === 0 ? (
+        <EmptyState icon="▦" label="No asset files yet" sub="Create a PNG tile sheet to get started." />
       ) : (
         <div className={s.grid}>
-          {assets.map(asset => (
-            <AssetCard key={asset.id} asset={asset} folderHandle={folderHandle} onDelete={() => handleDelete(asset.id)} onUpdate={handleUpdate} />
-          ))}
+          {files.map(file => <AssetFileCard key={file.name} file={file} />)}
         </div>
       )}
-
-      {dialogOpen && (
-        <UploadDialog
-          folderHandle={folderHandle}
-          existingAssets={assets}
-          onClose={() => setDialogOpen(false)}
-          onAdded={handleAdded}
-        />
-      )}
-    </div>
+    </section>
   );
 }

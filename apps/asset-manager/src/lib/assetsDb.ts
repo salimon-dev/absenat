@@ -11,6 +11,30 @@ async function getAssetsDir(root: FileSystemDirectoryHandle): Promise<FileSystem
   return root.getDirectoryHandle(ASSETS_DIR, { create: true });
 }
 
+function isPngFile(handle: FileSystemHandle): handle is FileSystemFileHandle {
+  return handle.kind === 'file' && handle.name.toLowerCase().endsWith('.png');
+}
+
+export async function readAssetFiles(root: FileSystemDirectoryHandle): Promise<File[]> {
+  const dir = await getAssetsDir(root);
+  const files: File[] = [];
+  for await (const handle of dir.values()) {
+    if (isPngFile(handle)) files.push(await handle.getFile());
+  }
+  return files.sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export async function writeAssetFile(
+  root: FileSystemDirectoryHandle,
+  file: File,
+): Promise<void> {
+  const dir = await getAssetsDir(root);
+  const fileHandle = await dir.getFileHandle(file.name, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(file);
+  await writable.close();
+}
+
 export async function readAssets(root: FileSystemDirectoryHandle): Promise<AssetSchema[]> {
   try {
     const dir = await getAssetsDir(root);
