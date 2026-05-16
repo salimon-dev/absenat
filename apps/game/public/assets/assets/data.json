@@ -128,19 +128,25 @@
   {
     "id": "c7316a7b-3e96-4e72-8871-ef358a89a7d0",
     "frame": 14,
-    "tags": [],
+    "tags": [
+      "tree"
+    ],
     "source": "frames-0.png"
   },
   {
     "id": "5c0c791e-a1de-4251-a8c6-a3082644435f",
     "frame": 15,
-    "tags": [],
+    "tags": [
+      "tree"
+    ],
     "source": "frames-0.png"
   },
   {
     "id": "fb138d44-8d23-417c-a916-a875e2687979",
     "frame": 16,
-    "tags": [],
+    "tags": [
+      "bush"
+    ],
     "source": "frames-0.png"
   },
   {
