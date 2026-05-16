@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import s from './AssetFileCard.module.css';
 
 interface Props {
   file: File;
+  onEdit: (filename: string) => void;
 }
 
 function formatSize(bytes: number): string {
@@ -11,24 +12,25 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function AssetFileCard({ file }: Props) {
-  const [previewUrl, setPreviewUrl] = useState('');
+export function AssetFileCard({ file, onEdit }: Props) {
+  const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
 
   useEffect(() => {
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [file]);
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   return (
     <article className={s.card}>
       <div className={s.preview}>
-        {previewUrl && <img className={s.image} src={previewUrl} alt="" />}
+        <img className={s.image} src={previewUrl} alt="" />
       </div>
       <div className={s.meta}>
         <span className={s.filename} title={file.name}>{file.name}</span>
         <span className={s.size}>{formatSize(file.size)}</span>
       </div>
+      <button className={s.editBtn} onClick={() => onEdit(file.name)}>
+        Edit
+      </button>
     </article>
   );
 }

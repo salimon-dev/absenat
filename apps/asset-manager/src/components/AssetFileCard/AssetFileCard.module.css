@@ -45,3 +45,19 @@
   font-size: 11px;
   flex-shrink: 0;
 }
+
+.editBtn {
+  background: var(--surface-raised);
+  border: none;
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 10px;
+}
+
+.editBtn:hover {
+  background: var(--accent);
+  color: #fff;
+}

@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-tiles": "node scripts/generate-tilemap.js"
+    "generate-tiles": "node scripts/generate-pixel-tileset.cjs"
   },
   "dependencies": {
     "@absenat/specs": "*",

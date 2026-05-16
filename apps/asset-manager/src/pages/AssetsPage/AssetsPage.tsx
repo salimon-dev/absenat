@@ -26,6 +26,10 @@ export default function AssetsPage() {
     return () => { active = false; };
   }, [folderHandle]);
 
+  function handleEdit(filename: string) {
+    navigate(`/assets/${encodeURIComponent(filename)}/edit`);
+  }
+
   return (
     <section className={s.page}>
       <header className={s.header}>
@@ -44,7 +48,13 @@ export default function AssetsPage() {
         <EmptyState icon="▦" label="No asset files yet" sub="Create a PNG tile sheet to get started." />
       ) : (
         <div className={s.grid}>
-          {files.map(file => <AssetFileCard key={file.name} file={file} />)}
+          {files.map(file => (
+            <AssetFileCard
+              key={file.name}
+              file={file}
+              onEdit={handleEdit}
+            />
+          ))}
         </div>
       )}
     </section>

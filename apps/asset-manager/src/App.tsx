@@ -8,6 +8,7 @@ import { FolderGate } from './components/FolderGate/FolderGate';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import AssetsPage from './pages/AssetsPage/AssetsPage';
 import AssetsCreatePage from './pages/AssetsCreatePage/AssetsCreatePage';
+import AssetsEditPage from './pages/AssetsEditPage/AssetsEditPage';
 import s from './App.module.css';
 
 function AppShell() {
@@ -21,6 +22,7 @@ function AppShell() {
             <Route index element={<Navigate to="assets" replace />} />
             <Route path="assets" element={<AssetsPage />} />
             <Route path="assets/create" element={<AssetsCreatePage />} />
+            <Route path="assets/:filename/edit" element={<AssetsEditPage />} />
             {/* <Route path="entities" element={<EntitiesPage />} />
             <Route path="entities/create" element={<EntityCreatePage />} />
             <Route path="map-modules" element={<MapModulesPage />} /> */}
