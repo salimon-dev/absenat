@@ -7,11 +7,6 @@ import { WorldEntityKind } from './types';
 import type { EntityPlacement, MapResult } from './types';
 
 const TREE_VARIANT_COUNT = 4;
-const PATCH_COUNT = 10;
-const DIRT_PATCH_RADIUS_MIN = 3;
-const DIRT_PATCH_RADIUS_MAX = 8;
-const WATER_PATCH_RADIUS_MIN = 2;
-const WATER_PATCH_RADIUS_MAX = 6;
 const BACKGROUND_DIRT_CHANCE = 0.03;
 const SHORE_WIDTH = 1;
 const RAFT_SIZE = 18;
@@ -38,6 +33,13 @@ interface BiomePatch {
   biome: Biome;
 }
 
+interface BodyConfig {
+  countMin: number;
+  countMax: number;
+  sizeMin: number;
+  sizeMax: number;
+}
+
 export function generateMap(): MapResult {
   const waterBorder = randomWaterBorder();
   const corners = buildCornerGrid(waterBorder);
@@ -59,27 +61,35 @@ function buildCornerGrid(waterBorder: number): Biome[][] {
 }
 
 function createPatches(): BiomePatch[] {
-  return Array.from({ length: PATCH_COUNT }, createPatch);
+  const { waterBodies, dirtBodies } = MAP_GEN_CONFIG.island;
+  return shufflePatches([
+    ...createBiomePatches(Biome.Water, waterBodies),
+    ...createBiomePatches(Biome.Dirt, dirtBodies)
+  ]);
 }
 
-function createPatch(): BiomePatch {
-  const biome = randomPatchBiome();
+function createBiomePatches(biome: Biome, config: BodyConfig): BiomePatch[] {
+  return Array.from({ length: randomBodyCount(config) }, () => createPatch(biome, config));
+}
+
+function randomBodyCount(config: BodyConfig): number {
+  return randomInt(config.countMin, config.countMax);
+}
+
+function createPatch(biome: Biome, config: BodyConfig): BiomePatch {
   return {
     x: randomInt(12, WORLD_SIZE - 12),
     y: randomInt(12, WORLD_SIZE - 12),
-    radius: randomPatchRadius(biome),
+    radius: randomInt(config.sizeMin, config.sizeMax),
     biome
   };
 }
 
-function randomPatchBiome(): Biome {
-  const biomes = [Biome.Dirt, Biome.Water, Biome.Water];
-  return biomes[randomInt(0, biomes.length - 1)];
-}
-
-function randomPatchRadius(biome: Biome): number {
-  if (biome === Biome.Water) return randomInt(WATER_PATCH_RADIUS_MIN, WATER_PATCH_RADIUS_MAX);
-  return randomInt(DIRT_PATCH_RADIUS_MIN, DIRT_PATCH_RADIUS_MAX);
+function shufflePatches(patches: BiomePatch[]): BiomePatch[] {
+  return patches
+    .map(patch => ({ patch, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ patch }) => patch);
 }
 
 function resolveBiome(x: number, y: number, patches: BiomePatch[], waterBorder: number): Biome {
