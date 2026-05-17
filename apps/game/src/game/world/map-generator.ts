@@ -10,9 +10,7 @@ const TREE_VARIANT_COUNT = 4;
 const PATCH_COUNT = 14;
 const PATCH_RADIUS_MIN = 5;
 const PATCH_RADIUS_MAX = 16;
-const ISLAND_RADIUS_X = 0.46;
-const ISLAND_RADIUS_Y = 0.42;
-const SHORE_WIDTH = 0.12;
+const SHORE_WIDTH = 1;
 const TILE_BIOME_ALIASES: Record<Biome, Biome> = {
   [Biome.Grass]: Biome.Grass,
   [Biome.Water]: Biome.Water,
@@ -34,16 +32,22 @@ interface BiomePatch {
 }
 
 export function generateMap(): MapResult {
-  const corners = buildCornerGrid();
-  const tiles = resolveTiles(corners);
-  const entities = placeEntities(corners);
+  const waterBorder = randomWaterBorder();
+  const corners = buildCornerGrid(waterBorder);
+  const tiles = resolveTiles(corners, waterBorder);
+  const entities = placeEntities(corners, waterBorder);
   return { tiles, entities };
 }
 
-function buildCornerGrid(): Biome[][] {
+function randomWaterBorder(): number {
+  const { borderMin, borderMax } = MAP_GEN_CONFIG.water;
+  return randomInt(borderMin, borderMax);
+}
+
+function buildCornerGrid(waterBorder: number): Biome[][] {
   const patches = createPatches();
   return Array.from({ length: WORLD_SIZE + 1 }, (_, y) =>
-    Array.from({ length: WORLD_SIZE + 1 }, (_, x) => resolveBiome(x, y, patches))
+    Array.from({ length: WORLD_SIZE + 1 }, (_, x) => resolveBiome(x, y, patches, waterBorder))
   );
 }
 
@@ -65,32 +69,28 @@ function randomPatchBiome(): Biome {
   return biomes[randomInt(0, biomes.length - 1)];
 }
 
-function resolveBiome(x: number, y: number, patches: BiomePatch[]): Biome {
-  const island = getIslandScore(x, y);
-  if (isOcean(island)) return Biome.Water;
-  if (isShore(island)) return Biome.Sand;
+function resolveBiome(x: number, y: number, patches: BiomePatch[], waterBorder: number): Biome {
+  if (isWaterBorderCorner(x, y, waterBorder)) return Biome.Water;
+  if (isShoreCorner(x, y, waterBorder)) return Biome.Sand;
   const patch = patches.find(candidate => isInsidePatch(x, y, candidate));
   if (patch) return patch.biome;
   return Math.random() > 0.08 ? Biome.Grass : Biome.Dirt;
 }
 
-function getIslandScore(x: number, y: number): number {
-  const center = WORLD_SIZE / 2;
-  const normalizedX = (x - center) / (WORLD_SIZE * ISLAND_RADIUS_X);
-  const normalizedY = (y - center) / (WORLD_SIZE * ISLAND_RADIUS_Y);
-  return Math.hypot(normalizedX, normalizedY) + getCoastNoise(x, y);
+function isWaterBorderCorner(x: number, y: number, waterBorder: number): boolean {
+  return isWaterBorderIndex(x, waterBorder) || isWaterBorderIndex(y, waterBorder);
 }
 
-function getCoastNoise(x: number, y: number): number {
-  return Math.sin(x * 0.19) * 0.035 + Math.cos(y * 0.23) * 0.035;
+function isWaterBorderIndex(index: number, waterBorder: number): boolean {
+  return index < waterBorder || index > WORLD_SIZE - waterBorder;
 }
 
-function isOcean(islandScore: number): boolean {
-  return islandScore >= 1;
+function isShoreCorner(x: number, y: number, waterBorder: number): boolean {
+  return getClosestEdgeDistance(x, y) <= waterBorder + SHORE_WIDTH;
 }
 
-function isShore(islandScore: number): boolean {
-  return islandScore >= 1 - SHORE_WIDTH;
+function getClosestEdgeDistance(x: number, y: number): number {
+  return Math.min(x, y, WORLD_SIZE - x, WORLD_SIZE - y);
 }
 
 function isInsidePatch(x: number, y: number, patch: BiomePatch): boolean {
@@ -98,25 +98,40 @@ function isInsidePatch(x: number, y: number, patch: BiomePatch): boolean {
   return distance <= patch.radius;
 }
 
-function resolveTiles(corners: Biome[][]): TilePlacement[][] {
+function resolveTiles(corners: Biome[][], waterBorder: number): TilePlacement[][] {
   return Array.from({ length: WORLD_SIZE }, (_, y) =>
-    Array.from({ length: WORLD_SIZE }, (_, x) => selectTile(corners, x, y))
+    Array.from({ length: WORLD_SIZE }, (_, x) => selectWorldTile(corners, x, y, waterBorder))
   );
 }
 
-function placeEntities(corners: Biome[][]): EntityPlacement[] {
+function selectWorldTile(corners: Biome[][], x: number, y: number, waterBorder: number): TilePlacement {
+  if (isWaterBorderTile(x, y, waterBorder)) return selectBiomeTile(Biome.Water);
+  return selectTile(corners, x, y);
+}
+
+function isWaterBorderTile(x: number, y: number, waterBorder: number): boolean {
+  return x < waterBorder || y < waterBorder || x >= WORLD_SIZE - waterBorder || y >= WORLD_SIZE - waterBorder;
+}
+
+function placeEntities(corners: Biome[][], waterBorder: number): EntityPlacement[] {
   const placements: EntityPlacement[] = [];
-  for (let y = 0; y < WORLD_SIZE; y++) addRowEntities(placements, corners, y);
+  for (let y = 0; y < WORLD_SIZE; y++) addRowEntities(placements, corners, y, waterBorder);
   return placements;
 }
 
-function addRowEntities(placements: EntityPlacement[], corners: Biome[][], y: number): void {
+function addRowEntities(
+  placements: EntityPlacement[],
+  corners: Biome[][],
+  y: number,
+  waterBorder: number
+): void {
   for (let x = 0; x < WORLD_SIZE; x++) {
-    if (canPlaceTree(corners, x, y)) placements.push(createTreePlacement(x, y));
+    if (canPlaceTree(corners, x, y, waterBorder)) placements.push(createTreePlacement(x, y));
   }
 }
 
-function canPlaceTree(corners: Biome[][], x: number, y: number): boolean {
+function canPlaceTree(corners: Biome[][], x: number, y: number, waterBorder: number): boolean {
+  if (isWaterBorderTile(x, y, waterBorder)) return false;
   const biome = corners[y][x];
   const treeBiome = biome === Biome.Wood || biome === Biome.Grass;
   return treeBiome && Math.random() < MAP_GEN_CONFIG.tree.spawnChance;
@@ -135,7 +150,7 @@ function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function selectTile(grid: Biome[][], x: number, y: number): TilePlacement {
+function selectTile(grid: Biome[][], x: number, y: number): TilePlacement {
   return selectBiomeTile(getDominantBiome(grid, x, y));
 }
 

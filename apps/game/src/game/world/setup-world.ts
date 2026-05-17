@@ -14,7 +14,6 @@ export function preloadWorld(this: World): void {
 
 export function createTilemap(this: World): void {
   const { tiles, entities } = generateRandomMap();
-  this.mapData = tiles;
   renderTiles(this, tiles);
   renderEntities(this, entities);
 }

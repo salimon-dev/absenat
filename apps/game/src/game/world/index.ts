@@ -5,11 +5,9 @@ import { TREE_TEXTURE_KEY } from '../entities/tree';
 import Tree from '../entities/tree';
 import { TILE_TEXTURE_KEY } from '../entities/tile/tile';
 import Tile from '../entities/tile/tile';
-import type { TilePlacement } from '../entities/types';
 
 export class World extends Phaser.Scene {
   player!: Player;
-  mapData: TilePlacement[][] = [];
   tiles: Tile[] = [];
   entities: Tree[] = [];
 

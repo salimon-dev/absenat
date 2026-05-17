@@ -22,10 +22,10 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     if (world.input.keyboard) {
       this.keys = {
-        W: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-        A: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-        S: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-        D: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+        up: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+        down: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+        left: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
+        right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
       };
     } else {
       throw new Error('Keyboard input not available');
