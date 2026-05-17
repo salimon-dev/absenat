@@ -1,15 +1,14 @@
 import { Biome } from '@absenat/specs';
-import type { TilemapSchema } from '@absenat/specs';
-import { createTileLookup, selectTile } from './map-generator';
+import type { TilePlacement } from '../entities/types';
+import { selectTile } from './map-generator';
 
 const AREA_SIZE = 20;
 const WATER_BORDER = 1;
 
-export function generateWoodArea(schema: TilemapSchema): number[][] {
+export function generateWoodArea(): TilePlacement[][] {
   const cornerSize = AREA_SIZE + 1;
   const corners = buildCornerGrid(cornerSize);
-  const lookup = createTileLookup(schema);
-  return resolveTiles(corners, lookup);
+  return resolveTiles(corners);
 }
 
 function buildCornerGrid(size: number): Biome[][] {
@@ -25,8 +24,8 @@ function buildCornerGrid(size: number): Biome[][] {
   );
 }
 
-function resolveTiles(corners: Biome[][], lookup: Map<string, number[]>): number[][] {
+function resolveTiles(corners: Biome[][]): TilePlacement[][] {
   return Array.from({ length: AREA_SIZE }, (_, y) =>
-    Array.from({ length: AREA_SIZE }, (_, x) => selectTile(corners, x, y, lookup))
+    Array.from({ length: AREA_SIZE }, (_, x) => selectTile(corners, x, y))
   );
 }

@@ -1,14 +1,17 @@
 import * as Phaser from 'phaser';
 import Player from '../player';
 import { createTilemap, preloadWorld, setupCamera, setupPlayer } from './setup-world';
-import { EntitySprite } from '../entities/entity';
+import { TREE_TEXTURE_KEY } from '../entities/tree';
+import Tree from '../entities/tree';
+import { TILE_TEXTURE_KEY } from '../entities/tile/tile';
+import Tile from '../entities/tile/tile';
+import type { TilePlacement } from '../entities/types';
 
 export class World extends Phaser.Scene {
   player!: Player;
-  mapData: number[][] = [];
-  tilemap!: Phaser.Tilemaps.Tilemap;
-  nonWalkableIds: Set<number> = new Set();
-  entities: EntitySprite[] = [];
+  mapData: TilePlacement[][] = [];
+  tiles: Tile[] = [];
+  entities: Tree[] = [];
 
   constructor() {
     super('world');
@@ -28,7 +31,8 @@ export class World extends Phaser.Scene {
   }
 
   create() {
-    this.textures.get('tiles').setFilter(Phaser.Textures.FilterMode.NEAREST);
+    this.textures.get(TREE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
+    this.textures.get(TILE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
 
     this.createTilemap();
     this.setupPlayer();
