@@ -29,3 +29,19 @@ export type Tile = {
   base: string;
   pixels: PixelRect[];
 };
+
+export type TreeVariant = {
+  id: string;
+  pixels: PixelRect[];
+};
+
+export type TreeAssetData = {
+  id: string;
+  biome: string;
+  resources: { id: string; count: number }[];
+  frames: {
+    source: { x: number; y: number };
+    position: { x: number; y: number };
+    walkable: boolean;
+  }[];
+};

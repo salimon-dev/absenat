@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "tile-generator": "node --experimental-transform-types src/tile-generator.ts",
+    "tree-generator": "node --experimental-transform-types src/tree-generator.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
