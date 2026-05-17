@@ -1,21 +1,39 @@
+import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import {
-  activeViewAtom,
-  folderHandleAtom,
-  folderReadyAtom,
-  View,
-} from './store';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { folderHandleAtom, folderReadyAtom } from './store';
 import { loadHandle } from './lib/folderDb';
 import { Header } from './components/Header/Header';
-import { TilesView } from './components/TilesView/TilesView';
-import { ObjectsView } from './components/ObjectsView/ObjectsView';
-import { MapModulesView } from './components/MapModulesView/MapModulesView';
 import { FolderGate } from './components/FolderGate/FolderGate';
+import { Sidebar } from './components/Sidebar/Sidebar';
+import AssetsPage from './pages/AssetsPage/AssetsPage';
+import AssetsCreatePage from './pages/AssetsCreatePage/AssetsCreatePage';
+import AssetsEditPage from './pages/AssetsEditPage/AssetsEditPage';
 import s from './App.module.css';
 
+function AppShell() {
+  return (
+    <div className={s.layout}>
+      <Header />
+      <div className={s.body}>
+        <Sidebar />
+        <main className={s.main}>
+          <Routes>
+            <Route index element={<Navigate to="assets" replace />} />
+            <Route path="assets" element={<AssetsPage />} />
+            <Route path="assets/create" element={<AssetsCreatePage />} />
+            <Route path="assets/:filename/edit" element={<AssetsEditPage />} />
+            {/* <Route path="entities" element={<EntitiesPage />} />
+            <Route path="entities/create" element={<EntityCreatePage />} />
+            <Route path="map-modules" element={<MapModulesPage />} /> */}
+          </Routes>
+        </main>
+      </div>
+    </div>
+  );
+}
+
 function App() {
-  const activeView = useAtomValue(activeViewAtom);
   const [folderHandle, setFolderHandle] = useAtom(folderHandleAtom);
   const [ready, setReady] = useAtom(folderReadyAtom);
   const [restoredHandle, setRestoredHandle] = useState<
@@ -48,18 +66,17 @@ function App() {
   if (!ready) return null;
 
   if (!folderHandle) {
-    return <FolderGate restoredHandle={restoredHandle} />;
+    return (
+      <BrowserRouter>
+        <FolderGate restoredHandle={restoredHandle} />
+      </BrowserRouter>
+    );
   }
 
   return (
-    <div className={s.layout}>
-      <Header />
-      <main className={s.main}>
-        {activeView === View.Tiles && <TilesView />}
-        {activeView === View.Objects && <ObjectsView />}
-        {activeView === View.MapEditor && <MapModulesView />}
-      </main>
-    </div>
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }
 

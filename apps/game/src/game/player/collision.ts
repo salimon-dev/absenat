@@ -1,38 +1,74 @@
+import type Tile from '../entities/tile/tile';
 import type { World } from '../world';
+import { TILE_SIZE, WORLD_SIZE } from '../world/tiles';
+
+const PLAYER_RADIUS = 6;
+
+interface Bounds {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
 
 export function canMove(world: World, nextX: number, nextY: number): boolean {
-  const radius = 6;
-  const points = [
-    { x: nextX, y: nextY + 8 }, // Check feet for better collision
-    { x: nextX - radius, y: nextY + 8 },
-    { x: nextX + radius, y: nextY + 8 },
-    { x: nextX, y: nextY + 4 },
-    { x: nextX, y: nextY + 12 },
-  ];
+  return isInsideWorld(nextX, nextY) && canWalkOnTiles(world, nextX, nextY) && canAvoidTrees(world, nextX, nextY);
+}
 
-  for (const point of points) {
-    const tile = world.tilemap.getTileAtWorldXY(point.x, point.y);
-    if (!tile || world.nonWalkableIds.has(tile.index)) {
-      return false;
-    }
-  }
+function isInsideWorld(nextX: number, nextY: number): boolean {
+  const maxPosition = WORLD_SIZE * TILE_SIZE;
+  return nextX >= PLAYER_RADIUS && nextX <= maxPosition - PLAYER_RADIUS && nextY >= 0 && nextY <= maxPosition;
+}
 
-  const playerLeft = nextX - radius;
-  const playerRight = nextX + radius;
-  const playerTop = nextY + 4;
-  const playerBottom = nextY + 12;
+function canAvoidTrees(world: World, nextX: number, nextY: number): boolean {
+  return world.entities.every(tree => !overlapsTree(nextX, nextY, tree.x, tree.y));
+}
 
-  for (const tree of world.entities) {
-    const rootLeft = tree.x - 8;
-    const rootRight = tree.x + 8;
-    const rootTop = tree.y - 16;
-    const rootBottom = tree.y;
+function canWalkOnTiles(world: World, nextX: number, nextY: number): boolean {
+  return world.tiles.every(tile => tile.walkable || !overlapsTile(nextX, nextY, tile));
+}
 
-    if (playerRight > rootLeft && playerLeft < rootRight &&
-        playerBottom > rootTop && playerTop < rootBottom) {
-      return false;
-    }
-  }
+function overlapsTile(playerX: number, playerY: number, tile: Tile): boolean {
+  const player = getPlayerBounds(playerX, playerY);
+  const tileBounds = getTileBounds(tile);
+  return overlapsBounds(player, tileBounds);
+}
 
-  return true;
+function overlapsTree(playerX: number, playerY: number, treeX: number, treeY: number): boolean {
+  const player = getPlayerBounds(playerX, playerY);
+  const root = getTreeRootBounds(treeX, treeY);
+  return overlapsBounds(player, root);
+}
+
+function getPlayerBounds(x: number, y: number): Bounds {
+  return {
+    left: x - PLAYER_RADIUS,
+    right: x + PLAYER_RADIUS,
+    top: y + 4,
+    bottom: y + 12
+  };
+}
+
+function getTreeRootBounds(x: number, y: number): Bounds {
+  return {
+    left: x,
+    right: x + TILE_SIZE,
+    top: y - TILE_SIZE,
+    bottom: y
+  };
+}
+
+function getTileBounds(tile: Tile): Bounds {
+  return {
+    left: tile.x,
+    right: tile.x + TILE_SIZE,
+    top: tile.y - TILE_SIZE,
+    bottom: tile.y
+  };
+}
+
+function overlapsBounds(first: Bounds, second: Bounds): boolean {
+  return (
+    first.right > second.left && first.left < second.right && first.bottom > second.top && first.top < second.bottom
+  );
 }

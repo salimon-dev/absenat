@@ -21,7 +21,12 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.world = world;
 
     if (world.input.keyboard) {
-      this.keys = world.input.keyboard.addKeys('UP,LEFT,DOWN,RIGHT') as any;
+      this.keys = {
+        up: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+        down: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+        left: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
+        right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
+      };
     } else {
       throw new Error('Keyboard input not available');
     }
@@ -40,10 +45,10 @@ export default class Player extends Phaser.GameObjects.Sprite {
   private updateStats(): void {
     drainStats(this.config);
     this.scene.game.events.emit('stats-update', {
-      health:  this.config.health,
-      thirst:  this.config.thirst,
-      hunger:  this.config.hunger,
-      fatigue: this.config.fatigue,
+      health: this.config.health,
+      thirst: this.config.thirst,
+      hunger: this.config.hunger,
+      fatigue: this.config.fatigue
     });
   }
 

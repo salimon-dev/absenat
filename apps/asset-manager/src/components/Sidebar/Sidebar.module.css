@@ -1,0 +1,32 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  min-width: 160px;
+  background: #1a1a1a;
+  border-right: 1px solid #2e2e2e;
+  padding: 8px 0;
+  gap: 2px;
+}
+
+.tab {
+  all: unset;
+  display: block;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #aaa;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: color 0.15s, background 0.15s;
+}
+
+.tab:hover {
+  background: #252525;
+  color: #e0e0e0;
+}
+
+.tab.active {
+  color: #fff;
+  background: #252525;
+  border-left-color: #5b8dd9;
+}

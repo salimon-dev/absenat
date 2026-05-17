@@ -20,6 +20,7 @@ export const MODE_CHAR_TO_BIOME: Record<string, Biome> = {
   w: Biome.Water,
   d: Biome.Dirt,
   a: Biome.Sand,
+  m: Biome.Marsh,
   n: Biome.Snow,
   i: Biome.Ice,
   o: Biome.Wood,

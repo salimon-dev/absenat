@@ -1,0 +1,18 @@
+{
+  "name": "tools",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "tile-generator": "node --experimental-transform-types src/tile-generator.ts",
+    "tree-generator": "node --experimental-transform-types src/tree-generator.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "~6.0.2"
+  }
+}

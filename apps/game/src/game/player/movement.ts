@@ -6,10 +6,10 @@ import { canMove } from './collision';
 type Direction = 'up' | 'down' | 'left' | 'right';
 
 export interface Keys {
-  UP: Phaser.Input.Keyboard.Key;
-  LEFT: Phaser.Input.Keyboard.Key;
-  DOWN: Phaser.Input.Keyboard.Key;
-  RIGHT: Phaser.Input.Keyboard.Key;
+  up: Phaser.Input.Keyboard.Key;
+  down: Phaser.Input.Keyboard.Key;
+  left: Phaser.Input.Keyboard.Key;
+  right: Phaser.Input.Keyboard.Key;
 }
 
 export interface MovementState {
@@ -31,21 +31,21 @@ export function applyMovement(
   let dy = 0;
   let moving = false;
 
-  if (keys.LEFT.isDown) {
+  if (keys.left.isDown) {
     dx -= config.speed;
     lastDirection = 'left';
     moving = true;
-  } else if (keys.RIGHT.isDown) {
+  } else if (keys.right.isDown) {
     dx += config.speed;
     lastDirection = 'right';
     moving = true;
   }
 
-  if (keys.UP.isDown) {
+  if (keys.up.isDown) {
     dy -= config.speed;
     lastDirection = 'up';
     moving = true;
-  } else if (keys.DOWN.isDown) {
+  } else if (keys.down.isDown) {
     dy += config.speed;
     lastDirection = 'down';
     moving = true;
