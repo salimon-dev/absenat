@@ -5,6 +5,7 @@ export enum Terrain {
   Sand = 'sand',
   Ice = 'ice',
   Snow = 'snow',
+  Wood = 'wood',
 }
 
 export type TerrainType = Terrain;

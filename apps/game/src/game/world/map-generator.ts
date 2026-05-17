@@ -7,10 +7,17 @@ import { WorldEntityKind } from './types';
 import type { EntityPlacement, MapResult } from './types';
 
 const TREE_VARIANT_COUNT = 4;
-const PATCH_COUNT = 14;
-const PATCH_RADIUS_MIN = 5;
-const PATCH_RADIUS_MAX = 16;
+const PATCH_COUNT = 10;
+const DIRT_PATCH_RADIUS_MIN = 3;
+const DIRT_PATCH_RADIUS_MAX = 8;
+const WATER_PATCH_RADIUS_MIN = 2;
+const WATER_PATCH_RADIUS_MAX = 6;
+const BACKGROUND_DIRT_CHANCE = 0.03;
 const SHORE_WIDTH = 1;
+const RAFT_SIZE = 18;
+const RAFT_EDGE_GAP = 1;
+const RAFT_BRIDGE_WIDTH = 3;
+const RAFT_BRIDGE_LENGTH = 2;
 const TILE_BIOME_ALIASES: Record<Biome, Biome> = {
   [Biome.Grass]: Biome.Grass,
   [Biome.Water]: Biome.Water,
@@ -19,7 +26,7 @@ const TILE_BIOME_ALIASES: Record<Biome, Biome> = {
   [Biome.Desert]: Biome.Sand,
   [Biome.Ice]: Biome.Ice,
   [Biome.Snow]: Biome.Snow,
-  [Biome.Wood]: Biome.Grass,
+  [Biome.Wood]: Biome.Wood,
   [Biome.Marsh]: Biome.Dirt,
   [Biome.Lava]: Biome.Water
 };
@@ -56,17 +63,23 @@ function createPatches(): BiomePatch[] {
 }
 
 function createPatch(): BiomePatch {
+  const biome = randomPatchBiome();
   return {
     x: randomInt(12, WORLD_SIZE - 12),
     y: randomInt(12, WORLD_SIZE - 12),
-    radius: randomInt(PATCH_RADIUS_MIN, PATCH_RADIUS_MAX),
-    biome: randomPatchBiome()
+    radius: randomPatchRadius(biome),
+    biome
   };
 }
 
 function randomPatchBiome(): Biome {
-  const biomes = [Biome.Wood, Biome.Wood, Biome.Dirt, Biome.Marsh];
+  const biomes = [Biome.Dirt, Biome.Water, Biome.Water];
   return biomes[randomInt(0, biomes.length - 1)];
+}
+
+function randomPatchRadius(biome: Biome): number {
+  if (biome === Biome.Water) return randomInt(WATER_PATCH_RADIUS_MIN, WATER_PATCH_RADIUS_MAX);
+  return randomInt(DIRT_PATCH_RADIUS_MIN, DIRT_PATCH_RADIUS_MAX);
 }
 
 function resolveBiome(x: number, y: number, patches: BiomePatch[], waterBorder: number): Biome {
@@ -74,7 +87,7 @@ function resolveBiome(x: number, y: number, patches: BiomePatch[], waterBorder: 
   if (isShoreCorner(x, y, waterBorder)) return Biome.Sand;
   const patch = patches.find(candidate => isInsidePatch(x, y, candidate));
   if (patch) return patch.biome;
-  return Math.random() > 0.08 ? Biome.Grass : Biome.Dirt;
+  return Math.random() > BACKGROUND_DIRT_CHANCE ? Biome.Grass : Biome.Dirt;
 }
 
 function isWaterBorderCorner(x: number, y: number, waterBorder: number): boolean {
@@ -105,8 +118,53 @@ function resolveTiles(corners: Biome[][], waterBorder: number): TilePlacement[][
 }
 
 function selectWorldTile(corners: Biome[][], x: number, y: number, waterBorder: number): TilePlacement {
+  if (isRaftFloorTile(x, y)) return selectBiomeTile(Biome.Wood);
+  if (isRaftWaterTile(x, y)) return selectBiomeTile(Biome.Water);
   if (isWaterBorderTile(x, y, waterBorder)) return selectBiomeTile(Biome.Water);
   return selectTile(corners, x, y);
+}
+
+function isRaftFloorTile(x: number, y: number): boolean {
+  return isRaftTile(x, y) || isRaftBridgeTile(x, y);
+}
+
+function isRaftTile(x: number, y: number): boolean {
+  return x >= getRaftLeft() && x <= getRaftRight() && y >= getRaftTop() && y <= getRaftBottom();
+}
+
+function isRaftBridgeTile(x: number, y: number): boolean {
+  const inBridgeX = x > getRaftRight() && x <= getRaftRight() + RAFT_BRIDGE_LENGTH;
+  return inBridgeX && y >= getRaftBridgeTop() && y <= getRaftBridgeBottom();
+}
+
+function isRaftWaterTile(x: number, y: number): boolean {
+  if (isRaftTile(x, y)) return false;
+  if (isRaftBridgeTile(x, y)) return false;
+  return x >= getRaftLeft() - 1 && x <= getRaftRight() + 1 && y >= getRaftTop() - 1 && y <= getRaftBottom() + 1;
+}
+
+function getRaftLeft(): number {
+  return RAFT_EDGE_GAP;
+}
+
+function getRaftTop(): number {
+  return WORLD_SIZE - RAFT_EDGE_GAP - RAFT_SIZE;
+}
+
+function getRaftRight(): number {
+  return getRaftLeft() + RAFT_SIZE - 1;
+}
+
+function getRaftBottom(): number {
+  return getRaftTop() + RAFT_SIZE - 1;
+}
+
+function getRaftBridgeTop(): number {
+  return getRaftTop() + Math.floor((RAFT_SIZE - RAFT_BRIDGE_WIDTH) / 2);
+}
+
+function getRaftBridgeBottom(): number {
+  return getRaftBridgeTop() + RAFT_BRIDGE_WIDTH - 1;
 }
 
 function isWaterBorderTile(x: number, y: number, waterBorder: number): boolean {
@@ -131,10 +189,10 @@ function addRowEntities(
 }
 
 function canPlaceTree(corners: Biome[][], x: number, y: number, waterBorder: number): boolean {
+  if (isRaftFloorTile(x, y) || isRaftWaterTile(x, y)) return false;
   if (isWaterBorderTile(x, y, waterBorder)) return false;
   const biome = corners[y][x];
-  const treeBiome = biome === Biome.Wood || biome === Biome.Grass;
-  return treeBiome && Math.random() < MAP_GEN_CONFIG.tree.spawnChance;
+  return biome === Biome.Grass && Math.random() < MAP_GEN_CONFIG.tree.spawnChance;
 }
 
 function createTreePlacement(tileX: number, tileY: number): EntityPlacement {

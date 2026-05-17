@@ -7,7 +7,8 @@ export const TILE_VARIANTS = [
   ...createVariants(Biome.Dirt, 24, 8),
   ...createVariants(Biome.Sand, 32, 8),
   ...createVariants(Biome.Ice, 40, 8),
-  ...createVariants(Biome.Snow, 48, 8)
+  ...createVariants(Biome.Snow, 48, 8),
+  ...createVariants(Biome.Wood, 56, 8)
 ] satisfies readonly TileVariant[];
 
 export function getTileFrame(biome: Biome, variant: number): number {

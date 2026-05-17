@@ -7,4 +7,5 @@ export const terrainPalettes: TerrainPalette[] = [
   { terrain: Terrain.Sand, base: '#d7b765', detail: '#efd88a' },
   { terrain: Terrain.Ice, base: '#8fd2e8', detail: '#c4f0f5' },
   { terrain: Terrain.Snow, base: '#dfeff2', detail: '#ffffff' },
+  { terrain: Terrain.Wood, base: '#9b6234', detail: '#5f371e' },
 ];
