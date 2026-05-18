@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { IconRepo } from '../utils/IconRepo';
+import { ToolType } from '../utils/tools';
 
 const SLOTS = [
-  { key: 'q', index: 0 },
-  { key: 'w', index: 1 },
-  { key: 'e', index: 2 },
-  { key: 'r', index: 3 },
+  { key: 'q', index: 0, label: 'Sword', tool: ToolType.Sword },
+  { key: 'w', index: 1, label: 'Axe', tool: ToolType.Axe },
+  { key: 'e', index: 2, label: 'Pickaxe', tool: ToolType.Pickaxe },
+  { key: 'r', index: 3, label: 'Hammer', tool: ToolType.Hammer },
 ] as const;
 
 const PRESETS = [1, 2, 3, 4] as const;
@@ -12,6 +14,9 @@ const PRESETS = [1, 2, 3, 4] as const;
 // slot size minus 2 gaps of 4px → (60 - 4) / 2 = 28
 const CELL = 28;
 const GAP = 4;
+const TOOL_ICON_SIZE = 32;
+
+type ToolbarIcons = Partial<Record<ToolType, string>>;
 
 interface ToolbarProps {
   inventoryActive?: boolean;
@@ -28,6 +33,7 @@ const MENU_BUTTONS = [
 export default function Toolbar({ inventoryActive = false, statsActive = false }: ToolbarProps) {
   const [active, setActive] = useState<number | null>(null);
   const [preset, setPreset] = useState<1 | 2 | 3 | 4>(1);
+  const [toolImages, setToolImages] = useState<Partial<Record<ToolType, string>>>({});
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -48,6 +54,17 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadToolbarIcons().then(images => {
+      if (cancelled) return;
+      setToolImages(images);
+    });
+    return () => {
+      cancelled = true;
     };
   }, []);
 
@@ -108,11 +125,13 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
       </div>
 
       {/* tool slots */}
-      {SLOTS.map(({ key, index }) => {
+      {SLOTS.map(({ key, index, label, tool }) => {
         const isActive = active === index;
+        const image = toolImages[tool];
         return (
           <div
             key={key}
+            title={label}
             style={{
               width: 60,
               height: 60,
@@ -123,11 +142,35 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
+              paddingTop: 7,
               paddingBottom: 5,
               transition: 'background 80ms, border-color 80ms',
             }}
           >
+            <span
+              aria-hidden="true"
+              style={{
+                display: 'block',
+                width: TOOL_ICON_SIZE,
+                height: TOOL_ICON_SIZE,
+                overflow: 'hidden',
+              }}
+            >
+              {image && (
+                <img
+                  src={image}
+                  alt=""
+                  draggable={false}
+                  style={{
+                    display: 'block',
+                    width: TOOL_ICON_SIZE,
+                    height: TOOL_ICON_SIZE,
+                    imageRendering: 'pixelated',
+                  }}
+                />
+              )}
+            </span>
             <span
               style={{
                 fontFamily: 'monospace',
@@ -186,4 +229,11 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
       </div>
     </div>
   );
+}
+
+async function loadToolbarIcons(): Promise<ToolbarIcons> {
+  const icons = await Promise.all(
+    SLOTS.map(async ({ tool }) => [tool, await IconRepo.getIcon(tool)] as const)
+  );
+  return Object.fromEntries(icons) as ToolbarIcons;
 }
