@@ -1,14 +1,22 @@
-const TOOL_NAMES = ['axe', 'pickaxe', 'sword', 'spear'] as const;
 const FRAME_SIZE = 16;
 
-export type ToolName = (typeof TOOL_NAMES)[number];
-
 export enum ToolType {
+  Bow = 'bow',
+  Sword = 'sword',
   Axe = 'axe',
   Pickaxe = 'pickaxe',
-  Sword = 'sword',
-  Spear = 'spear',
+  Hammer = 'hammer',
 }
+
+const TOOL_NAMES = [
+  ToolType.Bow,
+  ToolType.Sword,
+  ToolType.Axe,
+  ToolType.Pickaxe,
+  ToolType.Hammer,
+];
+
+export type ToolName = ToolType;
 
 export interface ToolFrame {
   name: ToolName;
