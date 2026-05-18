@@ -5,7 +5,8 @@ import { setupPlayerAnimations } from './animations';
 import { applyMovement, type Direction, type Keys } from './movement';
 import { drainStats } from './stats';
 import Tool from '../entities/tool';
-import { ToolType } from '../../utils/tools';
+import { ToolType, type ToolName } from '../../utils/tools';
+import type { InventoryItem } from './types';
 
 interface ToolKeys {
   sword: Phaser.Input.Keyboard.Key;
@@ -17,6 +18,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   speed = 2;
   protected world: World;
   protected config: PlayerConfig;
+  inventory: InventoryItem[] = createInitialInventory();
   private keys: Keys;
   private toolKeys: ToolKeys;
   private sword: Tool;
@@ -57,6 +59,15 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     this.statsDrainInterval = setInterval(() => this.updateStats(), 1000);
     this.updateStats();
+    window.setTimeout(() => this.emitInventory(), 0);
+  }
+
+  emitInventory(): void {
+    this.scene.game.events.emit('inventory-update', this.getInventorySnapshot());
+  }
+
+  private getInventorySnapshot(): InventoryItem[] {
+    return this.inventory.map(item => ({ ...item }));
   }
 
   private updateStats(): void {
@@ -121,4 +132,17 @@ export default class Player extends Phaser.GameObjects.Sprite {
 function getAttackInterval(attackSpeed: number): number {
   if (attackSpeed <= 0) return Number.POSITIVE_INFINITY;
   return MILLISECONDS_PER_SECOND / attackSpeed;
+}
+
+function createInitialInventory(): InventoryItem[] {
+  return [
+    createToolInventoryItem(ToolType.Axe),
+    createToolInventoryItem(ToolType.Sword),
+    createToolInventoryItem(ToolType.Pickaxe),
+    createToolInventoryItem(ToolType.Hammer)
+  ];
+}
+
+function createToolInventoryItem(name: ToolName): InventoryItem {
+  return { name, count: 1, durability: 1 };
 }

@@ -1,4 +1,4 @@
-.inventoryRow {
+.inventory {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -6,11 +6,10 @@
   padding-top: 12px;
 }
 
-.slotGrid12x3 {
-  display: grid;
-  grid-template-columns: repeat(12, 48px);
-  justify-content: space-between;
-  row-gap: 12px;
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .sectionLabel {
@@ -21,18 +20,50 @@
   letter-spacing: 0.08em;
 }
 
-.slot {
-  aspect-ratio: 1;
+.itemRow {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 64px 132px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 10px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.03);
-  cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
 }
 
-.slot:hover {
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.07);
+.iconCell {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconCell img {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+}
+
+.name,
+.count,
+.durability {
+  min-width: 0;
+  overflow: hidden;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.name {
+  font-size: 13px;
+}
+
+.count,
+.durability {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.48);
+  text-align: right;
 }

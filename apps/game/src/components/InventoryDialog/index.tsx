@@ -1,8 +1,14 @@
 import styles from './InventoryDialog.module.css';
 import QuickSlots from './QuickSlots';
 import Inventory from './Inventory';
+import type { InventoryItem } from '../../game/player/types';
 
-export default function InventoryDialog({ onClose }: { onClose: () => void }) {
+interface InventoryDialogProps {
+  inventory: InventoryItem[];
+  onClose: () => void;
+}
+
+export default function InventoryDialog({ inventory, onClose }: InventoryDialogProps) {
   return (
     <div className={styles.overlay}>
       <div className={styles.dialog}>
@@ -14,7 +20,7 @@ export default function InventoryDialog({ onClose }: { onClose: () => void }) {
         </div>
         <div className={styles.body}>
           <QuickSlots />
-          <Inventory />
+          <Inventory inventory={inventory} />
         </div>
       </div>
     </div>
