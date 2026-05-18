@@ -2,15 +2,26 @@ import * as Phaser from 'phaser';
 import { World } from '../world';
 import type { PlayerConfig } from '@absenat/specs';
 import { setupPlayerAnimations } from './animations';
-import { applyMovement, type Keys } from './movement';
+import { applyMovement, type Direction, type Keys } from './movement';
 import { drainStats } from './stats';
+import Tool from '../entities/tool';
+import { ToolType } from '../../utils/tools';
+
+interface ToolKeys {
+  sword: Phaser.Input.Keyboard.Key;
+}
+
+const MILLISECONDS_PER_SECOND = 1000;
 
 export default class Player extends Phaser.GameObjects.Sprite {
   speed = 2;
   protected world: World;
   protected config: PlayerConfig;
   private keys: Keys;
-  private lastDirection: 'up' | 'down' | 'left' | 'right' = 'down';
+  private toolKeys: ToolKeys;
+  private sword: Tool;
+  private lastDirection: Direction = 'down';
+  private nextSwordSwingAt = 0;
   private statsDrainInterval!: ReturnType<typeof setInterval>;
 
   constructor(world: World, config: PlayerConfig) {
@@ -27,9 +38,15 @@ export default class Player extends Phaser.GameObjects.Sprite {
         left: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
         right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
       };
+      this.toolKeys = {
+        sword: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q)
+      };
     } else {
       throw new Error('Keyboard input not available');
     }
+
+    this.sword = new Tool(world, this.x, this.y, ToolType.Sword);
+    this.sword.setVisible(false);
 
     setupPlayerAnimations(this.scene.anims);
     this.play('idle-down');
@@ -54,6 +71,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
   destroy(fromScene?: boolean) {
     clearInterval(this.statsDrainInterval);
+    this.sword.destroy(fromScene);
     super.destroy(fromScene);
   }
 
@@ -78,5 +96,29 @@ export default class Player extends Phaser.GameObjects.Sprite {
       const idleKey = this.lastDirection === 'up' ? 'idle-up' : 'idle-down';
       this.play(idleKey, true);
     }
+
+    this.handleToolInput();
   }
+
+  private handleToolInput(): void {
+    if (this.toolKeys.sword.isDown) {
+      this.updateSwordSwing();
+      return;
+    }
+    this.nextSwordSwingAt = 0;
+    this.sword.stopSwing();
+  }
+
+  private updateSwordSwing(): void {
+    this.sword.follow(this.x, this.y);
+    if (this.config.attackSpeed <= 0) return;
+    if (this.scene.time.now < this.nextSwordSwingAt) return;
+    this.sword.swing(this.x, this.y);
+    this.nextSwordSwingAt = this.scene.time.now + getAttackInterval(this.config.attackSpeed);
+  }
+}
+
+function getAttackInterval(attackSpeed: number): number {
+  if (attackSpeed <= 0) return Number.POSITIVE_INFINITY;
+  return MILLISECONDS_PER_SECOND / attackSpeed;
 }

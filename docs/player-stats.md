@@ -11,6 +11,14 @@ Drain over time via `drainRate`. Each stat has `current`, `total`, and `drainRat
 | `hunger`  | Starvation. Drains over time.        |
 | `fatigue` | Exhaustion. Drains with movement.    |
 
+## Action Speed
+
+Configurable player action timing.
+
+| Stat         | Description                                   |
+|--------------|-----------------------------------------------|
+| `attackSpeed` | Number of swing attacks started per second. |
+
 ## Damage
 
 Flat outgoing damage per type. Applied on hit before target resist.
