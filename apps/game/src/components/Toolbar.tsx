@@ -1,13 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IconRepo } from '../utils/IconRepo';
 import { ToolType } from '../utils/tools';
-
-const SLOTS = [
-  { key: 'q', index: 0, label: 'Sword', tool: ToolType.Sword },
-  { key: 'w', index: 1, label: 'Axe', tool: ToolType.Axe },
-  { key: 'e', index: 2, label: 'Pickaxe', tool: ToolType.Pickaxe },
-  { key: 'r', index: 3, label: 'Hammer', tool: ToolType.Hammer },
-] as const;
+import type { QuickSlot, QuickSlotSet, QuickSlotsSnapshot } from '../game/player/types';
 
 const PRESETS = [1, 2, 3, 4] as const;
 
@@ -20,7 +14,9 @@ type ToolbarIcons = Partial<Record<ToolType, string>>;
 
 interface ToolbarProps {
   inventoryActive?: boolean;
+  quickSlots?: QuickSlotsSnapshot;
   statsActive?: boolean;
+  onQuickSlotSetSelect: (setId: number) => void;
 }
 
 const MENU_BUTTONS = [
@@ -30,24 +26,28 @@ const MENU_BUTTONS = [
   { key: '', label: '' },
 ] as const;
 
-export default function Toolbar({ inventoryActive = false, statsActive = false }: ToolbarProps) {
+export default function Toolbar({
+  inventoryActive = false,
+  quickSlots,
+  statsActive = false,
+  onQuickSlotSetSelect
+}: ToolbarProps) {
   const [active, setActive] = useState<number | null>(null);
-  const [preset, setPreset] = useState<1 | 2 | 3 | 4>(1);
   const [toolImages, setToolImages] = useState<Partial<Record<ToolType, string>>>({});
+  const selectedSet = useMemo(() => getSelectedQuickSlotSet(quickSlots), [quickSlots]);
+  const slots = useMemo(() => selectedSet?.slots ?? [], [selectedSet?.slots]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.repeat) return;
-      if (e.key === '1') { setPreset(1); return; }
-      if (e.key === '2') { setPreset(2); return; }
-      if (e.key === '3') { setPreset(3); return; }
-      if (e.key === '4') { setPreset(4); return; }
-      const slot = SLOTS.find(s => s.key === e.key.toLowerCase());
-      if (slot) setActive(slot.index);
+      const preset = PRESETS.find(current => `${current}` === e.key);
+      if (preset) { onQuickSlotSetSelect(preset); return; }
+      const slotIndex = findQuickSlotIndex(slots, e.key);
+      if (slotIndex >= 0) setActive(slotIndex);
     }
     function onKeyUp(e: KeyboardEvent) {
-      const slot = SLOTS.find(s => s.key === e.key.toLowerCase());
-      if (slot) setActive(prev => (prev === slot.index ? null : prev));
+      const slotIndex = findQuickSlotIndex(slots, e.key);
+      if (slotIndex >= 0) setActive(prev => (prev === slotIndex ? null : prev));
     }
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
@@ -55,18 +55,18 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, []);
+  }, [onQuickSlotSetSelect, slots]);
 
   useEffect(() => {
     let cancelled = false;
-    loadToolbarIcons().then(images => {
+    loadToolbarIcons(quickSlots?.sets ?? []).then(images => {
       if (cancelled) return;
       setToolImages(images);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [quickSlots?.sets]);
 
   return (
     <div
@@ -94,7 +94,7 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
         }}
       >
         {PRESETS.map(p => {
-          const isSelected = preset === p;
+          const isSelected = quickSlots?.selectedSetId === p;
           return (
             <div
               key={p}
@@ -125,13 +125,13 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
       </div>
 
       {/* tool slots */}
-      {SLOTS.map(({ key, index, label, tool }) => {
+      {slots.map((slot, index) => {
         const isActive = active === index;
-        const image = toolImages[tool];
+        const image = getSlotImage(slot, toolImages);
         return (
           <div
-            key={key}
-            title={label}
+            key={slot.key}
+            title={slot.itemName ?? ''}
             style={{
               width: 60,
               height: 60,
@@ -180,7 +180,7 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
                 textTransform: 'uppercase',
               }}
             >
-              {key}
+              {slot.key}
             </span>
           </div>
         );
@@ -231,9 +231,33 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
   );
 }
 
-async function loadToolbarIcons(): Promise<ToolbarIcons> {
-  const icons = await Promise.all(
-    SLOTS.map(async ({ tool }) => [tool, await IconRepo.getIcon(tool)] as const)
-  );
+async function loadToolbarIcons(sets: QuickSlotSet[]): Promise<ToolbarIcons> {
+  const itemNames = getQuickSlotToolNames(sets);
+  const icons = await Promise.all(itemNames.map(loadToolbarIcon));
   return Object.fromEntries(icons) as ToolbarIcons;
+}
+
+function getSelectedQuickSlotSet(quickSlots?: QuickSlotsSnapshot): QuickSlotSet | undefined {
+  return quickSlots?.sets.find(({ id }) => id === quickSlots.selectedSetId);
+}
+
+function findQuickSlotIndex(slots: QuickSlot[], key: string): number {
+  return slots.findIndex(slot => slot.key === key.toLowerCase());
+}
+
+function getSlotImage(slot: QuickSlot, toolImages: ToolbarIcons): string | undefined {
+  if (!slot.itemName) return undefined;
+  return toolImages[slot.itemName];
+}
+
+function getQuickSlotToolNames(sets: QuickSlotSet[]): ToolType[] {
+  return [...new Set(sets.flatMap(getQuickSlotSetToolNames))];
+}
+
+async function loadToolbarIcon(tool: ToolType): Promise<[ToolType, string]> {
+  return [tool, await IconRepo.getIcon(tool)];
+}
+
+function getQuickSlotSetToolNames(set: QuickSlotSet): ToolType[] {
+  return set.slots.flatMap(slot => (slot.itemName ? [slot.itemName] : []));
 }

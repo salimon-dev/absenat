@@ -20,6 +20,9 @@
 }
 
 .groupLabel {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
   font-family: monospace;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.2);
@@ -27,6 +30,13 @@
   text-align: right;
   flex-shrink: 0;
   user-select: none;
+  cursor: pointer;
+}
+
+.groupLabelActive {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .slotRow {
@@ -35,6 +45,7 @@
 }
 
 .slot {
+  position: relative;
   width: 44px;
   height: 44px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -44,6 +55,24 @@
   transition:
     border-color 0.15s,
     background 0.15s;
+}
+
+.slot img {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 5px auto 0;
+  image-rendering: pixelated;
+}
+
+.slotKey {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-family: monospace;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
 }
 
 .slot:hover {

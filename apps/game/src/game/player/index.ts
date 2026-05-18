@@ -5,8 +5,8 @@ import { setupPlayerAnimations } from './animations';
 import { applyMovement, type Direction, type Keys } from './movement';
 import { drainStats } from './stats';
 import Tool from '../entities/tool';
-import { ToolType, type ToolName } from '../../utils/tools';
-import type { InventoryItem } from './types';
+import { ToolType } from '../../utils/tools';
+import InventoryManager from './inventory';
 
 interface ToolKeys {
   sword: Phaser.Input.Keyboard.Key;
@@ -18,7 +18,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   speed = 2;
   protected world: World;
   protected config: PlayerConfig;
-  inventory: InventoryItem[] = createInitialInventory();
+  inventory: InventoryManager;
   private keys: Keys;
   private toolKeys: ToolKeys;
   private sword: Tool;
@@ -32,6 +32,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     world.add.existing(this);
     this.world = world;
+    this.inventory = new InventoryManager(this.scene.game.events);
 
     if (world.input.keyboard) {
       this.keys = {
@@ -59,15 +60,11 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     this.statsDrainInterval = setInterval(() => this.updateStats(), 1000);
     this.updateStats();
-    window.setTimeout(() => this.emitInventory(), 0);
+    window.setTimeout(() => this.inventory.emitUpdate(), 0);
   }
 
   emitInventory(): void {
-    this.scene.game.events.emit('inventory-update', this.getInventorySnapshot());
-  }
-
-  private getInventorySnapshot(): InventoryItem[] {
-    return this.inventory.map(item => ({ ...item }));
+    this.inventory.emitUpdate();
   }
 
   private updateStats(): void {
@@ -82,6 +79,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
   destroy(fromScene?: boolean) {
     clearInterval(this.statsDrainInterval);
+    this.inventory.destroy();
     this.sword.destroy(fromScene);
     super.destroy(fromScene);
   }
@@ -132,17 +130,4 @@ export default class Player extends Phaser.GameObjects.Sprite {
 function getAttackInterval(attackSpeed: number): number {
   if (attackSpeed <= 0) return Number.POSITIVE_INFINITY;
   return MILLISECONDS_PER_SECOND / attackSpeed;
-}
-
-function createInitialInventory(): InventoryItem[] {
-  return [
-    createToolInventoryItem(ToolType.Axe),
-    createToolInventoryItem(ToolType.Sword),
-    createToolInventoryItem(ToolType.Pickaxe),
-    createToolInventoryItem(ToolType.Hammer)
-  ];
-}
-
-function createToolInventoryItem(name: ToolName): InventoryItem {
-  return { name, count: 1, durability: 1 };
 }

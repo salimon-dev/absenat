@@ -1,14 +1,29 @@
 import styles from './InventoryDialog.module.css';
 import QuickSlots from './QuickSlots';
 import Inventory from './Inventory';
-import type { InventoryItem } from '../../game/player/types';
+import type {
+  InventoryItem,
+  QuickSlotsSnapshot,
+  RemoveInventoryItemPayload
+} from '../../game/player/types';
 
 interface InventoryDialogProps {
   inventory: InventoryItem[];
+  quickSlots?: QuickSlotsSnapshot;
   onClose: () => void;
+  onInventoryRequest: () => void;
+  onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
+  onQuickSlotSetSelect: (setId: number) => void;
 }
 
-export default function InventoryDialog({ inventory, onClose }: InventoryDialogProps) {
+export default function InventoryDialog({
+  inventory,
+  quickSlots,
+  onClose,
+  onInventoryRequest,
+  onInventoryRemove,
+  onQuickSlotSetSelect
+}: InventoryDialogProps) {
   return (
     <div className={styles.overlay}>
       <div className={styles.dialog}>
@@ -19,8 +34,12 @@ export default function InventoryDialog({ inventory, onClose }: InventoryDialogP
           </button>
         </div>
         <div className={styles.body}>
-          <QuickSlots />
-          <Inventory inventory={inventory} />
+          <QuickSlots quickSlots={quickSlots} onQuickSlotSetSelect={onQuickSlotSetSelect} />
+          <Inventory
+            inventory={inventory}
+            onInventoryRequest={onInventoryRequest}
+            onInventoryRemove={onInventoryRemove}
+          />
         </div>
       </div>
     </div>
