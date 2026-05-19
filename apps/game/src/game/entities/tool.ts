@@ -45,6 +45,11 @@ export default class Tool extends Phaser.GameObjects.Sprite {
     return this;
   }
 
+  use(type: ToolType, x: number, y: number): void {
+    this.setType(type);
+    this.swing(x, y);
+  }
+
   follow(x: number, y: number): void {
     updateSwingPosition(this, createSwingPose(x, y));
   }

@@ -49,6 +49,11 @@ export default class InventoryManager {
     this.emitQuickSlotsUpdate();
   }
 
+  getSelectedQuickSlotItemName(key: string): ToolName | undefined {
+    const slot = this.getSelectedQuickSlot()?.slots.find(current => current.key === key);
+    return slot?.itemName;
+  }
+
   getSnapshot(): InventoryItem[] {
     return cloneInventory(this.items);
   }
@@ -113,6 +118,10 @@ export default class InventoryManager {
     this.emitQuickSlotsUpdate();
   };
 
+  private getSelectedQuickSlot(): QuickSlotSet | undefined {
+    return this.quickSlotSets.find(({ id }) => id === this.selectedQuickSlotSetId);
+  }
+
   private getQuickSlot(setId: number, slotIndex: number) {
     return this.quickSlotSets.find(({ id }) => id === setId)?.slots[slotIndex];
   }
@@ -160,7 +169,7 @@ function createToolInventoryItem(name: ToolName): InventoryItem {
 
 function createInitialQuickSlotSets(): QuickSlotSet[] {
   return [
-    createQuickSlotSet(1, [ToolType.Sword, ToolType.Axe, ToolType.Pickaxe, ToolType.Hammer]),
+    createQuickSlotSet(1, [ToolType.Sword, ToolType.Axe]),
     createQuickSlotSet(2, []),
     createQuickSlotSet(3, []),
     createQuickSlotSet(4, [])

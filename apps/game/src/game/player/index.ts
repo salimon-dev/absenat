@@ -5,11 +5,14 @@ import { setupPlayerAnimations } from './animations';
 import { applyMovement, type Direction, type Keys } from './movement';
 import { drainStats } from './stats';
 import Tool from '../entities/tool';
-import { ToolType } from '../../utils/tools';
+import { ToolType, type ToolName } from '../../utils/tools';
 import InventoryManager from './inventory';
 
 interface ToolKeys {
-  sword: Phaser.Input.Keyboard.Key;
+  q: Phaser.Input.Keyboard.Key;
+  w: Phaser.Input.Keyboard.Key;
+  e: Phaser.Input.Keyboard.Key;
+  r: Phaser.Input.Keyboard.Key;
 }
 
 const MILLISECONDS_PER_SECOND = 1000;
@@ -21,9 +24,9 @@ export default class Player extends Phaser.GameObjects.Sprite {
   inventory: InventoryManager;
   private keys: Keys;
   private toolKeys: ToolKeys;
-  private sword: Tool;
+  private activeTool: Tool;
   private lastDirection: Direction = 'down';
-  private nextSwordSwingAt = 0;
+  private nextToolUseAt = 0;
   private statsDrainInterval!: ReturnType<typeof setInterval>;
 
   constructor(world: World, config: PlayerConfig) {
@@ -42,14 +45,17 @@ export default class Player extends Phaser.GameObjects.Sprite {
         right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
       };
       this.toolKeys = {
-        sword: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q)
+        q: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+        w: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+        e: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
+        r: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
       };
     } else {
       throw new Error('Keyboard input not available');
     }
 
-    this.sword = new Tool(world, this.x, this.y, ToolType.Sword);
-    this.sword.setVisible(false);
+    this.activeTool = new Tool(world, this.x, this.y, ToolType.Sword);
+    this.activeTool.setVisible(false);
 
     setupPlayerAnimations(this.scene.anims);
     this.play('idle-down');
@@ -80,7 +86,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   destroy(fromScene?: boolean) {
     clearInterval(this.statsDrainInterval);
     this.inventory.destroy();
-    this.sword.destroy(fromScene);
+    this.activeTool.destroy(fromScene);
     super.destroy(fromScene);
   }
 
@@ -110,24 +116,40 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   private handleToolInput(): void {
-    if (this.toolKeys.sword.isDown) {
-      this.updateSwordSwing();
+    const toolName = this.getActiveQuickSlotToolName();
+    if (toolName) {
+      this.updateToolUse(toolName);
       return;
     }
-    this.nextSwordSwingAt = 0;
-    this.sword.stopSwing();
+    this.nextToolUseAt = 0;
+    this.activeTool.stopSwing();
   }
 
-  private updateSwordSwing(): void {
-    this.sword.follow(this.x, this.y);
+  private getActiveQuickSlotToolName(): ToolName | undefined {
+    const key = getPressedToolKey(this.toolKeys);
+    if (!key) return undefined;
+    return this.inventory.getSelectedQuickSlotItemName(key);
+  }
+
+  private updateToolUse(toolName: ToolName): void {
+    this.activeTool.setType(toolName);
+    this.activeTool.follow(this.x, this.y);
     if (this.config.attackSpeed <= 0) return;
-    if (this.scene.time.now < this.nextSwordSwingAt) return;
-    this.sword.swing(this.x, this.y);
-    this.nextSwordSwingAt = this.scene.time.now + getAttackInterval(this.config.attackSpeed);
+    if (this.scene.time.now < this.nextToolUseAt) return;
+    this.activeTool.use(toolName, this.x, this.y);
+    this.nextToolUseAt = this.scene.time.now + getAttackInterval(this.config.attackSpeed);
   }
 }
 
 function getAttackInterval(attackSpeed: number): number {
   if (attackSpeed <= 0) return Number.POSITIVE_INFINITY;
   return MILLISECONDS_PER_SECOND / attackSpeed;
+}
+
+function getPressedToolKey(keys: ToolKeys): string | undefined {
+  if (keys.q.isDown) return 'q';
+  if (keys.w.isDown) return 'w';
+  if (keys.e.isDown) return 'e';
+  if (keys.r.isDown) return 'r';
+  return undefined;
 }
