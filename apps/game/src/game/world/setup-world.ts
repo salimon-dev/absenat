@@ -2,6 +2,7 @@ import type { World } from '.';
 import Player from '../player';
 import Tile from '../entities/tile/tile';
 import Tree from '../entities/tree';
+import Tool from '../entities/tool';
 import type { TilePlacement } from '../entities/types';
 import { generateRandomMap, TILE_SIZE, WORLD_SIZE } from './tiles';
 import { WorldEntityKind } from './types';
@@ -10,6 +11,7 @@ import type { EntityPlacement } from './types';
 export function preloadWorld(this: World): void {
   Tile.preload(this);
   Tree.preload(this);
+  Tool.preload(this);
 }
 
 export function createTilemap(this: World): void {
@@ -42,6 +44,8 @@ export function setupPlayer(this: World): void {
   this.player = new Player(this, {
     position: { x: 15 * TILE_SIZE, y: 95 * TILE_SIZE },
     speed: 2,
+    attackSpeed: 1,
+    inventorySlots: 16,
     health: { current: 100, total: 100, drainRate: 0 },
     thirst: { current: 65, total: 100, drainRate: 0.1 },
     hunger: { current: 70, total: 100, drainRate: 0.07 },

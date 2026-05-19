@@ -10,6 +10,8 @@ export interface PlayerConfig {
     y: number;
   };
   speed: number;
+  attackSpeed: number;
+  inventorySlots: number;
   health: PlayerStat;
   thirst: PlayerStat;
   hunger: PlayerStat;

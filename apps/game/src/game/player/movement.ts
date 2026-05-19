@@ -3,7 +3,7 @@ import type { PlayerConfig } from '@absenat/specs';
 import { World } from '../world';
 import { canMove } from './collision';
 
-type Direction = 'up' | 'down' | 'left' | 'right';
+export type Direction = 'up' | 'down' | 'left' | 'right';
 
 export interface Keys {
   up: Phaser.Input.Keyboard.Key;

@@ -1,21 +1,22 @@
-import { useEffect, useState } from 'react';
-
-const SLOTS = [
-  { key: 'q', index: 0 },
-  { key: 'w', index: 1 },
-  { key: 'e', index: 2 },
-  { key: 'r', index: 3 },
-] as const;
+import { useEffect, useMemo, useState } from 'react';
+import { IconRepo } from '../utils/IconRepo';
+import { ToolType } from '../utils/tools';
+import type { QuickSlot, QuickSlotSet, QuickSlotsSnapshot } from '../game/player/types';
 
 const PRESETS = [1, 2, 3, 4] as const;
 
 // slot size minus 2 gaps of 4px → (60 - 4) / 2 = 28
 const CELL = 28;
 const GAP = 4;
+const TOOL_ICON_SIZE = 32;
+
+type ToolbarIcons = Partial<Record<ToolType, string>>;
 
 interface ToolbarProps {
   inventoryActive?: boolean;
+  quickSlots?: QuickSlotsSnapshot;
   statsActive?: boolean;
+  onQuickSlotSetSelect: (setId: number) => void;
 }
 
 const MENU_BUTTONS = [
@@ -25,23 +26,28 @@ const MENU_BUTTONS = [
   { key: '', label: '' },
 ] as const;
 
-export default function Toolbar({ inventoryActive = false, statsActive = false }: ToolbarProps) {
+export default function Toolbar({
+  inventoryActive = false,
+  quickSlots,
+  statsActive = false,
+  onQuickSlotSetSelect
+}: ToolbarProps) {
   const [active, setActive] = useState<number | null>(null);
-  const [preset, setPreset] = useState<1 | 2 | 3 | 4>(1);
+  const [toolImages, setToolImages] = useState<Partial<Record<ToolType, string>>>({});
+  const selectedSet = useMemo(() => getSelectedQuickSlotSet(quickSlots), [quickSlots]);
+  const slots = useMemo(() => selectedSet?.slots ?? [], [selectedSet?.slots]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.repeat) return;
-      if (e.key === '1') { setPreset(1); return; }
-      if (e.key === '2') { setPreset(2); return; }
-      if (e.key === '3') { setPreset(3); return; }
-      if (e.key === '4') { setPreset(4); return; }
-      const slot = SLOTS.find(s => s.key === e.key.toLowerCase());
-      if (slot) setActive(slot.index);
+      const preset = PRESETS.find(current => `${current}` === e.key);
+      if (preset) { onQuickSlotSetSelect(preset); return; }
+      const slotIndex = findQuickSlotIndex(slots, e.key);
+      if (slotIndex >= 0) setActive(slotIndex);
     }
     function onKeyUp(e: KeyboardEvent) {
-      const slot = SLOTS.find(s => s.key === e.key.toLowerCase());
-      if (slot) setActive(prev => (prev === slot.index ? null : prev));
+      const slotIndex = findQuickSlotIndex(slots, e.key);
+      if (slotIndex >= 0) setActive(prev => (prev === slotIndex ? null : prev));
     }
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
@@ -49,7 +55,18 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, []);
+  }, [onQuickSlotSetSelect, slots]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadToolbarIcons(quickSlots?.sets ?? []).then(images => {
+      if (cancelled) return;
+      setToolImages(images);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [quickSlots?.sets]);
 
   return (
     <div
@@ -77,7 +94,7 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
         }}
       >
         {PRESETS.map(p => {
-          const isSelected = preset === p;
+          const isSelected = quickSlots?.selectedSetId === p;
           return (
             <div
               key={p}
@@ -108,11 +125,13 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
       </div>
 
       {/* tool slots */}
-      {SLOTS.map(({ key, index }) => {
+      {slots.map((slot, index) => {
         const isActive = active === index;
+        const image = getSlotImage(slot, toolImages);
         return (
           <div
-            key={key}
+            key={slot.key}
+            title={slot.itemName ?? ''}
             style={{
               width: 60,
               height: 60,
@@ -123,11 +142,35 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
+              paddingTop: 7,
               paddingBottom: 5,
               transition: 'background 80ms, border-color 80ms',
             }}
           >
+            <span
+              aria-hidden="true"
+              style={{
+                display: 'block',
+                width: TOOL_ICON_SIZE,
+                height: TOOL_ICON_SIZE,
+                overflow: 'hidden',
+              }}
+            >
+              {image && (
+                <img
+                  src={image}
+                  alt=""
+                  draggable={false}
+                  style={{
+                    display: 'block',
+                    width: TOOL_ICON_SIZE,
+                    height: TOOL_ICON_SIZE,
+                    imageRendering: 'pixelated',
+                  }}
+                />
+              )}
+            </span>
             <span
               style={{
                 fontFamily: 'monospace',
@@ -137,7 +180,7 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
                 textTransform: 'uppercase',
               }}
             >
-              {key}
+              {slot.key}
             </span>
           </div>
         );
@@ -186,4 +229,35 @@ export default function Toolbar({ inventoryActive = false, statsActive = false }
       </div>
     </div>
   );
+}
+
+async function loadToolbarIcons(sets: QuickSlotSet[]): Promise<ToolbarIcons> {
+  const itemNames = getQuickSlotToolNames(sets);
+  const icons = await Promise.all(itemNames.map(loadToolbarIcon));
+  return Object.fromEntries(icons) as ToolbarIcons;
+}
+
+function getSelectedQuickSlotSet(quickSlots?: QuickSlotsSnapshot): QuickSlotSet | undefined {
+  return quickSlots?.sets.find(({ id }) => id === quickSlots.selectedSetId);
+}
+
+function findQuickSlotIndex(slots: QuickSlot[], key: string): number {
+  return slots.findIndex(slot => slot.key === key.toLowerCase());
+}
+
+function getSlotImage(slot: QuickSlot, toolImages: ToolbarIcons): string | undefined {
+  if (!slot.itemName) return undefined;
+  return toolImages[slot.itemName];
+}
+
+function getQuickSlotToolNames(sets: QuickSlotSet[]): ToolType[] {
+  return [...new Set(sets.flatMap(getQuickSlotSetToolNames))];
+}
+
+async function loadToolbarIcon(tool: ToolType): Promise<[ToolType, string]> {
+  return [tool, await IconRepo.getIcon(tool)];
+}
+
+function getQuickSlotSetToolNames(set: QuickSlotSet): ToolType[] {
+  return set.slots.flatMap(slot => (slot.itemName ? [slot.itemName] : []));
 }

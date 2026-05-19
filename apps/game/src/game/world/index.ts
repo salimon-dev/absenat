@@ -5,6 +5,7 @@ import { TREE_TEXTURE_KEY } from '../entities/tree';
 import Tree from '../entities/tree';
 import { TILE_TEXTURE_KEY } from '../entities/tile/tile';
 import Tile from '../entities/tile/tile';
+import { TOOL_TEXTURE_KEY } from '../entities/tool';
 
 export class World extends Phaser.Scene {
   player!: Player;
@@ -31,6 +32,7 @@ export class World extends Phaser.Scene {
   create() {
     this.textures.get(TREE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
     this.textures.get(TILE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
+    this.textures.get(TOOL_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
 
     this.createTilemap();
     this.setupPlayer();

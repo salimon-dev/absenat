@@ -36,6 +36,21 @@ export type TreeVariant = {
   pixels: PixelRect[];
 };
 
+export enum ToolAsset {
+  Bow = 'bow',
+  Sword = 'sword',
+  Axe = 'axe',
+  Pickaxe = 'pickaxe',
+  Hammer = 'hammer',
+}
+
+export type ToolAssetType = ToolAsset;
+
+export type ToolVariant = {
+  id: ToolAssetType;
+  pixels: PixelRect[];
+};
+
 export type TreeAssetData = {
   id: string;
   biome: string;
