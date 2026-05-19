@@ -51,19 +51,16 @@ interface InventoryRowProps {
 
 function InventoryRow({ icon, item, onInventoryRemove }: InventoryRowProps) {
   return (
-    <div className={styles.itemRow}>
-      <div className={styles.iconCell}>{icon && <img src={icon} alt="" />}</div>
-      <span className={styles.name}>{formatName(item.name)}</span>
+    <button
+      aria-label={`Drop ${formatName(item.name)}`}
+      className={styles.itemSlot}
+      title={formatTooltip(item)}
+      type="button"
+      onClick={() => onInventoryRemove({ name: item.name, count: 1 })}
+    >
+      {icon && <img src={icon} alt="" draggable={false} />}
       <span className={styles.count}>{formatCount(item.count)}</span>
-      <span className={styles.durability}>{formatDurability(item.durability)}</span>
-      <button
-        className={styles.removeButton}
-        type="button"
-        onClick={() => onInventoryRemove({ name: item.name, count: 1 })}
-      >
-        Drop
-      </button>
-    </div>
+    </button>
   );
 }
 
@@ -87,4 +84,10 @@ function formatCount(count?: number): string {
 function formatDurability(durability?: number): string {
   if (durability === undefined) return 'Durability -';
   return `Durability ${Math.round(durability * 100)}%`;
+}
+
+function formatTooltip(item: InventoryItem): string {
+  const name = formatName(item.name);
+  if (item.durability === undefined) return name;
+  return `${name}\n${formatDurability(item.durability)}`;
 }

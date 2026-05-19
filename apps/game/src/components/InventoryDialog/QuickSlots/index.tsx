@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IconRepo } from '../../../utils/IconRepo';
 import type { QuickSlot, QuickSlotsSnapshot } from '../../../game/player/types';
 import type { ToolName } from '../../../utils/tools';
@@ -22,10 +22,9 @@ export default function QuickSlots({ quickSlots, onQuickSlotSetSelect }: QuickSl
   return (
     <div className={styles.quickSlots}>
       <span className={styles.sectionLabel}>Quick Slots</span>
-      {sets.map((set, idx) => (
-        <Fragment key={set.id}>
-          {idx > 0 && <div className={styles.groupDivider} />}
-          <div className={styles.group}>
+      <div className={styles.groupGrid}>
+        {sets.map(set => (
+          <div className={styles.group} key={set.id}>
             <button
               className={getGroupLabelClass(set.id, quickSlots?.selectedSetId)}
               type="button"
@@ -39,8 +38,8 @@ export default function QuickSlots({ quickSlots, onQuickSlotSetSelect }: QuickSl
               ))}
             </div>
           </div>
-        </Fragment>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
