@@ -86,3 +86,16 @@
   border-color: rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.07);
 }
+
+.slot[draggable='true'] {
+  cursor: grab;
+}
+
+.slot[draggable='true']:active {
+  cursor: grabbing;
+}
+
+.slotDropTarget {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.12);
+}

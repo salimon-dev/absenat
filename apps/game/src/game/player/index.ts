@@ -35,7 +35,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     world.add.existing(this);
     this.world = world;
-    this.inventory = new InventoryManager(this.scene.game.events);
+    this.inventory = new InventoryManager(this.scene.game.events, config.inventorySlots);
 
     if (world.input.keyboard) {
       this.keys = {

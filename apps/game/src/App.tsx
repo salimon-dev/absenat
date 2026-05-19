@@ -6,7 +6,11 @@ import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
 import {
   InventoryEvent,
-  type InventoryItem,
+  type InventorySlotMovePayload,
+  type InventorySlot,
+  type InventorySnapshot,
+  type QuickSlotAssignmentPayload,
+  type QuickSlotMovePayload,
   type QuickSlotsSnapshot,
   type RemoveInventoryItemPayload
 } from './game/player/types';
@@ -15,28 +19,32 @@ function App() {
   const appRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [stats, setStats] = useState<HUDStats | undefined>(undefined);
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [inventorySlots, setInventorySlots] = useState<InventorySlot[]>([]);
   const [quickSlots, setQuickSlots] = useState<QuickSlotsSnapshot | undefined>(undefined);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
+
+  const handleInventoryUpdate = useCallback((snapshot: InventorySnapshot) => {
+    setInventorySlots(snapshot.slots);
+  }, []);
 
   useEffect(() => {
     if (!appRef.current) return;
     const game = createGame(appRef.current);
     gameRef.current = game;
     game.events.on('stats-update', setStats);
-    game.events.on(InventoryEvent.Update, setInventory);
+    game.events.on(InventoryEvent.Update, handleInventoryUpdate);
     game.events.on(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
     game.events.emit(InventoryEvent.Request);
     game.events.emit(InventoryEvent.QuickSlotsRequest);
     return () => {
       game.events.off('stats-update', setStats);
-      game.events.off(InventoryEvent.Update, setInventory);
+      game.events.off(InventoryEvent.Update, handleInventoryUpdate);
       game.events.off(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
       gameRef.current = null;
       game.destroy(true);
     };
-  }, []);
+  }, [handleInventoryUpdate]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -55,8 +63,20 @@ function App() {
     gameRef.current?.events.emit(InventoryEvent.Remove, payload);
   }, []);
 
+  const moveInventoryItem = useCallback((payload: InventorySlotMovePayload) => {
+    gameRef.current?.events.emit(InventoryEvent.Move, payload);
+  }, []);
+
   const selectQuickSlotSet = useCallback((setId: number) => {
     gameRef.current?.events.emit(InventoryEvent.QuickSlotsSelectSet, setId);
+  }, []);
+
+  const moveQuickSlot = useCallback((payload: QuickSlotMovePayload) => {
+    gameRef.current?.events.emit(InventoryEvent.QuickSlotMove, payload);
+  }, []);
+
+  const assignQuickSlot = useCallback((payload: QuickSlotAssignmentPayload) => {
+    gameRef.current?.events.emit(InventoryEvent.QuickSlotAssign, payload);
   }, []);
 
   return (
@@ -71,11 +91,14 @@ function App() {
       />
       {inventoryOpen && (
         <InventoryDialog
-          inventory={inventory}
+          inventorySlots={inventorySlots}
           quickSlots={quickSlots}
           onClose={() => setInventoryOpen(false)}
           onInventoryRequest={requestInventory}
           onInventoryRemove={removeInventoryItem}
+          onInventorySlotMove={moveInventoryItem}
+          onQuickSlotAssign={assignQuickSlot}
+          onQuickSlotMove={moveQuickSlot}
           onQuickSlotSetSelect={selectQuickSlotSet}
         />
       )}

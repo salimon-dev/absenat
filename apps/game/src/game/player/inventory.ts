@@ -3,42 +3,56 @@ import { ToolType, type ToolName } from '../../utils/tools';
 import {
   InventoryEvent,
   type InventoryItem,
+  type InventorySlotMovePayload,
+  type InventorySlot,
+  type InventorySnapshot,
   type QuickSlotAssignmentPayload,
+  type QuickSlotMovePayload,
   type QuickSlotSet,
   type QuickSlotsSnapshot,
   type RemoveInventoryItemPayload
 } from './types';
 
 export default class InventoryManager {
-  private items: InventoryItem[];
+  private slots: InventorySlot[];
+  private slotCount: number;
   private quickSlotSets: QuickSlotSet[];
   private selectedQuickSlotSetId = 1;
   private events: Phaser.Events.EventEmitter;
 
   constructor(
     events: Phaser.Events.EventEmitter,
+    slotCount: number,
     items = createInitialInventory(),
     quickSlotSets = createInitialQuickSlotSets()
   ) {
     this.events = events;
-    this.items = cloneInventory(items);
+    this.slotCount = slotCount;
+    this.slots = createInventorySlots(slotCount, items);
     this.quickSlotSets = cloneQuickSlotSets(quickSlotSets);
     this.registerEvents();
   }
 
   addItem(item: InventoryItem): void {
-    const existing = this.items.find(({ name }) => name === item.name);
-    if (!existing) this.items.push(cloneItem(item));
+    const existing = this.slots.find(({ item: current }) => current?.name === item.name)?.item;
+    if (!existing && !this.addItemToEmptySlot(item)) return;
     if (existing) mergeInventoryItem(existing, item);
     this.emitUpdate();
   }
 
+  moveItem(payload: InventorySlotMovePayload): void {
+    if (!isValidItemMove(payload, this.slotCount)) return;
+    swapInventorySlots(this.slots, payload.source.slotIndex, payload.target.slotIndex);
+    this.emitUpdate();
+  }
+
   removeItem(name: ToolName, count = 1): void {
-    const item = this.items.find(current => current.name === name);
+    const slot = this.slots.find(current => current.item?.name === name);
+    const item = slot?.item;
     if (!item) return;
     item.count = Math.max((item.count ?? 1) - count, 0);
     if (item.count === 0) this.clearQuickSlotsForItem(name);
-    this.items = this.items.filter(current => (current.count ?? 1) > 0);
+    if (item.count === 0 && slot) slot.item = undefined;
     this.emitUpdate();
   }
 
@@ -49,13 +63,24 @@ export default class InventoryManager {
     this.emitQuickSlotsUpdate();
   }
 
+  moveQuickSlot(payload: QuickSlotMovePayload): void {
+    const source = this.getQuickSlot(payload.source.setId, payload.source.slotIndex);
+    const target = this.getQuickSlot(payload.target.setId, payload.target.slotIndex);
+    if (!source || !target || source === target) return;
+    swapQuickSlotItems(source, target);
+    this.emitQuickSlotsUpdate();
+  }
+
   getSelectedQuickSlotItemName(key: string): ToolName | undefined {
     const slot = this.getSelectedQuickSlot()?.slots.find(current => current.key === key);
     return slot?.itemName;
   }
 
-  getSnapshot(): InventoryItem[] {
-    return cloneInventory(this.items);
+  getSnapshot(): InventorySnapshot {
+    return {
+      slots: cloneInventorySlots(this.slots),
+      slotCount: this.slotCount
+    };
   }
 
   getQuickSlotsSnapshot(): QuickSlotsSnapshot {
@@ -77,8 +102,10 @@ export default class InventoryManager {
   destroy(): void {
     this.events.off(InventoryEvent.Request, this.handleRequest);
     this.events.off(InventoryEvent.Add, this.handleAdd);
+    this.events.off(InventoryEvent.Move, this.handleMove);
     this.events.off(InventoryEvent.Remove, this.handleRemove);
     this.events.off(InventoryEvent.QuickSlotAssign, this.handleQuickSlotAssign);
+    this.events.off(InventoryEvent.QuickSlotMove, this.handleQuickSlotMove);
     this.events.off(InventoryEvent.QuickSlotsRequest, this.handleQuickSlotsRequest);
     this.events.off(InventoryEvent.QuickSlotsSelectSet, this.handleQuickSlotsSelectSet);
   }
@@ -86,8 +113,10 @@ export default class InventoryManager {
   private registerEvents(): void {
     this.events.on(InventoryEvent.Request, this.handleRequest);
     this.events.on(InventoryEvent.Add, this.handleAdd);
+    this.events.on(InventoryEvent.Move, this.handleMove);
     this.events.on(InventoryEvent.Remove, this.handleRemove);
     this.events.on(InventoryEvent.QuickSlotAssign, this.handleQuickSlotAssign);
+    this.events.on(InventoryEvent.QuickSlotMove, this.handleQuickSlotMove);
     this.events.on(InventoryEvent.QuickSlotsRequest, this.handleQuickSlotsRequest);
     this.events.on(InventoryEvent.QuickSlotsSelectSet, this.handleQuickSlotsSelectSet);
   }
@@ -100,12 +129,20 @@ export default class InventoryManager {
     this.addItem(item);
   };
 
+  private handleMove = (payload: InventorySlotMovePayload): void => {
+    this.moveItem(payload);
+  };
+
   private handleRemove = (payload: RemoveInventoryItemPayload): void => {
     this.removeItem(payload.name, payload.count);
   };
 
   private handleQuickSlotAssign = (payload: QuickSlotAssignmentPayload): void => {
     this.assignQuickSlot(payload);
+  };
+
+  private handleQuickSlotMove = (payload: QuickSlotMovePayload): void => {
+    this.moveQuickSlot(payload);
   };
 
   private handleQuickSlotsRequest = (): void => {
@@ -126,17 +163,46 @@ export default class InventoryManager {
     return this.quickSlotSets.find(({ id }) => id === setId)?.slots[slotIndex];
   }
 
+  private addItemToEmptySlot(item: InventoryItem): boolean {
+    const slot = this.slots.find(current => !current.item);
+    if (!slot) return false;
+    slot.item = cloneItem(item);
+    return true;
+  }
+
   private clearQuickSlotsForItem(itemName: ToolName): void {
     this.quickSlotSets.forEach(set => clearQuickSlotSetItem(set, itemName));
   }
 }
 
-function cloneInventory(items: InventoryItem[]): InventoryItem[] {
-  return items.map(cloneItem);
+function createInventorySlots(slotCount: number, items: InventoryItem[]): InventorySlot[] {
+  return Array.from({ length: slotCount }, (_, index) => {
+    const item = items[index];
+    return item ? { item: cloneItem(item) } : {};
+  });
+}
+
+function cloneInventorySlots(slots: InventorySlot[]): InventorySlot[] {
+  return slots.map(slot => (slot.item ? { item: cloneItem(slot.item) } : {}));
 }
 
 function cloneItem(item: InventoryItem): InventoryItem {
   return { ...item };
+}
+
+function isValidItemMove(payload: InventorySlotMovePayload, slotCount: number): boolean {
+  const { source, target } = payload;
+  if (source.slotIndex === target.slotIndex) return false;
+  if (source.slotIndex < 0 || source.slotIndex >= slotCount) return false;
+  if (target.slotIndex < 0 || target.slotIndex >= slotCount) return false;
+  return true;
+}
+
+function swapInventorySlots(slots: InventorySlot[], sourceIndex: number, targetIndex: number): void {
+  const sourceItem = slots[sourceIndex].item;
+  if (!sourceItem) return;
+  slots[sourceIndex].item = slots[targetIndex].item;
+  slots[targetIndex].item = sourceItem;
 }
 
 function cloneQuickSlotSets(sets: QuickSlotSet[]): QuickSlotSet[] {
@@ -147,6 +213,15 @@ function clearQuickSlotSetItem(set: QuickSlotSet, itemName: ToolName): void {
   set.slots.forEach(slot => {
     if (slot.itemName === itemName) slot.itemName = undefined;
   });
+}
+
+function swapQuickSlotItems(
+  source: QuickSlotSet['slots'][number],
+  target: QuickSlotSet['slots'][number]
+): void {
+  const itemName = source.itemName;
+  source.itemName = target.itemName;
+  target.itemName = itemName;
 }
 
 function mergeInventoryItem(target: InventoryItem, source: InventoryItem): void {

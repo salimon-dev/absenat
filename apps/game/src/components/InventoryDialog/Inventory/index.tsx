@@ -1,67 +1,194 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, type DragEvent } from 'react';
 import { IconRepo } from '../../../utils/IconRepo';
-import type { InventoryItem, RemoveInventoryItemPayload } from '../../../game/player/types';
+import type {
+  InventoryItem,
+  InventorySlotMovePayload,
+  InventorySlot as InventorySlotType,
+  InventorySlotPosition,
+  RemoveInventoryItemPayload
+} from '../../../game/player/types';
+import { DragPayloadKind, parseSlotDragPayload, serializeSlotDragPayload } from '../drag-payload';
 import styles from './Inventory.module.css';
 
 type InventoryIcons = Partial<Record<string, string>>;
+type DragTarget = InventorySlotPosition;
 
 interface InventoryProps {
-  inventory: InventoryItem[];
+  slots: InventorySlotType[];
   onInventoryRequest: () => void;
   onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
+  onInventorySlotMove: (payload: InventorySlotMovePayload) => void;
 }
 
 export default function Inventory({
-  inventory,
+  slots,
   onInventoryRequest,
-  onInventoryRemove
+  onInventoryRemove,
+  onInventorySlotMove
 }: InventoryProps) {
   const [icons, setIcons] = useState<InventoryIcons>({});
+  const [dropTarget, setDropTarget] = useState<DragTarget | undefined>(undefined);
+  const items = useMemo(() => getInventoryItems(slots), [slots]);
 
   useEffect(() => {
     onInventoryRequest();
   }, [onInventoryRequest]);
 
   useEffect(() => {
-    loadInventoryIcons(inventory).then(setIcons);
-  }, [inventory]);
+    loadInventoryIcons(items).then(setIcons);
+  }, [items]);
 
   return (
     <div className={styles.inventory}>
       <span className={styles.sectionLabel}>Inventory</span>
       <div className={styles.itemList}>
-        {inventory.map(item => (
-          <InventoryRow
-            key={item.name}
-            icon={icons[item.name]}
-            item={item}
+        {slots.map((slot, slotIndex) => (
+          <InventorySlot
+            key={slotIndex}
+            dropTarget={dropTarget}
+            icon={slot.item ? icons[slot.item.name] : undefined}
+            item={slot.item}
+            slotIndex={slotIndex}
+            onDragEnd={handleDragEnd}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDragStart={handleDragStart}
+            onDrop={handleDrop}
             onInventoryRemove={onInventoryRemove}
           />
         ))}
       </div>
     </div>
   );
+
+  function handleDragStart(
+    item: InventoryItem,
+    position: DragTarget,
+    e: DragEvent<HTMLButtonElement>
+  ): void {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData(
+      'text/plain',
+      serializeSlotDragPayload({
+        kind: DragPayloadKind.InventorySlot,
+        itemName: item.name,
+        source: position
+      })
+    );
+  }
+
+  function handleDragOver(position: DragTarget, e: DragEvent<HTMLElement>): void {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropTarget(position);
+  }
+
+  function handleDragEnter(position: DragTarget): void {
+    setDropTarget(position);
+  }
+
+  function handleDragLeave(position: DragTarget): void {
+    setDropTarget(current => (isSameDragTarget(position, current) ? undefined : current));
+  }
+
+  function handleDrop(position: DragTarget, e: DragEvent<HTMLElement>): void {
+    e.preventDefault();
+    const source = getInventoryDropSource(e);
+    if (source && !isSameDragTarget(position, source)) {
+      onInventorySlotMove({ source, target: position });
+    }
+    clearDragState();
+  }
+
+  function handleDragEnd(): void {
+    clearDragState();
+  }
+
+  function clearDragState(): void {
+    setDropTarget(undefined);
+  }
 }
 
-interface InventoryRowProps {
+interface InventorySlotProps {
+  dropTarget?: DragTarget;
   icon?: string;
-  item: InventoryItem;
+  item?: InventoryItem;
+  slotIndex: number;
+  onDragEnd: () => void;
+  onDragEnter: (position: DragTarget) => void;
+  onDragLeave: (position: DragTarget) => void;
+  onDragOver: (position: DragTarget, e: DragEvent<HTMLElement>) => void;
+  onDragStart: (item: InventoryItem, position: DragTarget, e: DragEvent<HTMLButtonElement>) => void;
+  onDrop: (position: DragTarget, e: DragEvent<HTMLElement>) => void;
   onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
 }
 
-function InventoryRow({ icon, item, onInventoryRemove }: InventoryRowProps) {
+function InventorySlot({
+  dropTarget,
+  icon,
+  item,
+  slotIndex,
+  onDragEnd,
+  onDragEnter,
+  onDragLeave,
+  onDragOver,
+  onDragStart,
+  onDrop,
+  onInventoryRemove
+}: InventorySlotProps) {
+  const position = { slotIndex };
+  if (!item) {
+    return (
+      <div
+        className={getSlotClass(position, dropTarget)}
+        onDragEnter={() => onDragEnter(position)}
+        onDragLeave={() => onDragLeave(position)}
+        onDragOver={e => onDragOver(position, e)}
+        onDrop={e => onDrop(position, e)}
+      />
+    );
+  }
   return (
     <button
       aria-label={`Drop ${formatName(item.name)}`}
-      className={styles.itemSlot}
+      className={getSlotClass(position, dropTarget)}
+      draggable
       title={formatTooltip(item)}
       type="button"
       onClick={() => onInventoryRemove({ name: item.name, count: 1 })}
+      onDragEnd={onDragEnd}
+      onDragStart={e => onDragStart(item, position, e)}
+      onDragEnter={() => onDragEnter(position)}
+      onDragLeave={() => onDragLeave(position)}
+      onDragOver={e => onDragOver(position, e)}
+      onDrop={e => onDrop(position, e)}
     >
       {icon && <img src={icon} alt="" draggable={false} />}
       <span className={styles.count}>{formatCount(item.count)}</span>
     </button>
   );
+}
+
+function getInventoryItems(slots: InventorySlotType[]): InventoryItem[] {
+  return slots.flatMap(slot => (slot.item ? [slot.item] : []));
+}
+
+function getInventoryDropSource(e: DragEvent<HTMLElement>): InventorySlotPosition | undefined {
+  const payload = e.dataTransfer.getData('text/plain');
+  if (!payload) return undefined;
+  const parsed = parseSlotDragPayload(payload);
+  if (parsed?.kind !== DragPayloadKind.InventorySlot) return undefined;
+  return parsed.source;
+}
+
+function getSlotClass(position: DragTarget, dropTarget?: DragTarget): string {
+  if (!isSameDragTarget(position, dropTarget)) return styles.itemSlot;
+  return `${styles.itemSlot} ${styles.itemSlotDropTarget}`;
+}
+
+function isSameDragTarget(left?: DragTarget, right?: DragTarget): boolean {
+  return left?.slotIndex === right?.slotIndex;
 }
 
 async function loadInventoryIcons(inventory: InventoryItem[]): Promise<InventoryIcons> {

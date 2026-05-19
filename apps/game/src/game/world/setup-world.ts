@@ -45,6 +45,7 @@ export function setupPlayer(this: World): void {
     position: { x: 15 * TILE_SIZE, y: 95 * TILE_SIZE },
     speed: 2,
     attackSpeed: 1,
+    inventorySlots: 16,
     health: { current: 100, total: 100, drainRate: 0 },
     thirst: { current: 65, total: 100, drainRate: 0.1 },
     hunger: { current: 70, total: 100, drainRate: 0.07 },

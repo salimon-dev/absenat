@@ -19,6 +19,14 @@ Configurable player action timing.
 |--------------|-----------------------------------------------|
 | `attackSpeed` | Number of swing attacks started per second. |
 
+## Inventory
+
+Configurable player inventory capacity.
+
+| Stat             | Description                    |
+|------------------|--------------------------------|
+| `inventorySlots` | Number of inventory slots. Default is `16`. |
+
 ## Damage
 
 Flat outgoing damage per type. Applied on hit before target resist.
