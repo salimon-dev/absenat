@@ -1,11 +1,29 @@
 import type { Biome } from '@absenat/specs';
 import type { ItemName } from '../../utils/items';
 
-export interface TileVariant {
+export enum TileVariantKind {
+  Static = 'static',
+  Animated = 'animated'
+}
+
+export type TileVariantKindType = TileVariantKind;
+
+export interface StaticTileVariant {
+  kind: TileVariantKind.Static;
   biome: Biome;
   variant: number;
   frame: number;
 }
+
+export interface AnimatedTileVariant {
+  kind: TileVariantKind.Animated;
+  biome: Biome;
+  variant: number;
+  frames: number[];
+  frameRate: number;
+}
+
+export type TileVariant = StaticTileVariant | AnimatedTileVariant;
 
 export interface TilePlacement {
   biome: Biome;
