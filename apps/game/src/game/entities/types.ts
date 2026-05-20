@@ -12,6 +12,7 @@ export interface StaticTileVariant {
   kind: TileVariantKind.Static;
   biome: Biome;
   variant: number;
+  respawnRate: number;
   frame: number;
 }
 
@@ -19,6 +20,7 @@ export interface AnimatedTileVariant {
   kind: TileVariantKind.Animated;
   biome: Biome;
   variant: number;
+  respawnRate: number;
   frames: number[];
   frameRate: number;
 }
