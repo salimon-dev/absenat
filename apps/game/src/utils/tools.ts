@@ -6,6 +6,13 @@ export enum ToolType {
   Hammer = 'hammer',
 }
 
+export type ToolName = ToolType;
+
+export interface ToolDefinition {
+  name: ToolName;
+  range: number;
+}
+
 export const TOOL_NAMES = [
   ToolType.Bow,
   ToolType.Sword,
@@ -14,4 +21,18 @@ export const TOOL_NAMES = [
   ToolType.Hammer,
 ] as const;
 
-export type ToolName = ToolType;
+export function isToolName(name: string): name is ToolName {
+  return TOOL_NAMES.includes(name as ToolName);
+}
+
+export const TOOL_DEFINITIONS: Record<ToolName, ToolDefinition> = {
+  [ToolType.Bow]: createToolDefinition(ToolType.Bow),
+  [ToolType.Sword]: createToolDefinition(ToolType.Sword),
+  [ToolType.Axe]: createToolDefinition(ToolType.Axe),
+  [ToolType.Pickaxe]: createToolDefinition(ToolType.Pickaxe),
+  [ToolType.Hammer]: createToolDefinition(ToolType.Hammer),
+};
+
+function createToolDefinition(name: ToolName): ToolDefinition {
+  return { name, range: 1 };
+}

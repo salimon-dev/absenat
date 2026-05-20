@@ -7,7 +7,7 @@ import type {
   QuickSlotPosition,
   QuickSlotsSnapshot
 } from '../../../game/player/types';
-import type { ToolName } from '../../../utils/tools';
+import { isToolName, type ToolName } from '../../../utils/tools';
 import { DragPayloadKind, parseSlotDragPayload, serializeSlotDragPayload } from '../drag-payload';
 import styles from './QuickSlots.module.css';
 
@@ -79,6 +79,7 @@ export default function QuickSlots({
   function handleSlotDrop(position: DragTarget, e: DragEvent<HTMLDivElement>): void {
     const payload = parseSlotDragPayload(e.dataTransfer.getData('text/plain'));
     if (payload?.kind === DragPayloadKind.InventorySlot) {
+      if (!isToolName(payload.itemName)) return;
       onQuickSlotAssign({
         itemName: payload.itemName,
         setId: position.setId,

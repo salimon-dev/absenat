@@ -1,6 +1,8 @@
+import { RESOURCE_NAMES } from './resources';
 import { TOOL_NAMES } from './tools';
 
 const ICON_FRAME_SIZE = 16;
+const RESOURCE_ICON_SHEET = 'assets/resource.png';
 const TOOL_ICON_SHEET = 'assets/tools.png';
 
 interface IconDefinition {
@@ -9,7 +11,16 @@ interface IconDefinition {
 }
 
 const ICONS = new Map<string, IconDefinition>(
-  TOOL_NAMES.map((name, frame) => [name, { src: TOOL_ICON_SHEET, frame }])
+  [
+    ...TOOL_NAMES.map((name, frame): [string, IconDefinition] => [
+      name,
+      { src: TOOL_ICON_SHEET, frame }
+    ]),
+    ...RESOURCE_NAMES.map((name, frame): [string, IconDefinition] => [
+      name,
+      { src: RESOURCE_ICON_SHEET, frame }
+    ])
+  ]
 );
 
 export class IconRepo {
