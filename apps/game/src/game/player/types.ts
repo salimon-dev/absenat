@@ -19,6 +19,7 @@ export interface InventoryItem {
   name: ToolName;
   count?: number;
   durability?: number;
+  range?: number;
 }
 
 export interface InventorySlot {

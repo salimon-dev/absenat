@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { ToolType, type ToolName } from '../../utils/tools';
+import { TOOL_DEFINITIONS, ToolType, type ToolName } from '../../utils/tools';
 import {
   InventoryEvent,
   type InventoryItem,
@@ -227,6 +227,7 @@ function swapQuickSlotItems(
 function mergeInventoryItem(target: InventoryItem, source: InventoryItem): void {
   target.count = (target.count ?? 1) + (source.count ?? 1);
   target.durability = source.durability ?? target.durability;
+  target.range = source.range ?? target.range;
 }
 
 function createInitialInventory(): InventoryItem[] {
@@ -239,7 +240,7 @@ function createInitialInventory(): InventoryItem[] {
 }
 
 function createToolInventoryItem(name: ToolName): InventoryItem {
-  return { name, count: 1, durability: 1 };
+  return { name, count: 1, durability: 1, range: TOOL_DEFINITIONS[name].range };
 }
 
 function createInitialQuickSlotSets(): QuickSlotSet[] {

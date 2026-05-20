@@ -5,7 +5,7 @@ import { setupPlayerAnimations } from './animations';
 import { applyMovement, type Direction, type Keys } from './movement';
 import { drainStats } from './stats';
 import Tool from '../entities/tool';
-import { ToolType, type ToolName } from '../../utils/tools';
+import { TOOL_DEFINITIONS, ToolType, type ToolName } from '../../utils/tools';
 import InventoryManager from './inventory';
 
 interface ToolKeys {
@@ -137,7 +137,13 @@ export default class Player extends Phaser.GameObjects.Sprite {
     if (this.config.attackSpeed <= 0) return;
     if (this.scene.time.now < this.nextToolUseAt) return;
     this.activeTool.use(toolName, this.x, this.y);
+    this.applyToolEffect(toolName);
     this.nextToolUseAt = this.scene.time.now + getAttackInterval(this.config.attackSpeed);
+  }
+
+  private applyToolEffect(toolName: ToolName): void {
+    if (toolName !== ToolType.Axe) return;
+    this.world.removeTreesInRange(this.x, this.y, TOOL_DEFINITIONS[toolName].range);
   }
 }
 

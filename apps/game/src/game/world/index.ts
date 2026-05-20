@@ -6,6 +6,7 @@ import Tree from '../entities/tree';
 import { TILE_TEXTURE_KEY } from '../entities/tile/tile';
 import Tile from '../entities/tile/tile';
 import { TOOL_TEXTURE_KEY } from '../entities/tool';
+import { removeTreesInRange } from './remove-trees-in-range';
 
 export class World extends Phaser.Scene {
   player!: Player;
@@ -20,6 +21,7 @@ export class World extends Phaser.Scene {
   protected createTilemap = createTilemap;
   protected setupPlayer = setupPlayer;
   protected setupCamera = setupCamera;
+  removeTreesInRange = removeTreesInRange;
 
   preload() {
     this.preloadWorld();
