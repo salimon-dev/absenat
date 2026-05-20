@@ -21,6 +21,10 @@ export const TOOL_NAMES = [
   ToolType.Hammer,
 ] as const;
 
+export function isToolName(name: string): name is ToolName {
+  return TOOL_NAMES.includes(name as ToolName);
+}
+
 export const TOOL_DEFINITIONS: Record<ToolName, ToolDefinition> = {
   [ToolType.Bow]: createToolDefinition(ToolType.Bow),
   [ToolType.Sword]: createToolDefinition(ToolType.Sword),

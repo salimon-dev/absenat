@@ -16,6 +16,7 @@ interface ToolKeys {
 }
 
 const MILLISECONDS_PER_SECOND = 1000;
+const AXE_TREE_DAMAGE = 3;
 
 export default class Player extends Phaser.GameObjects.Sprite {
   speed = 2;
@@ -143,7 +144,13 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
   private applyToolEffect(toolName: ToolName): void {
     if (toolName !== ToolType.Axe) return;
-    this.world.removeTreesInRange(this.x, this.y, TOOL_DEFINITIONS[toolName].range);
+    const contents = this.world.removeTreesInRange(
+      this.x,
+      this.y,
+      TOOL_DEFINITIONS[toolName].range,
+      AXE_TREE_DAMAGE
+    );
+    contents.forEach(item => this.inventory.addItem(item));
   }
 }
 

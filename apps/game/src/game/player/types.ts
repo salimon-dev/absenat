@@ -1,3 +1,4 @@
+import type { ItemName } from '../../utils/items';
 import type { ToolName } from '../../utils/tools';
 
 export enum InventoryEvent {
@@ -16,7 +17,7 @@ export enum InventoryEvent {
 export type InventoryEventType = InventoryEvent;
 
 export interface InventoryItem {
-  name: ToolName;
+  name: ItemName;
   count?: number;
   durability?: number;
   range?: number;
@@ -32,7 +33,7 @@ export interface InventorySnapshot {
 }
 
 export interface RemoveInventoryItemPayload {
-  name: ToolName;
+  name: ItemName;
   count?: number;
 }
 

@@ -1,4 +1,5 @@
 import type { Biome } from '@absenat/specs';
+import type { ItemName } from '../../utils/items';
 
 export interface TileVariant {
   biome: Biome;
@@ -19,3 +20,5 @@ export enum ToolSwingDirection {
 }
 
 export type ToolSwingDirectionType = ToolSwingDirection;
+
+export type EntityContent = { name: ItemName; count: number }[];

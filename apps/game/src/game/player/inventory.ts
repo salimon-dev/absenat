@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import type { ItemName } from '../../utils/items';
 import { TOOL_DEFINITIONS, ToolType, type ToolName } from '../../utils/tools';
 import {
   InventoryEvent,
@@ -46,7 +47,7 @@ export default class InventoryManager {
     this.emitUpdate();
   }
 
-  removeItem(name: ToolName, count = 1): void {
+  removeItem(name: ItemName, count = 1): void {
     const slot = this.slots.find(current => current.item?.name === name);
     const item = slot?.item;
     if (!item) return;
@@ -170,7 +171,7 @@ export default class InventoryManager {
     return true;
   }
 
-  private clearQuickSlotsForItem(itemName: ToolName): void {
+  private clearQuickSlotsForItem(itemName: ItemName): void {
     this.quickSlotSets.forEach(set => clearQuickSlotSetItem(set, itemName));
   }
 }
@@ -209,7 +210,7 @@ function cloneQuickSlotSets(sets: QuickSlotSet[]): QuickSlotSet[] {
   return sets.map(set => ({ id: set.id, slots: set.slots.map(slot => ({ ...slot })) }));
 }
 
-function clearQuickSlotSetItem(set: QuickSlotSet, itemName: ToolName): void {
+function clearQuickSlotSetItem(set: QuickSlotSet, itemName: ItemName): void {
   set.slots.forEach(slot => {
     if (slot.itemName === itemName) slot.itemName = undefined;
   });

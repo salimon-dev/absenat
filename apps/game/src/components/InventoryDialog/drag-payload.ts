@@ -1,4 +1,4 @@
-import type { ToolName } from '../../utils/tools';
+import type { ItemName } from '../../utils/items';
 import type { InventorySlotPosition, QuickSlotPosition } from '../../game/player/types';
 
 export enum DragPayloadKind {
@@ -8,7 +8,7 @@ export enum DragPayloadKind {
 
 export interface InventorySlotDragPayload {
   kind: DragPayloadKind.InventorySlot;
-  itemName: ToolName;
+  itemName: ItemName;
   source: InventorySlotPosition;
 }
 
@@ -45,7 +45,7 @@ function getInventorySlotPayload(
   if (typeof value.itemName !== 'string') return undefined;
   return {
     kind: DragPayloadKind.InventorySlot,
-    itemName: value.itemName as ToolName,
+    itemName: value.itemName as ItemName,
     source: value.source
   };
 }

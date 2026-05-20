@@ -1,4 +1,5 @@
 import type Tree from '../entities/tree';
+import type { EntityContent } from '../entities/types';
 import type { World } from '.';
 import { TILE_SIZE } from './tiles';
 
@@ -7,16 +8,26 @@ interface TilePosition {
   y: number;
 }
 
-export function removeTreesInRange(this: World, x: number, y: number, range: number): void {
+export function removeTreesInRange(
+  this: World,
+  x: number,
+  y: number,
+  range: number,
+  damage: number
+): EntityContent {
   const origin = getTilePosition(x, y);
-  const remainingTrees = this.entities.filter(tree => keepTree(tree, origin, range));
-  this.entities = remainingTrees;
+  const removedTrees = damageTreesInRange(this.entities, origin, range, damage);
+  this.entities = this.entities.filter(tree => !removedTrees.includes(tree));
+  removedTrees.forEach(tree => tree.destroy());
+  return getTreeContents(removedTrees);
 }
 
-function keepTree(tree: Tree, origin: TilePosition, range: number): boolean {
-  if (!isTreeInRange(tree, origin, range)) return true;
-  tree.destroy();
-  return false;
+function damageTreesInRange(trees: Tree[], origin: TilePosition, range: number, damage: number): Tree[] {
+  return trees.filter(tree => isTreeInRange(tree, origin, range) && tree.takeDamage(damage));
+}
+
+function getTreeContents(trees: Tree[]): EntityContent {
+  return trees.flatMap(tree => tree.content.map(item => ({ ...item })));
 }
 
 function isTreeInRange(tree: Tree, origin: TilePosition, range: number): boolean {
