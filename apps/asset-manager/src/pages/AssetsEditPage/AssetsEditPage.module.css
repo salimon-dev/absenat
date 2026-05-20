@@ -141,9 +141,57 @@
   background-size: 16px 16px;
 }
 
-.canvas {
-  image-rendering: pixelated;
+.exportCanvas {
+  display: none;
+}
+
+.frameGridWrap {
   max-width: 100%;
+  overflow: auto;
+  padding: 16px;
+}
+
+.frameGrid {
+  display: grid;
+  gap: 1px;
+  width: max-content;
+}
+
+.frameTile {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  display: grid;
+  height: var(--tile-preview-size);
+  margin: 0;
+  padding: 0;
+  place-items: center;
+  position: relative;
+  width: var(--tile-preview-size);
+}
+
+.frameTile:hover,
+.replacementTile:hover {
+  border-color: var(--accent);
+}
+
+.frameImage {
+  height: 100%;
+  image-rendering: pixelated;
+  width: 100%;
+}
+
+.frameLabel {
+  background: rgba(0, 0, 0, 0.62);
+  border-radius: 3px;
+  bottom: 2px;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 3px;
+  pointer-events: none;
+  position: absolute;
+  right: 2px;
 }
 
 .loading {
@@ -203,6 +251,114 @@
   display: grid;
   font-size: 12px;
   gap: 6px;
+}
+
+.dialogOverlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.68);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 20;
+}
+
+.dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: min(720px, 92vh);
+  max-width: min(760px, 94vw);
+  padding: 18px;
+  width: 100%;
+}
+
+.dialogHeader {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.dialogTitle {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.dialogSubtitle {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.closeBtn,
+.uploadBtn {
+  border: none;
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 12px;
+}
+
+.closeBtn {
+  background: var(--surface-raised);
+}
+
+.uploadBtn {
+  background: var(--accent);
+  color: #fff;
+}
+
+.currentFrame {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.currentFrameImage {
+  background: #111;
+  border: 1px solid var(--border);
+  height: 64px;
+  image-rendering: pixelated;
+  width: 64px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.replacementGridWrap {
+  background: #111;
+  border-radius: 4px;
+  max-height: 430px;
+  overflow: auto;
+  padding: 12px;
+}
+
+.replacementGrid {
+  display: grid;
+  gap: 1px;
+  width: max-content;
+}
+
+.replacementTile {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  display: grid;
+  height: var(--tile-preview-size);
+  padding: 0;
+  place-items: center;
+  position: relative;
+  width: var(--tile-preview-size);
 }
 
 @media (max-width: 820px) {
