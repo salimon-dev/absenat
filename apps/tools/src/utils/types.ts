@@ -51,6 +51,43 @@ export type ToolVariant = {
   pixels: PixelRect[];
 };
 
+export enum NpcAsset {
+  Skeleton = 'skeleton',
+}
+
+export type NpcAssetType = NpcAsset;
+
+export enum NpcAnimation {
+  IdleDown = 'idle-down',
+  WalkUp = 'walk-up',
+  WalkLeft = 'walk-left',
+  WalkDown = 'walk-down',
+  WalkRight = 'walk-right',
+}
+
+export type NpcAnimationType = NpcAnimation;
+
+export type NpcAnimationRow = {
+  id: NpcAnimationType;
+  frames: PixelRect[][];
+};
+
+export type NpcVariant = {
+  id: NpcAssetType;
+  animations: NpcAnimationRow[];
+};
+
+export type NpcAssetData = {
+  id: NpcAssetType;
+  frameWidth: number;
+  frameHeight: number;
+  animations: {
+    id: NpcAnimationType;
+    row: number;
+    frames: number[];
+  }[];
+};
+
 export type TreeAssetData = {
   id: string;
   biome: string;
