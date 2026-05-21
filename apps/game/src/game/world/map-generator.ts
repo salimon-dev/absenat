@@ -1,5 +1,5 @@
 import { Biome } from '@absenat/specs';
-import { getTileVariantCount } from '../entities/tile/tile-variants';
+import { getRandomTileVariant } from '../entities/tile/tile-variants';
 import type { TilePlacement } from '../entities/types';
 import { MAP_GEN_CONFIG } from './map-generator.config';
 import { TILE_SIZE, WORLD_SIZE } from './tiles';
@@ -233,6 +233,6 @@ function getBiomeCount(biomes: Biome[], biome: Biome): number {
 
 function selectBiomeTile(biome: Biome): TilePlacement {
   const tileBiome = TILE_BIOME_ALIASES[biome];
-  const variantCount = getTileVariantCount(tileBiome);
-  return { biome: tileBiome, variant: randomInt(0, variantCount - 1) };
+  const tileVariant = getRandomTileVariant(tileBiome);
+  return { biome: tileBiome, variant: tileVariant.variant };
 }

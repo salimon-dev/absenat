@@ -104,7 +104,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.y = y;
     this.lastDirection = lastDirection;
 
-    this.setDepth(2);
+    this.setDepth(10);
 
     if (moving) {
       this.play(`walk-${this.lastDirection}`, true);
@@ -144,12 +144,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
   private applyToolEffect(toolName: ToolName): void {
     if (toolName !== ToolType.Axe) return;
-    const contents = this.world.removeTreesInRange(
-      this.x,
-      this.y,
-      TOOL_DEFINITIONS[toolName].range,
-      AXE_TREE_DAMAGE
-    );
+    const contents = this.world.removeTreesInRange(this.x, this.y, TOOL_DEFINITIONS[toolName].range, AXE_TREE_DAMAGE);
     contents.forEach(item => this.inventory.addItem(item));
   }
 }

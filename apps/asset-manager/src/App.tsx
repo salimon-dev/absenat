@@ -23,9 +23,6 @@ function AppShell() {
             <Route path="assets" element={<AssetsPage />} />
             <Route path="assets/create" element={<AssetsCreatePage />} />
             <Route path="assets/:filename/edit" element={<AssetsEditPage />} />
-            {/* <Route path="entities" element={<EntitiesPage />} />
-            <Route path="entities/create" element={<EntityCreatePage />} />
-            <Route path="map-modules" element={<MapModulesPage />} /> */}
           </Routes>
         </main>
       </div>

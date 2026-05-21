@@ -35,6 +35,39 @@ export async function writeAssetFile(
   await writable.close();
 }
 
+export async function readPublicAssetImageFiles(
+  root: FileSystemDirectoryHandle,
+): Promise<File[]> {
+  const files: File[] = [];
+  for await (const handle of root.values()) {
+    if (isPngFile(handle)) files.push(await handle.getFile());
+  }
+  return files.sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export async function readPublicAssetImageFile(
+  root: FileSystemDirectoryHandle,
+  filename: string,
+): Promise<File | null> {
+  try {
+    const handle = await root.getFileHandle(filename);
+    return handle.getFile();
+  } catch {
+    return null;
+  }
+}
+
+export async function writePublicAssetImageBlob(
+  root: FileSystemDirectoryHandle,
+  filename: string,
+  blob: Blob,
+): Promise<void> {
+  const handle = await root.getFileHandle(filename, { create: true });
+  const writable = await handle.createWritable();
+  await writable.write(blob);
+  await writable.close();
+}
+
 export async function readAssets(root: FileSystemDirectoryHandle): Promise<AssetSchema[]> {
   try {
     const dir = await getAssetsDir(root);
