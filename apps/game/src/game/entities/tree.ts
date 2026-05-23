@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { ResourceType } from '../../utils/resources';
+import HealthBar from './health-bar/health-bar';
 import type { EntityContent } from './types';
 
 export const TREE_TEXTURE_KEY = 'trees';
@@ -10,6 +11,8 @@ const TREE_MAX_HP = 10;
 const TREE_VARIANT_COUNT = 4;
 const TREE_TOP_DEPTH = 20;
 const TREE_BOTTOM_DEPTH = 5;
+const TREE_HEALTH_BAR_OFFSET_X = 1;
+const TREE_HEALTH_BAR_OFFSET_Y = -5;
 
 interface TreeFrames {
   top: Phaser.GameObjects.Sprite;
@@ -21,6 +24,7 @@ export default class Tree extends Phaser.GameObjects.Container {
   public hp = TREE_MAX_HP;
   private readonly top: Phaser.GameObjects.Sprite;
   private readonly bottom: Phaser.GameObjects.Sprite;
+  private readonly healthBar: HealthBar;
 
   static preload(scene: Phaser.Scene): void {
     scene.load.spritesheet(TREE_TEXTURE_KEY, TREE_ASSET_PATH, {
@@ -35,6 +39,7 @@ export default class Tree extends Phaser.GameObjects.Container {
     const frames = this.loadFrames(x, y);
     this.top = frames.top;
     this.bottom = frames.bottom;
+    this.healthBar = this.loadHealthBar(x, y);
     this.setVariant(variant);
     scene.add.existing(this);
   }
@@ -46,6 +51,13 @@ export default class Tree extends Phaser.GameObjects.Container {
     };
   }
 
+  private loadHealthBar(x: number, y: number): HealthBar {
+    return new HealthBar(this.scene, x + TREE_HEALTH_BAR_OFFSET_X, y + TREE_HEALTH_BAR_OFFSET_Y, {
+      current: this.hp,
+      total: TREE_MAX_HP
+    });
+  }
+
   setVariant(variant: number): this {
     this.top.setFrame(getTopFrame(variant));
     this.bottom.setFrame(getBottomFrame(variant));
@@ -54,12 +66,14 @@ export default class Tree extends Phaser.GameObjects.Container {
 
   takeDamage(amount: number): boolean {
     this.hp = Math.max(this.hp - amount, 0);
+    this.healthBar.setValue(this.hp, TREE_MAX_HP);
     return this.hp === 0;
   }
 
   destroy(fromScene?: boolean): void {
     this.top.destroy(fromScene);
     this.bottom.destroy(fromScene);
+    this.healthBar.destroy(fromScene);
     super.destroy(fromScene);
   }
 }
