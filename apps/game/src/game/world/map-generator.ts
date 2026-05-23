@@ -201,8 +201,22 @@ function addRowEntities(
 function canPlaceTree(corners: Biome[][], x: number, y: number, waterBorder: number): boolean {
   if (isRaftFloorTile(x, y) || isRaftWaterTile(x, y)) return false;
   if (isWaterBorderTile(x, y, waterBorder)) return false;
+  if (hasWaterInTreeFootprint(corners, x, y)) return false;
   const biome = corners[y][x];
   return biome === Biome.Grass && Math.random() < MAP_GEN_CONFIG.tree.spawnChance;
+}
+
+function hasWaterInTreeFootprint(corners: Biome[][], x: number, y: number): boolean {
+  if (y === 0) return true;
+  return hasWaterInTileCorners(corners, x, y - 1) || hasWaterInTileCorners(corners, x, y);
+}
+
+function hasWaterInTileCorners(corners: Biome[][], x: number, y: number): boolean {
+  return getTileCorners(corners, x, y).some(biome => biome === Biome.Water);
+}
+
+function getTileCorners(corners: Biome[][], x: number, y: number): Biome[] {
+  return [corners[y][x], corners[y][x + 1], corners[y + 1][x], corners[y + 1][x + 1]];
 }
 
 function createTreePlacement(tileX: number, tileY: number): EntityPlacement {
