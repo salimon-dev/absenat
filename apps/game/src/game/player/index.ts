@@ -122,7 +122,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
       this.updateToolUse(toolName);
       return;
     }
-    this.nextToolUseAt = 0;
     this.activeTool.stopSwing();
   }
 
