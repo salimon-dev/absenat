@@ -6,13 +6,13 @@ import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
 import {
   InventoryEvent,
+  type RemoveInventoryItemPayload,
   type InventorySlotMovePayload,
   type InventorySlot,
   type InventorySnapshot,
   type QuickSlotAssignmentPayload,
   type QuickSlotMovePayload,
-  type QuickSlotsSnapshot,
-  type RemoveInventoryItemPayload
+  type QuickSlotsSnapshot
 } from '@game/player/types';
 
 export default function GameScreen() {
@@ -48,6 +48,7 @@ export default function GameScreen() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setInventoryOpen(false);
       if (e.key === 'i' || e.key === 'I') setInventoryOpen(prev => !prev);
       if (e.key === 'u' || e.key === 'U') setStatsOpen(prev => !prev);
     };
@@ -59,12 +60,12 @@ export default function GameScreen() {
     gameRef.current?.events.emit(InventoryEvent.Request);
   }, []);
 
-  const removeInventoryItem = useCallback((payload: RemoveInventoryItemPayload) => {
-    gameRef.current?.events.emit(InventoryEvent.Remove, payload);
-  }, []);
-
   const moveInventoryItem = useCallback((payload: InventorySlotMovePayload) => {
     gameRef.current?.events.emit(InventoryEvent.Move, payload);
+  }, []);
+
+  const removeInventoryItem = useCallback((payload: RemoveInventoryItemPayload) => {
+    gameRef.current?.events.emit(InventoryEvent.Remove, payload);
   }, []);
 
   const selectQuickSlotSet = useCallback((setId: number) => {

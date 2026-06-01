@@ -4,8 +4,7 @@ import type {
   InventoryItem,
   InventorySlotMovePayload,
   InventorySlot as InventorySlotType,
-  InventorySlotPosition,
-  RemoveInventoryItemPayload
+  InventorySlotPosition
 } from '../../../game/player/types';
 import { DragPayloadKind, parseSlotDragPayload, serializeSlotDragPayload } from '../drag-payload';
 import styles from './Inventory.module.css';
@@ -15,15 +14,15 @@ type DragTarget = InventorySlotPosition;
 
 interface InventoryProps {
   slots: InventorySlotType[];
+  onItemSelect: (item: InventoryItem) => void;
   onInventoryRequest: () => void;
-  onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
   onInventorySlotMove: (payload: InventorySlotMovePayload) => void;
 }
 
 export default function Inventory({
   slots,
+  onItemSelect,
   onInventoryRequest,
-  onInventoryRemove,
   onInventorySlotMove
 }: InventoryProps) {
   const [icons, setIcons] = useState<InventoryIcons>({});
@@ -49,13 +48,13 @@ export default function Inventory({
             icon={slot.item ? icons[slot.item.name] : undefined}
             item={slot.item}
             slotIndex={slotIndex}
+            onClick={handleItemClick}
             onDragEnd={handleDragEnd}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDragOver={handleDragOver}
             onDragStart={handleDragStart}
             onDrop={handleDrop}
-            onInventoryRemove={onInventoryRemove}
           />
         ))}
       </div>
@@ -105,6 +104,10 @@ export default function Inventory({
     clearDragState();
   }
 
+  function handleItemClick(item: InventoryItem): void {
+    onItemSelect(item);
+  }
+
   function clearDragState(): void {
     setDropTarget(undefined);
   }
@@ -115,13 +118,13 @@ interface InventorySlotProps {
   icon?: string;
   item?: InventoryItem;
   slotIndex: number;
+  onClick: (item: InventoryItem) => void;
   onDragEnd: () => void;
   onDragEnter: (position: DragTarget) => void;
   onDragLeave: (position: DragTarget) => void;
   onDragOver: (position: DragTarget, e: DragEvent<HTMLElement>) => void;
   onDragStart: (item: InventoryItem, position: DragTarget, e: DragEvent<HTMLButtonElement>) => void;
   onDrop: (position: DragTarget, e: DragEvent<HTMLElement>) => void;
-  onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
 }
 
 function InventorySlot({
@@ -129,13 +132,13 @@ function InventorySlot({
   icon,
   item,
   slotIndex,
+  onClick,
   onDragEnd,
   onDragEnter,
   onDragLeave,
   onDragOver,
   onDragStart,
-  onDrop,
-  onInventoryRemove
+  onDrop
 }: InventorySlotProps) {
   const position = { slotIndex };
   if (!item) {
@@ -151,12 +154,12 @@ function InventorySlot({
   }
   return (
     <button
-      aria-label={`Drop ${formatName(item.name)}`}
+      aria-label={`View ${formatName(item.name)}`}
       className={getSlotClass(position, dropTarget)}
       draggable
       title={formatTooltip(item)}
       type="button"
-      onClick={() => onInventoryRemove({ name: item.name, count: 1 })}
+      onClick={() => onClick(item)}
       onDragEnd={onDragEnd}
       onDragStart={e => onDragStart(item, position, e)}
       onDragEnter={() => onDragEnter(position)}
