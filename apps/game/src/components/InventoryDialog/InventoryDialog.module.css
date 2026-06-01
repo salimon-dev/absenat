@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   z-index: 200;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .dialog {
@@ -17,7 +17,6 @@
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
-  pointer-events: auto;
 }
 
 .header {

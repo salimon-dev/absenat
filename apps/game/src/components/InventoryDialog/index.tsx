@@ -6,8 +6,7 @@ import type {
   InventorySlot,
   QuickSlotAssignmentPayload,
   QuickSlotMovePayload,
-  QuickSlotsSnapshot,
-  RemoveInventoryItemPayload
+  QuickSlotsSnapshot
 } from '../../game/player/types';
 
 interface InventoryDialogProps {
@@ -15,7 +14,6 @@ interface InventoryDialogProps {
   quickSlots?: QuickSlotsSnapshot;
   onClose: () => void;
   onInventoryRequest: () => void;
-  onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
   onInventorySlotMove: (payload: InventorySlotMovePayload) => void;
   onQuickSlotAssign: (payload: QuickSlotAssignmentPayload) => void;
   onQuickSlotMove: (payload: QuickSlotMovePayload) => void;
@@ -27,15 +25,14 @@ export default function InventoryDialog({
   quickSlots,
   onClose,
   onInventoryRequest,
-  onInventoryRemove,
   onInventorySlotMove,
   onQuickSlotAssign,
   onQuickSlotMove,
   onQuickSlotSetSelect
 }: InventoryDialogProps) {
   return (
-    <div className={styles.overlay}>
-      <div className={styles.dialog}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.dialog} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <span className={styles.title}>Inventory</span>
           <button onClick={onClose} className={styles.closeButton}>
@@ -52,7 +49,6 @@ export default function InventoryDialog({
           <Inventory
             slots={inventorySlots}
             onInventoryRequest={onInventoryRequest}
-            onInventoryRemove={onInventoryRemove}
             onInventorySlotMove={onInventorySlotMove}
           />
         </div>

@@ -4,8 +4,7 @@ import type {
   InventoryItem,
   InventorySlotMovePayload,
   InventorySlot as InventorySlotType,
-  InventorySlotPosition,
-  RemoveInventoryItemPayload
+  InventorySlotPosition
 } from '../../../game/player/types';
 import { DragPayloadKind, parseSlotDragPayload, serializeSlotDragPayload } from '../drag-payload';
 import styles from './Inventory.module.css';
@@ -16,14 +15,12 @@ type DragTarget = InventorySlotPosition;
 interface InventoryProps {
   slots: InventorySlotType[];
   onInventoryRequest: () => void;
-  onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
   onInventorySlotMove: (payload: InventorySlotMovePayload) => void;
 }
 
 export default function Inventory({
   slots,
   onInventoryRequest,
-  onInventoryRemove,
   onInventorySlotMove
 }: InventoryProps) {
   const [icons, setIcons] = useState<InventoryIcons>({});
@@ -55,7 +52,6 @@ export default function Inventory({
             onDragOver={handleDragOver}
             onDragStart={handleDragStart}
             onDrop={handleDrop}
-            onInventoryRemove={onInventoryRemove}
           />
         ))}
       </div>
@@ -121,7 +117,6 @@ interface InventorySlotProps {
   onDragOver: (position: DragTarget, e: DragEvent<HTMLElement>) => void;
   onDragStart: (item: InventoryItem, position: DragTarget, e: DragEvent<HTMLButtonElement>) => void;
   onDrop: (position: DragTarget, e: DragEvent<HTMLElement>) => void;
-  onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
 }
 
 function InventorySlot({
@@ -134,8 +129,7 @@ function InventorySlot({
   onDragLeave,
   onDragOver,
   onDragStart,
-  onDrop,
-  onInventoryRemove
+  onDrop
 }: InventorySlotProps) {
   const position = { slotIndex };
   if (!item) {
@@ -156,7 +150,6 @@ function InventorySlot({
       draggable
       title={formatTooltip(item)}
       type="button"
-      onClick={() => onInventoryRemove({ name: item.name, count: 1 })}
       onDragEnd={onDragEnd}
       onDragStart={e => onDragStart(item, position, e)}
       onDragEnter={() => onDragEnter(position)}

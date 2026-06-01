@@ -11,8 +11,7 @@ import {
   type InventorySnapshot,
   type QuickSlotAssignmentPayload,
   type QuickSlotMovePayload,
-  type QuickSlotsSnapshot,
-  type RemoveInventoryItemPayload
+  type QuickSlotsSnapshot
 } from '@game/player/types';
 
 export default function GameScreen() {
@@ -48,6 +47,7 @@ export default function GameScreen() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setInventoryOpen(false);
       if (e.key === 'i' || e.key === 'I') setInventoryOpen(prev => !prev);
       if (e.key === 'u' || e.key === 'U') setStatsOpen(prev => !prev);
     };
@@ -57,10 +57,6 @@ export default function GameScreen() {
 
   const requestInventory = useCallback(() => {
     gameRef.current?.events.emit(InventoryEvent.Request);
-  }, []);
-
-  const removeInventoryItem = useCallback((payload: RemoveInventoryItemPayload) => {
-    gameRef.current?.events.emit(InventoryEvent.Remove, payload);
   }, []);
 
   const moveInventoryItem = useCallback((payload: InventorySlotMovePayload) => {
@@ -95,7 +91,6 @@ export default function GameScreen() {
           quickSlots={quickSlots}
           onClose={() => setInventoryOpen(false)}
           onInventoryRequest={requestInventory}
-          onInventoryRemove={removeInventoryItem}
           onInventorySlotMove={moveInventoryItem}
           onQuickSlotAssign={assignQuickSlot}
           onQuickSlotMove={moveQuickSlot}

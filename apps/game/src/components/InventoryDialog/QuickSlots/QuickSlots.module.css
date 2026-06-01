@@ -33,8 +33,9 @@
   font-family: monospace;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.2);
-  width: 14px;
-  text-align: right;
+  width: 26px;
+  height: 26px;
+  text-align: center;
   flex-shrink: 0;
   user-select: none;
   cursor: pointer;
