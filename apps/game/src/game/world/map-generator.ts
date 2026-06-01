@@ -13,6 +13,8 @@ const RAFT_SIZE = 18;
 const RAFT_EDGE_GAP = 1;
 const RAFT_BRIDGE_WIDTH = 3;
 const RAFT_BRIDGE_LENGTH = 2;
+const RAFT_LANDING_LENGTH = 8;
+const RAFT_LANDING_PADDING = 2;
 const TILE_BIOME_ALIASES: Record<Biome, Biome> = {
   [Biome.Grass]: Biome.Grass,
   [Biome.Water]: Biome.Water,
@@ -43,6 +45,7 @@ interface BodyConfig {
 export function generateMap(): MapResult {
   const waterBorder = randomWaterBorder();
   const corners = buildCornerGrid(waterBorder);
+  carveRaftLanding(corners);
   const tiles = resolveTiles(corners, waterBorder);
   const entities = placeEntities(corners, waterBorder);
   return { tiles, entities };
@@ -147,6 +150,19 @@ function isRaftBridgeTile(x: number, y: number): boolean {
   return inBridgeX && y >= getRaftBridgeTop() && y <= getRaftBridgeBottom();
 }
 
+function isRaftLandingTile(x: number, y: number): boolean {
+  const inLandingX = x > getRaftRight() + RAFT_BRIDGE_LENGTH && x <= getRaftLandingRight();
+  return inLandingX && y >= getRaftLandingTop() && y <= getRaftLandingBottom();
+}
+
+function carveRaftLanding(corners: Biome[][]): void {
+  for (let y = getRaftLandingTop(); y <= getRaftLandingBottom() + 1; y++) {
+    for (let x = getRaftLandingLeft(); x <= getRaftLandingRight() + 1; x++) {
+      corners[y][x] = Biome.Sand;
+    }
+  }
+}
+
 function isRaftWaterTile(x: number, y: number): boolean {
   if (isRaftTile(x, y)) return false;
   if (isRaftBridgeTile(x, y)) return false;
@@ -177,6 +193,22 @@ function getRaftBridgeBottom(): number {
   return getRaftBridgeTop() + RAFT_BRIDGE_WIDTH - 1;
 }
 
+function getRaftLandingLeft(): number {
+  return getRaftRight() + RAFT_BRIDGE_LENGTH + 1;
+}
+
+function getRaftLandingRight(): number {
+  return getRaftLandingLeft() + RAFT_LANDING_LENGTH - 1;
+}
+
+function getRaftLandingTop(): number {
+  return getRaftBridgeTop() - RAFT_LANDING_PADDING;
+}
+
+function getRaftLandingBottom(): number {
+  return getRaftBridgeBottom() + RAFT_LANDING_PADDING;
+}
+
 function isWaterBorderTile(x: number, y: number, waterBorder: number): boolean {
   return x < waterBorder || y < waterBorder || x >= WORLD_SIZE - waterBorder || y >= WORLD_SIZE - waterBorder;
 }
@@ -200,6 +232,7 @@ function addRowEntities(
 
 function canPlaceTree(corners: Biome[][], x: number, y: number, waterBorder: number): boolean {
   if (isRaftFloorTile(x, y) || isRaftWaterTile(x, y)) return false;
+  if (isRaftLandingTile(x, y)) return false;
   if (isWaterBorderTile(x, y, waterBorder)) return false;
   if (hasWaterInTreeFootprint(corners, x, y)) return false;
   const biome = corners[y][x];

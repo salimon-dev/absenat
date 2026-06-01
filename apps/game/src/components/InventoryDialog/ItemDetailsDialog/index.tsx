@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { InventoryItem } from '../../../game/player/types';
 import { IconRepo } from '../../../utils/IconRepo';
 import {
@@ -22,6 +22,7 @@ interface ItemData {
 }
 
 export default function ItemDetailsDialog({ item, onClose, onDropStack }: ItemDetailsDialogProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [icon, setIcon] = useState<string | undefined>(undefined);
   const details = getItemDetails(item);
 
@@ -35,8 +36,19 @@ export default function ItemDetailsDialog({ item, onClose, onDropStack }: ItemDe
     };
   }, [item.name]);
 
+  useEffect(() => {
+    function handlePointerDown(e: PointerEvent): void {
+      if (!(e.target instanceof Node)) return;
+      if (dialogRef.current?.contains(e.target)) return;
+      onClose();
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [onClose]);
+
   return (
-    <div className={styles.dialog} onClick={e => e.stopPropagation()}>
+    <div ref={dialogRef} className={styles.dialog} onClick={e => e.stopPropagation()}>
       <div className={styles.header}>
         <div className={styles.iconFrame}>{icon && <img className={styles.icon} src={icon} alt="" />}</div>
         <div className={styles.titleGroup}>
