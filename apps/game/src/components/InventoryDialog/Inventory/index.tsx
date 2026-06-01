@@ -14,12 +14,14 @@ type DragTarget = InventorySlotPosition;
 
 interface InventoryProps {
   slots: InventorySlotType[];
+  onItemSelect: (item: InventoryItem) => void;
   onInventoryRequest: () => void;
   onInventorySlotMove: (payload: InventorySlotMovePayload) => void;
 }
 
 export default function Inventory({
   slots,
+  onItemSelect,
   onInventoryRequest,
   onInventorySlotMove
 }: InventoryProps) {
@@ -46,6 +48,7 @@ export default function Inventory({
             icon={slot.item ? icons[slot.item.name] : undefined}
             item={slot.item}
             slotIndex={slotIndex}
+            onClick={handleItemClick}
             onDragEnd={handleDragEnd}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -101,6 +104,10 @@ export default function Inventory({
     clearDragState();
   }
 
+  function handleItemClick(item: InventoryItem): void {
+    onItemSelect(item);
+  }
+
   function clearDragState(): void {
     setDropTarget(undefined);
   }
@@ -111,6 +118,7 @@ interface InventorySlotProps {
   icon?: string;
   item?: InventoryItem;
   slotIndex: number;
+  onClick: (item: InventoryItem) => void;
   onDragEnd: () => void;
   onDragEnter: (position: DragTarget) => void;
   onDragLeave: (position: DragTarget) => void;
@@ -124,6 +132,7 @@ function InventorySlot({
   icon,
   item,
   slotIndex,
+  onClick,
   onDragEnd,
   onDragEnter,
   onDragLeave,
@@ -145,11 +154,12 @@ function InventorySlot({
   }
   return (
     <button
-      aria-label={`Drop ${formatName(item.name)}`}
+      aria-label={`View ${formatName(item.name)}`}
       className={getSlotClass(position, dropTarget)}
       draggable
       title={formatTooltip(item)}
       type="button"
+      onClick={() => onClick(item)}
       onDragEnd={onDragEnd}
       onDragStart={e => onDragStart(item, position, e)}
       onDragEnter={() => onDragEnter(position)}

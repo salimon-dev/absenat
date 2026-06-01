@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import styles from './InventoryDialog.module.css';
 import QuickSlots from './QuickSlots';
 import Inventory from './Inventory';
+import ItemDetailsDialog from './ItemDetailsDialog';
 import type {
+  InventoryItem,
+  RemoveInventoryItemPayload,
   InventorySlotMovePayload,
   InventorySlot,
   QuickSlotAssignmentPayload,
@@ -14,6 +18,7 @@ interface InventoryDialogProps {
   quickSlots?: QuickSlotsSnapshot;
   onClose: () => void;
   onInventoryRequest: () => void;
+  onInventoryRemove: (payload: RemoveInventoryItemPayload) => void;
   onInventorySlotMove: (payload: InventorySlotMovePayload) => void;
   onQuickSlotAssign: (payload: QuickSlotAssignmentPayload) => void;
   onQuickSlotMove: (payload: QuickSlotMovePayload) => void;
@@ -25,11 +30,14 @@ export default function InventoryDialog({
   quickSlots,
   onClose,
   onInventoryRequest,
+  onInventoryRemove,
   onInventorySlotMove,
   onQuickSlotAssign,
   onQuickSlotMove,
   onQuickSlotSetSelect
 }: InventoryDialogProps) {
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>(undefined);
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.dialog} onClick={e => e.stopPropagation()}>
@@ -48,11 +56,24 @@ export default function InventoryDialog({
           />
           <Inventory
             slots={inventorySlots}
+            onItemSelect={setSelectedItem}
             onInventoryRequest={onInventoryRequest}
             onInventorySlotMove={onInventorySlotMove}
           />
         </div>
+        {selectedItem && (
+          <ItemDetailsDialog
+            item={selectedItem}
+            onClose={() => setSelectedItem(undefined)}
+            onDropStack={handleDropStack}
+          />
+        )}
       </div>
     </div>
   );
+
+  function handleDropStack(item: InventoryItem): void {
+    onInventoryRemove({ name: item.name, count: item.count ?? 1 });
+    setSelectedItem(undefined);
+  }
 }

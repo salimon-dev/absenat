@@ -6,6 +6,7 @@ import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
 import {
   InventoryEvent,
+  type RemoveInventoryItemPayload,
   type InventorySlotMovePayload,
   type InventorySlot,
   type InventorySnapshot,
@@ -63,6 +64,10 @@ export default function GameScreen() {
     gameRef.current?.events.emit(InventoryEvent.Move, payload);
   }, []);
 
+  const removeInventoryItem = useCallback((payload: RemoveInventoryItemPayload) => {
+    gameRef.current?.events.emit(InventoryEvent.Remove, payload);
+  }, []);
+
   const selectQuickSlotSet = useCallback((setId: number) => {
     gameRef.current?.events.emit(InventoryEvent.QuickSlotsSelectSet, setId);
   }, []);
@@ -91,6 +96,7 @@ export default function GameScreen() {
           quickSlots={quickSlots}
           onClose={() => setInventoryOpen(false)}
           onInventoryRequest={requestInventory}
+          onInventoryRemove={removeInventoryItem}
           onInventorySlotMove={moveInventoryItem}
           onQuickSlotAssign={assignQuickSlot}
           onQuickSlotMove={moveQuickSlot}
