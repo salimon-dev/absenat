@@ -9,7 +9,15 @@ import { TOOL_TEXTURE_KEY } from '../entities/tool';
 import { removeTreesInRange } from './remove-trees-in-range';
 import type BuildingObject from '../building/building-object';
 import type { BuildableName } from '../building/types';
-import { emitBuildState, handleBuildCancel, handleBuildPointerDown, handleBuildPointerMove, handleBuildStart, setupBuilding, teardownBuilding } from './building';
+import {
+  emitBuildState,
+  handleBuildCancel,
+  handleBuildPointerDown,
+  handleBuildPointerMove,
+  handleBuildStart,
+  setupBuilding,
+  teardownBuilding
+} from './building';
 
 export class World extends Phaser.Scene {
   player!: Player;

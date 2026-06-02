@@ -22,6 +22,7 @@ const HINT_TEXT_STYLE = {
 
 export function setupBuilding(this: World): void {
   BuildingObject.ensureTextures(this);
+  this.input.mouse?.disableContextMenu();
   this.buildHint = this.add.text(0, 0, BUILD_HINT_TEXT, HINT_TEXT_STYLE).setDepth(1000).setScrollFactor(0).setVisible(false);
   this.input.on('pointermove', this.handleBuildPointerMove, this);
   this.input.on('pointerdown', this.handleBuildPointerDown, this);
@@ -65,7 +66,11 @@ export function handleBuildPointerMove(this: World, pointer: Phaser.Input.Pointe
 }
 
 export function handleBuildPointerDown(this: World, pointer: Phaser.Input.Pointer): void {
-  if (!pointer.leftButtonDown()) return;
+  if (pointer.button === 2) {
+    this.handleBuildCancel();
+    return;
+  }
+  if (pointer.button !== 0) return;
   if (!this.activeBuild || !this.buildPreview) return;
   const placement = getPointerPlacement(pointer);
   const validation = validatePlacement(this, this.activeBuild, placement.tileX, placement.tileY);

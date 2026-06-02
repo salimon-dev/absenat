@@ -2,10 +2,10 @@ import { Biome } from '@absenat/specs';
 import { getRandomTileVariant } from '../entities/tile/tile-variants';
 import type { TilePlacement } from '../entities/types';
 import { MAP_GEN_CONFIG } from './map-generator.config';
+import { getRaftLandingBounds, isRaftFloorTile, isRaftLandingTile, isRaftWaterTile } from './raft';
 import { TILE_SIZE, WORLD_SIZE } from './tiles';
 import { WorldEntityKind } from './types';
 import type { EntityPlacement, MapResult } from './types';
-import { isRaftFloorTile, isRaftLandingTile, isRaftWaterTile } from './raft';
 
 const TREE_VARIANT_COUNT = 4;
 const BACKGROUND_DIRT_CHANCE = 0.03;
@@ -133,47 +133,12 @@ function selectWorldTile(corners: Biome[][], x: number, y: number, waterBorder: 
 }
 
 function carveRaftLanding(corners: Biome[][]): void {
-  for (let y = getRaftLandingTop(); y <= getRaftLandingBottom() + 1; y++) {
-    for (let x = getRaftLandingLeft(); x <= getRaftLandingRight() + 1; x++) {
+  const landing = getRaftLandingBounds();
+  for (let y = landing.top; y <= landing.bottom + 1; y++) {
+    for (let x = landing.left; x <= landing.right + 1; x++) {
       corners[y][x] = Biome.Sand;
     }
   }
-}
-
-function getRaftLeft(): number {
-  return 1;
-}
-
-function getRaftTop(): number {
-  return WORLD_SIZE - 1 - 18;
-}
-
-function getRaftRight(): number {
-  return getRaftLeft() + 18 - 1;
-}
-
-function getRaftBridgeTop(): number {
-  return getRaftTop() + Math.floor((18 - 3) / 2);
-}
-
-function getRaftBridgeBottom(): number {
-  return getRaftBridgeTop() + 3 - 1;
-}
-
-function getRaftLandingLeft(): number {
-  return getRaftRight() + 2 + 1;
-}
-
-function getRaftLandingRight(): number {
-  return getRaftLandingLeft() + 8 - 1;
-}
-
-function getRaftLandingTop(): number {
-  return getRaftBridgeTop() - 2;
-}
-
-function getRaftLandingBottom(): number {
-  return getRaftBridgeBottom() + 2;
 }
 
 function isWaterBorderTile(x: number, y: number, waterBorder: number): boolean {

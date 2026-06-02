@@ -54,14 +54,19 @@ export default function GameScreen() {
   }, [handleInventoryUpdate]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
         setInventoryOpen(false);
         setBuildMenuOpen(false);
         gameRef.current?.events.emit(BuildEvent.CancelPlacement);
       }
-      if (e.key === 'i' || e.key === 'I') setInventoryOpen(prev => !prev);
-      if (e.key === 'u' || e.key === 'U') {
+      if (event.key === 'i' || event.key === 'I') {
+        setBuildMenuOpen(false);
+        gameRef.current?.events.emit(BuildEvent.CancelPlacement);
+        setInventoryOpen(prev => !prev);
+      }
+      if (event.key === 'u' || event.key === 'U') {
+        setInventoryOpen(false);
         gameRef.current?.events.emit(BuildEvent.CancelPlacement);
         setBuildMenuOpen(prev => !prev);
       }
@@ -96,6 +101,7 @@ export default function GameScreen() {
 
   const startBuildPlacement = useCallback((payload: BuildPlacementPayload) => {
     gameRef.current?.events.emit(BuildEvent.StartPlacement, payload);
+    setBuildMenuOpen(false);
   }, []);
 
   const woodCount = getInventoryItemCount(inventorySlots, ResourceType.Wood);
@@ -110,6 +116,13 @@ export default function GameScreen() {
         quickSlots={quickSlots}
         onQuickSlotSetSelect={selectQuickSlotSet}
       />
+      {buildMenuOpen && (
+        <BuildMenuDialog
+          woodCount={woodCount}
+          onClose={() => setBuildMenuOpen(false)}
+          onSelect={buildable => startBuildPlacement({ buildable })}
+        />
+      )}
       {inventoryOpen && (
         <InventoryDialog
           inventorySlots={inventorySlots}
@@ -121,16 +134,6 @@ export default function GameScreen() {
           onQuickSlotAssign={assignQuickSlot}
           onQuickSlotMove={moveQuickSlot}
           onQuickSlotSetSelect={selectQuickSlotSet}
-        />
-      )}
-      {buildMenuOpen && (
-        <BuildMenuDialog
-          woodCount={woodCount}
-          onClose={() => setBuildMenuOpen(false)}
-          onSelect={buildable => {
-            startBuildPlacement({ buildable });
-            setBuildMenuOpen(false);
-          }}
         />
       )}
     </>
