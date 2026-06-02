@@ -1,5 +1,11 @@
 import * as Phaser from 'phaser';
-import { BuildEvent, BuildPlacementReason, type BuildPlacementReasonType, type BuildPlacementStartPayload } from '../build/types';
+import {
+  BuildEvent,
+  BuildPlacementReason,
+  type BuildPlacementReasonType,
+  type BuildPlacementStartPayload,
+  type BuildPlacementStatusPayload
+} from '../build/types';
 import { getBuildableSpec } from '../build/buildables';
 import Structure from '../entities/structure/structure';
 import { TILE_SIZE } from './tiles';
@@ -24,6 +30,7 @@ const BUILD_VALID_COLOR = 0x65d26e;
 const BUILD_INVALID_COLOR = 0xd15a5a;
 
 export function registerBuildingEvents(this: World): void {
+  this.input.mouse?.disableContextMenu();
   this.game.events.on(BuildEvent.PlacementStart, this.startBuildPlacement, this);
   this.game.events.on(BuildEvent.PlacementCancel, this.cancelBuildPlacement, this);
   this.input.on(Phaser.Input.Events.POINTER_MOVE, this.handleBuildPointerMove, this);
@@ -41,10 +48,12 @@ export function destroyBuildingEvents(this: World): void {
   this.buildPlacementPrompt?.destroy();
   this.buildPlacementPrompt = undefined;
   this.activeBuildPlacement = undefined;
+  emitPlacementStatus(this, { active: false });
 }
 
 export function startBuildPlacement(this: World, payload: BuildPlacementStartPayload): void {
   this.activeBuildPlacement = createBuildPlacement(payload.buildable);
+  emitPlacementStatus(this, { active: true, buildable: payload.buildable });
   updatePlacementFromPointer(this, this.input.activePointer);
 }
 
@@ -52,6 +61,7 @@ export function cancelBuildPlacement(this: World): void {
   this.activeBuildPlacement = undefined;
   this.buildPlacementPreview?.setVisible(false);
   this.buildPlacementPrompt?.setVisible(false);
+  emitPlacementStatus(this, { active: false });
 }
 
 export function handleBuildPointerMove(this: World, pointer: Phaser.Input.Pointer): void {
@@ -61,6 +71,10 @@ export function handleBuildPointerMove(this: World, pointer: Phaser.Input.Pointe
 
 export function handleBuildPointerDown(this: World, pointer: Phaser.Input.Pointer): void {
   if (!this.activeBuildPlacement) return;
+  if (pointer.button === 2) {
+    cancelBuildPlacement.call(this);
+    return;
+  }
   if (pointer.button !== 0) return;
   updatePlacementFromPointer(this, pointer);
   if (!this.activeBuildPlacement.valid) return;
@@ -218,9 +232,14 @@ function createBuildPlacement(buildable: BuildPlacementStartPayload['buildable']
 }
 
 function getPlacementPromptText(reason: BuildPlacementReasonType): string {
+  if (reason === BuildPlacementReason.Unset) return 'Left click to place - Right click to cancel';
   if (reason === BuildPlacementReason.NoResources) return 'Not enough wood';
   if (reason === BuildPlacementReason.OutsideRaft) return 'Build inside the raft';
   if (reason === BuildPlacementReason.PlayerBlocked) return 'Move away to place this';
   if (reason === BuildPlacementReason.Occupied) return 'That spot is blocked';
   return '';
+}
+
+function emitPlacementStatus(world: World, payload: BuildPlacementStatusPayload): void {
+  world.game.events.emit(BuildEvent.PlacementStatusUpdate, payload);
 }

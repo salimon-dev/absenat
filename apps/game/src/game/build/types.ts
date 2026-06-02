@@ -2,7 +2,8 @@ import type { BuildableName } from './buildables';
 
 export enum BuildEvent {
   PlacementCancel = 'build-placement-cancel',
-  PlacementStart = 'build-placement-start'
+  PlacementStart = 'build-placement-start',
+  PlacementStatusUpdate = 'build-placement-status-update'
 }
 
 export type BuildEventType = BuildEvent;
@@ -19,4 +20,9 @@ export type BuildPlacementReasonType = BuildPlacementReason;
 
 export interface BuildPlacementStartPayload {
   buildable: BuildableName;
+}
+
+export interface BuildPlacementStatusPayload {
+  active: boolean;
+  buildable?: BuildableName;
 }

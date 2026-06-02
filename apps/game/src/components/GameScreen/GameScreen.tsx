@@ -5,7 +5,9 @@ import HUD, { type HUDStats } from '@components/HUD';
 import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
 import BuildMenu from '@components/BuildMenu/BuildMenu';
-import { BuildEvent, type BuildPlacementStartPayload } from '@game/build/types';
+import BuildPlacementHint from '@components/BuildPlacementHint/BuildPlacementHint';
+import { BuildEvent, type BuildPlacementStartPayload, type BuildPlacementStatusPayload } from '@game/build/types';
+import type { BuildableName } from '@game/build/buildables';
 import {
   InventoryEvent,
   type RemoveInventoryItemPayload,
@@ -26,6 +28,7 @@ export default function GameScreen() {
   const [quickSlots, setQuickSlots] = useState<QuickSlotsSnapshot | undefined>(undefined);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [buildOpen, setBuildOpen] = useState(false);
+  const [activeBuildable, setActiveBuildable] = useState<BuildableName | undefined>(undefined);
 
   const handleInventoryUpdate = useCallback((snapshot: InventorySnapshot) => {
     setInventorySlots(snapshot.slots);
@@ -34,16 +37,21 @@ export default function GameScreen() {
   useEffect(() => {
     if (!appRef.current) return;
     const game = createGame(appRef.current);
+    const handleBuildPlacementStatus = (payload: BuildPlacementStatusPayload) => {
+      setActiveBuildable(payload.active ? payload.buildable : undefined);
+    };
     gameRef.current = game;
     game.events.on('stats-update', setStats);
     game.events.on(InventoryEvent.Update, handleInventoryUpdate);
     game.events.on(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
+    game.events.on(BuildEvent.PlacementStatusUpdate, handleBuildPlacementStatus);
     game.events.emit(InventoryEvent.Request);
     game.events.emit(InventoryEvent.QuickSlotsRequest);
     return () => {
       game.events.off('stats-update', setStats);
       game.events.off(InventoryEvent.Update, handleInventoryUpdate);
       game.events.off(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
+      game.events.off(BuildEvent.PlacementStatusUpdate, handleBuildPlacementStatus);
       gameRef.current = null;
       game.destroy(true);
     };
@@ -107,11 +115,12 @@ export default function GameScreen() {
       <div ref={appRef} className="app" />
       {stats && <HUD stats={stats} />}
       <Toolbar
-        buildActive={buildOpen}
+        buildActive={buildOpen || activeBuildable !== undefined}
         inventoryActive={inventoryOpen}
         quickSlots={quickSlots}
         onQuickSlotSetSelect={selectQuickSlotSet}
       />
+      {activeBuildable && <BuildPlacementHint buildable={activeBuildable} />}
       {buildOpen && (
         <BuildMenu
           woodCount={woodCount}
