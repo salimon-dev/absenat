@@ -21,7 +21,7 @@ function isInsideWorld(nextX: number, nextY: number): boolean {
 }
 
 function canAvoidTrees(world: World, nextX: number, nextY: number): boolean {
-  return world.entities.every(tree => !overlapsTree(nextX, nextY, tree.x, tree.y));
+  return world.entities.every(tree => !overlapsTree(nextX, nextY, tree.x, tree.y)) && canAvoidStructures(world, nextX, nextY);
 }
 
 function canWalkOnTiles(world: World, nextX: number, nextY: number): boolean {
@@ -38,6 +38,11 @@ function overlapsTree(playerX: number, playerY: number, treeX: number, treeY: nu
   const player = getPlayerBounds(playerX, playerY);
   const root = getTreeRootBounds(treeX, treeY);
   return overlapsBounds(player, root);
+}
+
+function canAvoidStructures(world: World, nextX: number, nextY: number): boolean {
+  const player = getPlayerBounds(nextX, nextY);
+  return world.structures.every(structure => !overlapsBounds(player, getStructureBounds(structure)));
 }
 
 function getPlayerBounds(x: number, y: number): Bounds {
@@ -64,6 +69,16 @@ function getTileBounds(tile: Tile): Bounds {
     right: tile.x + TILE_SIZE,
     top: tile.y - TILE_SIZE,
     bottom: tile.y
+  };
+}
+
+function getStructureBounds(structure: World['structures'][number]): Bounds {
+  const { tileX, tileY, width, height } = structure.footprint;
+  return {
+    left: tileX * TILE_SIZE,
+    right: (tileX + width) * TILE_SIZE,
+    top: tileY * TILE_SIZE,
+    bottom: (tileY + height) * TILE_SIZE
   };
 }
 

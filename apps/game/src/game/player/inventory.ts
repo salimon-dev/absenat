@@ -77,6 +77,10 @@ export default class InventoryManager {
     return slot?.itemName;
   }
 
+  getItemCount(name: ItemName): number {
+    return this.slots.find(slot => slot.item?.name === name)?.item?.count ?? 0;
+  }
+
   getSnapshot(): InventorySnapshot {
     return {
       slots: cloneInventorySlots(this.slots),
