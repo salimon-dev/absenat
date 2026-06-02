@@ -1,6 +1,7 @@
 import type Tile from '../entities/tile/tile';
 import type { World } from '../world';
 import { TILE_SIZE, WORLD_SIZE } from '../world/tiles';
+import type BuildingObject from '../building/building-object';
 
 const PLAYER_RADIUS = 6;
 
@@ -12,7 +13,12 @@ interface Bounds {
 }
 
 export function canMove(world: World, nextX: number, nextY: number): boolean {
-  return isInsideWorld(nextX, nextY) && canWalkOnTiles(world, nextX, nextY) && canAvoidTrees(world, nextX, nextY);
+  return (
+    isInsideWorld(nextX, nextY) &&
+    canWalkOnTiles(world, nextX, nextY) &&
+    canAvoidTrees(world, nextX, nextY) &&
+    canAvoidStructures(world, nextX, nextY)
+  );
 }
 
 function isInsideWorld(nextX: number, nextY: number): boolean {
@@ -28,6 +34,10 @@ function canWalkOnTiles(world: World, nextX: number, nextY: number): boolean {
   return world.tiles.every(tile => tile.walkable || !overlapsTile(nextX, nextY, tile));
 }
 
+function canAvoidStructures(world: World, nextX: number, nextY: number): boolean {
+  return world.structures.every(structure => !overlapsStructure(nextX, nextY, structure));
+}
+
 function overlapsTile(playerX: number, playerY: number, tile: Tile): boolean {
   const player = getPlayerBounds(playerX, playerY);
   const tileBounds = getTileBounds(tile);
@@ -38,6 +48,12 @@ function overlapsTree(playerX: number, playerY: number, treeX: number, treeY: nu
   const player = getPlayerBounds(playerX, playerY);
   const root = getTreeRootBounds(treeX, treeY);
   return overlapsBounds(player, root);
+}
+
+function overlapsStructure(playerX: number, playerY: number, structure: BuildingObject): boolean {
+  const player = getPlayerBounds(playerX, playerY);
+  const bounds = getStructureBounds(structure);
+  return overlapsBounds(player, bounds);
 }
 
 function getPlayerBounds(x: number, y: number): Bounds {
@@ -64,6 +80,15 @@ function getTileBounds(tile: Tile): Bounds {
     right: tile.x + TILE_SIZE,
     top: tile.y - TILE_SIZE,
     bottom: tile.y
+  };
+}
+
+function getStructureBounds(structure: BuildingObject): Bounds {
+  return {
+    left: structure.x,
+    right: structure.x + structure.width * TILE_SIZE,
+    top: structure.y - structure.height * TILE_SIZE,
+    bottom: structure.y
   };
 }
 
