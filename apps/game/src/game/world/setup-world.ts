@@ -7,6 +7,7 @@ import type { TilePlacement } from '../entities/types';
 import { generateRandomMap, TILE_SIZE, WORLD_SIZE } from './tiles';
 import { WorldEntityKind } from './types';
 import type { EntityPlacement } from './types';
+import { getRaftSpawnPoint } from './raft';
 
 export function preloadWorld(this: World): void {
   Tile.preload(this);
@@ -41,8 +42,9 @@ function renderEntity(world: World, entity: EntityPlacement): void {
 }
 
 export function setupPlayer(this: World): void {
+  const spawn = getRaftSpawnPoint();
   this.player = new Player(this, {
-    position: { x: 15 * TILE_SIZE, y: 95 * TILE_SIZE },
+    position: spawn,
     speed: 2,
     attackSpeed: 1,
     inventorySlots: 16,

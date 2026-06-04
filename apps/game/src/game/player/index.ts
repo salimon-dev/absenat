@@ -74,6 +74,10 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.inventory.emitUpdate();
   }
 
+  getCollisionBounds(): Phaser.Geom.Rectangle {
+    return new Phaser.Geom.Rectangle(this.x - 6, this.y + 4, 12, 8);
+  }
+
   private updateStats(): void {
     drainStats(this.config);
     this.scene.game.events.emit('stats-update', {

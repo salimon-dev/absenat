@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Game } from 'phaser';
 import { createGame } from '@game/index';
+import { attachDebugGame, detachDebugGame } from '@game/debug';
 import HUD, { type HUDStats } from '@components/HUD';
 import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
+import BuildMenuDialog from '@components/BuildMenuDialog/BuildMenuDialog';
 import {
   InventoryEvent,
   type RemoveInventoryItemPayload,
@@ -14,6 +16,9 @@ import {
   type QuickSlotMovePayload,
   type QuickSlotsSnapshot
 } from '@game/player/types';
+import { BuildEvent } from '@game/building/events';
+import type { BuildPlacementPayload, BuildStateSnapshot } from '@game/building/types';
+import { ResourceType } from '../../utils/resources';
 
 export default function GameScreen() {
   const appRef = useRef<HTMLDivElement>(null);
@@ -22,7 +27,8 @@ export default function GameScreen() {
   const [inventorySlots, setInventorySlots] = useState<InventorySlot[]>([]);
   const [quickSlots, setQuickSlots] = useState<QuickSlotsSnapshot | undefined>(undefined);
   const [inventoryOpen, setInventoryOpen] = useState(false);
-  const [statsOpen, setStatsOpen] = useState(false);
+  const [buildMenuOpen, setBuildMenuOpen] = useState(false);
+  const [buildState, setBuildState] = useState<BuildStateSnapshot>({});
 
   const handleInventoryUpdate = useCallback((snapshot: InventorySnapshot) => {
     setInventorySlots(snapshot.slots);
@@ -32,25 +38,41 @@ export default function GameScreen() {
     if (!appRef.current) return;
     const game = createGame(appRef.current);
     gameRef.current = game;
+    attachDebugGame(game);
     game.events.on('stats-update', setStats);
     game.events.on(InventoryEvent.Update, handleInventoryUpdate);
     game.events.on(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
+    game.events.on(BuildEvent.StateUpdate, setBuildState);
     game.events.emit(InventoryEvent.Request);
     game.events.emit(InventoryEvent.QuickSlotsRequest);
     return () => {
       game.events.off('stats-update', setStats);
       game.events.off(InventoryEvent.Update, handleInventoryUpdate);
       game.events.off(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
+      game.events.off(BuildEvent.StateUpdate, setBuildState);
+      detachDebugGame(game);
       gameRef.current = null;
       game.destroy(true);
     };
   }, [handleInventoryUpdate]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setInventoryOpen(false);
-      if (e.key === 'i' || e.key === 'I') setInventoryOpen(prev => !prev);
-      if (e.key === 'u' || e.key === 'U') setStatsOpen(prev => !prev);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setInventoryOpen(false);
+        setBuildMenuOpen(false);
+        gameRef.current?.events.emit(BuildEvent.CancelPlacement);
+      }
+      if (event.key === 'i' || event.key === 'I') {
+        setBuildMenuOpen(false);
+        gameRef.current?.events.emit(BuildEvent.CancelPlacement);
+        setInventoryOpen(prev => !prev);
+      }
+      if (event.key === 'u' || event.key === 'U') {
+        setInventoryOpen(false);
+        gameRef.current?.events.emit(BuildEvent.CancelPlacement);
+        setBuildMenuOpen(prev => !prev);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -80,16 +102,30 @@ export default function GameScreen() {
     gameRef.current?.events.emit(InventoryEvent.QuickSlotAssign, payload);
   }, []);
 
+  const startBuildPlacement = useCallback((payload: BuildPlacementPayload) => {
+    gameRef.current?.events.emit(BuildEvent.StartPlacement, payload);
+    setBuildMenuOpen(false);
+  }, []);
+
+  const woodCount = getInventoryItemCount(inventorySlots, ResourceType.Wood);
+
   return (
     <>
       <div ref={appRef} className="app" />
       {stats && <HUD stats={stats} />}
       <Toolbar
+        buildActive={buildMenuOpen || Boolean(buildState.activeBuild)}
         inventoryActive={inventoryOpen}
         quickSlots={quickSlots}
-        statsActive={statsOpen}
         onQuickSlotSetSelect={selectQuickSlotSet}
       />
+      {buildMenuOpen && (
+        <BuildMenuDialog
+          woodCount={woodCount}
+          onClose={() => setBuildMenuOpen(false)}
+          onSelect={buildable => startBuildPlacement({ buildable })}
+        />
+      )}
       {inventoryOpen && (
         <InventoryDialog
           inventorySlots={inventorySlots}
@@ -105,4 +141,8 @@ export default function GameScreen() {
       )}
     </>
   );
+}
+
+function getInventoryItemCount(slots: InventorySlot[], name: string): number {
+  return slots.find(slot => slot.item?.name === name)?.item?.count ?? 0;
 }

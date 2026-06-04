@@ -76,3 +76,8 @@ export interface QuickSlotMovePayload {
   source: QuickSlotPosition;
   target: QuickSlotPosition;
 }
+
+export interface InventoryCountByName {
+  name: ItemName;
+  count: number;
+}

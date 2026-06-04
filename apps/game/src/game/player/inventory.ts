@@ -57,6 +57,10 @@ export default class InventoryManager {
     this.emitUpdate();
   }
 
+  getItemCount(name: ItemName): number {
+    return this.slots.find(current => current.item?.name === name)?.item?.count ?? 0;
+  }
+
   assignQuickSlot(payload: QuickSlotAssignmentPayload): void {
     const slot = this.getQuickSlot(payload.setId, payload.slotIndex);
     if (!slot) return;

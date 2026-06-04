@@ -13,9 +13,9 @@ const TOOL_ICON_SIZE = 32;
 type ToolbarIcons = Partial<Record<ToolType, string>>;
 
 interface ToolbarProps {
+  buildActive?: boolean;
   inventoryActive?: boolean;
   quickSlots?: QuickSlotsSnapshot;
-  statsActive?: boolean;
   onQuickSlotSetSelect: (setId: number) => void;
 }
 
@@ -27,9 +27,9 @@ const MENU_BUTTONS = [
 ] as const;
 
 export default function Toolbar({
+  buildActive = false,
   inventoryActive = false,
   quickSlots,
-  statsActive = false,
   onQuickSlotSetSelect
 }: ToolbarProps) {
   const [active, setActive] = useState<number | null>(null);
@@ -198,7 +198,7 @@ export default function Toolbar({
         }}
       >
         {MENU_BUTTONS.map(({ key, label }, i) => {
-          const isActive = (i === 0 && inventoryActive) || (i === 1 && statsActive);
+          const isActive = (i === 0 && inventoryActive) || (i === 1 && buildActive);
           return (
             <div
               key={i}
