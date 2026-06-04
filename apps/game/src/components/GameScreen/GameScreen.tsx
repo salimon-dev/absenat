@@ -5,9 +5,13 @@ import { attachDebugGame, detachDebugGame } from '@game/debug';
 import HUD, { type HUDStats } from '@components/HUD';
 import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
+import DeathScreen from '@components/DeathScreen/DeathScreen';
 import BuildMenuDialog from '@components/BuildMenuDialog/BuildMenuDialog';
 import {
   InventoryEvent,
+  PlayerEvent,
+  PlayerLifeState,
+  type PlayerLifeStatePayload,
   type RemoveInventoryItemPayload,
   type InventorySlotMovePayload,
   type InventorySlot,
@@ -27,6 +31,7 @@ export default function GameScreen() {
   const [inventorySlots, setInventorySlots] = useState<InventorySlot[]>([]);
   const [quickSlots, setQuickSlots] = useState<QuickSlotsSnapshot | undefined>(undefined);
   const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [lifeState, setLifeState] = useState(PlayerLifeState.Alive);
   const [buildMenuOpen, setBuildMenuOpen] = useState(false);
   const [buildState, setBuildState] = useState<BuildStateSnapshot>({});
 
@@ -34,19 +39,30 @@ export default function GameScreen() {
     setInventorySlots(snapshot.slots);
   }, []);
 
+  const handleLifeStateChange = useCallback(({ state }: PlayerLifeStatePayload) => {
+    setLifeState(state);
+    if (state === PlayerLifeState.Dead) {
+      setInventoryOpen(false);
+      setBuildMenuOpen(false);
+      gameRef.current?.events.emit(BuildEvent.CancelPlacement);
+    }
+  }, []);
+
   useEffect(() => {
     if (!appRef.current) return;
     const game = createGame(appRef.current);
     gameRef.current = game;
     attachDebugGame(game);
-    game.events.on('stats-update', setStats);
+    game.events.on(PlayerEvent.StatsUpdate, setStats);
+    game.events.on(PlayerEvent.LifeStateChange, handleLifeStateChange);
     game.events.on(InventoryEvent.Update, handleInventoryUpdate);
     game.events.on(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
     game.events.on(BuildEvent.StateUpdate, setBuildState);
     game.events.emit(InventoryEvent.Request);
     game.events.emit(InventoryEvent.QuickSlotsRequest);
     return () => {
-      game.events.off('stats-update', setStats);
+      game.events.off(PlayerEvent.StatsUpdate, setStats);
+      game.events.off(PlayerEvent.LifeStateChange, handleLifeStateChange);
       game.events.off(InventoryEvent.Update, handleInventoryUpdate);
       game.events.off(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
       game.events.off(BuildEvent.StateUpdate, setBuildState);
@@ -54,7 +70,7 @@ export default function GameScreen() {
       gameRef.current = null;
       game.destroy(true);
     };
-  }, [handleInventoryUpdate]);
+  }, [handleInventoryUpdate, handleLifeStateChange]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -63,6 +79,7 @@ export default function GameScreen() {
         setBuildMenuOpen(false);
         gameRef.current?.events.emit(BuildEvent.CancelPlacement);
       }
+      if (lifeState === PlayerLifeState.Dead) return;
       if (event.key === 'i' || event.key === 'I') {
         setBuildMenuOpen(false);
         gameRef.current?.events.emit(BuildEvent.CancelPlacement);
@@ -76,7 +93,7 @@ export default function GameScreen() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [lifeState]);
 
   const requestInventory = useCallback(() => {
     gameRef.current?.events.emit(InventoryEvent.Request);
@@ -102,13 +119,16 @@ export default function GameScreen() {
     gameRef.current?.events.emit(InventoryEvent.QuickSlotAssign, payload);
   }, []);
 
+  const requestRespawn = useCallback(() => {
+    gameRef.current?.events.emit(PlayerEvent.RespawnRequest);
+  }, []);
+
   const startBuildPlacement = useCallback((payload: BuildPlacementPayload) => {
     gameRef.current?.events.emit(BuildEvent.StartPlacement, payload);
     setBuildMenuOpen(false);
   }, []);
 
   const woodCount = getInventoryItemCount(inventorySlots, ResourceType.Wood);
-
   return (
     <>
       <div ref={appRef} className="app" />
@@ -139,6 +159,7 @@ export default function GameScreen() {
           onQuickSlotSetSelect={selectQuickSlotSet}
         />
       )}
+      {lifeState === PlayerLifeState.Dead && <DeathScreen onRespawn={requestRespawn} />}
     </>
   );
 }
