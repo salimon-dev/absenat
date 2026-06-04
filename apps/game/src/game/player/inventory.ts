@@ -24,13 +24,15 @@ export default class InventoryManager {
   constructor(
     events: Phaser.Events.EventEmitter,
     slotCount: number,
-    items = createInitialInventory(),
-    quickSlotSets = createInitialQuickSlotSets()
+    items: (InventoryItem | undefined)[] = createInitialInventory(),
+    quickSlotSets = createInitialQuickSlotSets(),
+    selectedQuickSlotSetId = 1
   ) {
     this.events = events;
     this.slotCount = slotCount;
     this.slots = createInventorySlots(slotCount, items);
     this.quickSlotSets = cloneQuickSlotSets(quickSlotSets);
+    this.selectedQuickSlotSetId = selectedQuickSlotSetId;
     this.registerEvents();
   }
 
@@ -180,7 +182,7 @@ export default class InventoryManager {
   }
 }
 
-function createInventorySlots(slotCount: number, items: InventoryItem[]): InventorySlot[] {
+function createInventorySlots(slotCount: number, items: (InventoryItem | undefined)[]): InventorySlot[] {
   return Array.from({ length: slotCount }, (_, index) => {
     const item = items[index];
     return item ? { item: cloneItem(item) } : {};

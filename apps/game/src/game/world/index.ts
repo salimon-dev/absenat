@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import Player from '../player';
-import { createTilemap, preloadWorld, setupCamera, setupPlayer } from './setup-world';
+import { createTilemap, getTilePlacements, preloadWorld, restoreSavedStructures, setupCamera, setupPlayer } from './setup-world';
 import { TREE_TEXTURE_KEY } from '../entities/tree';
 import Tree from '../entities/tree';
 import { TILE_TEXTURE_KEY } from '../entities/tile/tile';
@@ -9,6 +9,7 @@ import { TOOL_TEXTURE_KEY } from '../entities/tool';
 import { removeTreesInRange } from './remove-trees-in-range';
 import type BuildingObject from '../building/building-object';
 import type { BuildableName } from '../building/types';
+import type { GameSaveData } from '../save/types';
 import {
   emitBuildState,
   handleBuildCancel,
@@ -20,6 +21,7 @@ import {
 } from './building';
 
 export class World extends Phaser.Scene {
+  initialSave?: GameSaveData;
   player!: Player;
   tiles: Tile[] = [];
   entities: Tree[] = [];
@@ -28,14 +30,17 @@ export class World extends Phaser.Scene {
   buildPreview?: BuildingObject;
   buildHint!: Phaser.GameObjects.Text;
 
-  constructor() {
+  constructor(initialSave?: GameSaveData) {
     super('world');
+    this.initialSave = initialSave;
   }
 
   protected preloadWorld = preloadWorld;
   protected createTilemap = createTilemap;
+  getTilePlacements = getTilePlacements;
   protected setupPlayer = setupPlayer;
   protected setupCamera = setupCamera;
+  protected restoreSavedStructures = restoreSavedStructures;
   removeTreesInRange = removeTreesInRange;
   protected setupBuilding = setupBuilding;
   protected teardownBuilding = teardownBuilding;
@@ -62,6 +67,7 @@ export class World extends Phaser.Scene {
     this.setupPlayer();
     this.setupCamera();
     this.setupBuilding();
+    this.restoreSavedStructures();
   }
 
   update() {

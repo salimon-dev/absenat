@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Game } from 'phaser';
 import { createGame } from '@game/index';
+import { createGameSave } from '@game/save/snapshot';
+import { writeSave } from '@game/save/storage';
+import type { GameSaveData } from '@game/save/types';
+import { World } from '@game/world';
 import { attachDebugGame, detachDebugGame } from '@game/debug';
 import HUD, { type HUDStats } from '@components/HUD';
 import Toolbar from '@components/Toolbar';
@@ -24,7 +28,18 @@ import { BuildEvent } from '@game/building/events';
 import type { BuildPlacementPayload, BuildStateSnapshot } from '@game/building/types';
 import { ResourceType } from '../../utils/resources';
 
-export default function GameScreen() {
+const AUTOSAVE_INTERVAL_MS = 15000;
+
+interface GameScreenProps {
+  initialSave?: GameSaveData;
+}
+
+interface AutosaveHandle {
+  intervalId: number;
+  timeoutId: number;
+}
+
+export default function GameScreen({ initialSave }: GameScreenProps) {
   const appRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [stats, setStats] = useState<HUDStats | undefined>(undefined);
@@ -50,7 +65,7 @@ export default function GameScreen() {
 
   useEffect(() => {
     if (!appRef.current) return;
-    const game = createGame(appRef.current);
+    const game = createGame(appRef.current, { initialSave });
     gameRef.current = game;
     attachDebugGame(game);
     game.events.on(PlayerEvent.StatsUpdate, setStats);
@@ -60,7 +75,10 @@ export default function GameScreen() {
     game.events.on(BuildEvent.StateUpdate, setBuildState);
     game.events.emit(InventoryEvent.Request);
     game.events.emit(InventoryEvent.QuickSlotsRequest);
+    const autosave = startAutosave(game);
     return () => {
+      window.clearInterval(autosave.intervalId);
+      window.clearTimeout(autosave.timeoutId);
       game.events.off(PlayerEvent.StatsUpdate, setStats);
       game.events.off(PlayerEvent.LifeStateChange, handleLifeStateChange);
       game.events.off(InventoryEvent.Update, handleInventoryUpdate);
@@ -70,7 +88,7 @@ export default function GameScreen() {
       gameRef.current = null;
       game.destroy(true);
     };
-  }, [handleInventoryUpdate, handleLifeStateChange]);
+  }, [handleInventoryUpdate, handleLifeStateChange, initialSave]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -166,4 +184,21 @@ export default function GameScreen() {
 
 function getInventoryItemCount(slots: InventorySlot[], name: string): number {
   return slots.find(slot => slot.item?.name === name)?.item?.count ?? 0;
+}
+
+function startAutosave(game: Game): AutosaveHandle {
+  return {
+    intervalId: window.setInterval(() => void writeCurrentSave(game), AUTOSAVE_INTERVAL_MS),
+    timeoutId: window.setTimeout(() => void writeCurrentSave(game), 0)
+  };
+}
+
+async function writeCurrentSave(game: Game): Promise<void> {
+  const world = game.scene.getScene('world');
+  if (!(world instanceof World)) return;
+  try {
+    await writeSave(createGameSave(world));
+  } catch (error) {
+    console.error('Unable to autosave game state', error);
+  }
 }

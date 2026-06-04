@@ -121,7 +121,15 @@
     0 5px 0 rgba(76, 34, 18, 0.3);
 }
 
-.startButton {
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+}
+
+.startButton,
+.secondaryButton {
   min-width: 220px;
   min-height: 58px;
   padding: 0 26px;
@@ -142,7 +150,9 @@
 }
 
 .startButton:hover,
-.startButton:focus-visible {
+.startButton:focus-visible,
+.secondaryButton:hover,
+.secondaryButton:focus-visible {
   color: #fff4c5;
   background:
     linear-gradient(180deg, #a83c28 0%, #762118 100%);
@@ -150,9 +160,31 @@
   transform: translateY(-2px);
 }
 
-.startButton:active {
+.secondaryButton {
+  color: #5d2418;
+  background:
+    linear-gradient(180deg, #f3cf74 0%, #c78d3b 100%);
+}
+
+.secondaryButton:hover,
+.secondaryButton:focus-visible {
+  color: #4a1d14;
+  background:
+    linear-gradient(180deg, #ffe08a 0%, #dca34a 100%);
+}
+
+.startButton:active,
+.secondaryButton:active {
   border-bottom-width: 2px;
   transform: translateY(4px);
+}
+
+.startButton:disabled,
+.secondaryButton:disabled {
+  cursor: wait;
+  filter: grayscale(0.5);
+  opacity: 0.65;
+  transform: none;
 }
 
 @media (max-width: 520px) {
@@ -160,7 +192,8 @@
     padding: 34px 20px 28px;
   }
 
-  .startButton {
+  .startButton,
+  .secondaryButton {
     width: min(100%, 260px);
   }
 }

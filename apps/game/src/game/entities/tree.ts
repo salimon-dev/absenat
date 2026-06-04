@@ -22,6 +22,7 @@ interface TreeFrames {
 export default class Tree extends Phaser.GameObjects.Container {
   public content: EntityContent = [{ name: ResourceType.Wood, count: 3 }];
   public hp = TREE_MAX_HP;
+  public variant: number;
   private readonly top: Phaser.GameObjects.Sprite;
   private readonly bottom: Phaser.GameObjects.Sprite;
   private readonly healthBar: HealthBar;
@@ -40,6 +41,7 @@ export default class Tree extends Phaser.GameObjects.Container {
     this.top = frames.top;
     this.bottom = frames.bottom;
     this.healthBar = this.loadHealthBar(x, y);
+    this.variant = variant;
     this.setVariant(variant);
     scene.add.existing(this);
   }
@@ -59,8 +61,15 @@ export default class Tree extends Phaser.GameObjects.Container {
   }
 
   setVariant(variant: number): this {
+    this.variant = variant;
     this.top.setFrame(getTopFrame(variant));
     this.bottom.setFrame(getBottomFrame(variant));
+    return this;
+  }
+
+  setHp(hp: number): this {
+    this.hp = Math.max(hp, 0);
+    this.healthBar.setValue(this.hp, TREE_MAX_HP);
     return this;
   }
 
