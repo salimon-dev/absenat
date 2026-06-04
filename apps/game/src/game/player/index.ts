@@ -92,6 +92,10 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.inventory.emitUpdate();
   }
 
+  getCollisionBounds(): Phaser.Geom.Rectangle {
+    return new Phaser.Geom.Rectangle(this.x - 6, this.y + 4, 12, 8);
+  }
+
   private updateStats(): void {
     const isDead = drainStats(this.config, 1, this.survivalPenaltyTimers);
     this.emitStatsUpdate();

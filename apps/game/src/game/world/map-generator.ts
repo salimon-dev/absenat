@@ -2,6 +2,7 @@ import { Biome } from '@absenat/specs';
 import { getRandomTileVariant } from '../entities/tile/tile-variants';
 import type { TilePlacement } from '../entities/types';
 import { MAP_GEN_CONFIG } from './map-generator.config';
+import { getRaftLandingBounds, isRaftFloorTile, isRaftLandingTile, isRaftWaterTile } from './raft';
 import { TILE_SIZE, WORLD_SIZE } from './tiles';
 import { WorldEntityKind } from './types';
 import type { EntityPlacement, MapResult } from './types';
@@ -9,12 +10,6 @@ import type { EntityPlacement, MapResult } from './types';
 const TREE_VARIANT_COUNT = 4;
 const BACKGROUND_DIRT_CHANCE = 0.03;
 const SHORE_WIDTH = 1;
-const RAFT_SIZE = 18;
-const RAFT_EDGE_GAP = 1;
-const RAFT_BRIDGE_WIDTH = 3;
-const RAFT_BRIDGE_LENGTH = 2;
-const RAFT_LANDING_LENGTH = 8;
-const RAFT_LANDING_PADDING = 2;
 const TILE_BIOME_ALIASES: Record<Biome, Biome> = {
   [Biome.Grass]: Biome.Grass,
   [Biome.Water]: Biome.Water,
@@ -137,76 +132,13 @@ function selectWorldTile(corners: Biome[][], x: number, y: number, waterBorder: 
   return selectTile(corners, x, y);
 }
 
-function isRaftFloorTile(x: number, y: number): boolean {
-  return isRaftTile(x, y) || isRaftBridgeTile(x, y);
-}
-
-function isRaftTile(x: number, y: number): boolean {
-  return x >= getRaftLeft() && x <= getRaftRight() && y >= getRaftTop() && y <= getRaftBottom();
-}
-
-function isRaftBridgeTile(x: number, y: number): boolean {
-  const inBridgeX = x > getRaftRight() && x <= getRaftRight() + RAFT_BRIDGE_LENGTH;
-  return inBridgeX && y >= getRaftBridgeTop() && y <= getRaftBridgeBottom();
-}
-
-function isRaftLandingTile(x: number, y: number): boolean {
-  const inLandingX = x > getRaftRight() + RAFT_BRIDGE_LENGTH && x <= getRaftLandingRight();
-  return inLandingX && y >= getRaftLandingTop() && y <= getRaftLandingBottom();
-}
-
 function carveRaftLanding(corners: Biome[][]): void {
-  for (let y = getRaftLandingTop(); y <= getRaftLandingBottom() + 1; y++) {
-    for (let x = getRaftLandingLeft(); x <= getRaftLandingRight() + 1; x++) {
+  const landing = getRaftLandingBounds();
+  for (let y = landing.top; y <= landing.bottom + 1; y++) {
+    for (let x = landing.left; x <= landing.right + 1; x++) {
       corners[y][x] = Biome.Sand;
     }
   }
-}
-
-function isRaftWaterTile(x: number, y: number): boolean {
-  if (isRaftTile(x, y)) return false;
-  if (isRaftBridgeTile(x, y)) return false;
-  return x >= getRaftLeft() - 1 && x <= getRaftRight() + 1 && y >= getRaftTop() - 1 && y <= getRaftBottom() + 1;
-}
-
-function getRaftLeft(): number {
-  return RAFT_EDGE_GAP;
-}
-
-function getRaftTop(): number {
-  return WORLD_SIZE - RAFT_EDGE_GAP - RAFT_SIZE;
-}
-
-function getRaftRight(): number {
-  return getRaftLeft() + RAFT_SIZE - 1;
-}
-
-function getRaftBottom(): number {
-  return getRaftTop() + RAFT_SIZE - 1;
-}
-
-function getRaftBridgeTop(): number {
-  return getRaftTop() + Math.floor((RAFT_SIZE - RAFT_BRIDGE_WIDTH) / 2);
-}
-
-function getRaftBridgeBottom(): number {
-  return getRaftBridgeTop() + RAFT_BRIDGE_WIDTH - 1;
-}
-
-function getRaftLandingLeft(): number {
-  return getRaftRight() + RAFT_BRIDGE_LENGTH + 1;
-}
-
-function getRaftLandingRight(): number {
-  return getRaftLandingLeft() + RAFT_LANDING_LENGTH - 1;
-}
-
-function getRaftLandingTop(): number {
-  return getRaftBridgeTop() - RAFT_LANDING_PADDING;
-}
-
-function getRaftLandingBottom(): number {
-  return getRaftBridgeBottom() + RAFT_LANDING_PADDING;
 }
 
 function isWaterBorderTile(x: number, y: number, waterBorder: number): boolean {
