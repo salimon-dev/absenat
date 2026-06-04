@@ -1,3 +1,4 @@
+import type { PlayerStat } from '@absenat/specs';
 import type { ItemName } from '../../utils/items';
 import type { ToolName } from '../../utils/tools';
 
@@ -15,6 +16,32 @@ export enum InventoryEvent {
 }
 
 export type InventoryEventType = InventoryEvent;
+
+export enum PlayerEvent {
+  LifeStateChange = 'player-life-state',
+  RespawnRequest = 'player-respawn-request',
+  StatsUpdate = 'stats-update'
+}
+
+export type PlayerEventType = PlayerEvent;
+
+export enum PlayerLifeState {
+  Alive = 'alive',
+  Dead = 'dead'
+}
+
+export type PlayerLifeStateType = PlayerLifeState;
+
+export interface PlayerLifeStatePayload {
+  state: PlayerLifeStateType;
+}
+
+export interface PlayerStatsSnapshot {
+  health: PlayerStat;
+  thirst: PlayerStat;
+  hunger: PlayerStat;
+  fatigue: PlayerStat;
+}
 
 export interface InventoryItem {
   name: ItemName;

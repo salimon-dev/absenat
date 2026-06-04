@@ -3,10 +3,22 @@ import { World } from '../world';
 import type { PlayerConfig } from '@absenat/specs';
 import { setupPlayerAnimations } from './animations';
 import { applyMovement, type Direction, type Keys } from './movement';
-import { drainStats } from './stats';
+import {
+  createSurvivalPenaltyTimers,
+  drainStats,
+  resetSurvivalPenaltyTimers,
+  type SurvivalPenaltyTimers
+} from './stats';
 import Tool from '../entities/tool';
 import { TOOL_DEFINITIONS, ToolType, type ToolName } from '../../utils/tools';
 import InventoryManager from './inventory';
+import {
+  PlayerEvent,
+  PlayerLifeState,
+  type PlayerLifeStatePayload,
+  type PlayerStatsSnapshot
+} from './types';
+import { createPlayerSpawnState, resetPlayerConfig, type PlayerSpawnState } from './state';
 
 interface ToolKeys {
   q: Phaser.Input.Keyboard.Key;
@@ -27,12 +39,17 @@ export default class Player extends Phaser.GameObjects.Sprite {
   private toolKeys: ToolKeys;
   private activeTool: Tool;
   private lastDirection: Direction = 'down';
+  private lifeState = PlayerLifeState.Alive;
   private nextToolUseAt = 0;
+  private spawnState: PlayerSpawnState;
   private statsDrainInterval!: ReturnType<typeof setInterval>;
+  private survivalPenaltyTimers: SurvivalPenaltyTimers;
 
   constructor(world: World, config: PlayerConfig) {
     super(world, config.position.x, config.position.y, 'player');
     this.config = config;
+    this.spawnState = createPlayerSpawnState(config);
+    this.survivalPenaltyTimers = createSurvivalPenaltyTimers();
 
     world.add.existing(this);
     this.world = world;
@@ -65,6 +82,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     world.cameras.main.setZoom(4);
     world.cameras.main.startFollow(this, true, 0.1, 0.1);
 
+    this.scene.game.events.on(PlayerEvent.RespawnRequest, this.handleRespawnRequest, this);
     this.statsDrainInterval = setInterval(() => this.updateStats(), 1000);
     this.updateStats();
     window.setTimeout(() => this.inventory.emitUpdate(), 0);
@@ -75,23 +93,65 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   private updateStats(): void {
-    drainStats(this.config);
-    this.scene.game.events.emit('stats-update', {
+    const isDead = drainStats(this.config, 1, this.survivalPenaltyTimers);
+    this.emitStatsUpdate();
+    if (isDead) {
+      this.handleDeath();
+    }
+  }
+
+  private emitStatsUpdate(): void {
+    const payload: PlayerStatsSnapshot = {
       health: this.config.health,
       thirst: this.config.thirst,
       hunger: this.config.hunger,
       fatigue: this.config.fatigue
-    });
+    };
+    this.scene.game.events.emit(PlayerEvent.StatsUpdate, payload);
+  }
+
+  private handleDeath(): void {
+    if (this.lifeState === PlayerLifeState.Dead) return;
+    this.lifeState = PlayerLifeState.Dead;
+    this.activeTool.stopSwing();
+    this.emitLifeState();
+  }
+
+  private emitLifeState(): void {
+    const payload: PlayerLifeStatePayload = { state: this.lifeState };
+    this.scene.game.events.emit(PlayerEvent.LifeStateChange, payload);
+  }
+
+  private handleRespawnRequest(): void {
+    if (this.lifeState !== PlayerLifeState.Dead) return;
+    resetPlayerConfig(this.config, this.spawnState);
+    resetSurvivalPenaltyTimers(this.survivalPenaltyTimers);
+    this.x = this.spawnState.position.x;
+    this.y = this.spawnState.position.y;
+    this.lastDirection = 'down';
+    this.nextToolUseAt = 0;
+    this.lifeState = PlayerLifeState.Alive;
+    this.activeTool.follow(this.x, this.y);
+    this.activeTool.stopSwing();
+    this.emitStatsUpdate();
+    this.emitLifeState();
   }
 
   destroy(fromScene?: boolean) {
     clearInterval(this.statsDrainInterval);
+    this.scene.game.events.off(PlayerEvent.RespawnRequest, this.handleRespawnRequest, this);
     this.inventory.destroy();
     this.activeTool.destroy(fromScene);
     super.destroy(fromScene);
   }
 
   update() {
+    if (this.lifeState === PlayerLifeState.Dead) {
+      this.activeTool.stopSwing();
+      this.playIdleAnimation();
+      return;
+    }
+
     const { x, y, moving, lastDirection } = applyMovement(
       this.world,
       this.keys,
@@ -109,11 +169,15 @@ export default class Player extends Phaser.GameObjects.Sprite {
     if (moving) {
       this.play(`walk-${this.lastDirection}`, true);
     } else {
-      const idleKey = this.lastDirection === 'up' ? 'idle-up' : 'idle-down';
-      this.play(idleKey, true);
+      this.playIdleAnimation();
     }
 
     this.handleToolInput();
+  }
+
+  private playIdleAnimation(): void {
+    const idleKey = this.lastDirection === 'up' ? 'idle-up' : 'idle-down';
+    this.play(idleKey, true);
   }
 
   private handleToolInput(): void {

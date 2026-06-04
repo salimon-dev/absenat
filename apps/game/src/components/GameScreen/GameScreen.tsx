@@ -4,8 +4,12 @@ import { createGame } from '@game/index';
 import HUD, { type HUDStats } from '@components/HUD';
 import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
+import DeathScreen from '@components/DeathScreen/DeathScreen';
 import {
   InventoryEvent,
+  PlayerEvent,
+  PlayerLifeState,
+  type PlayerLifeStatePayload,
   type RemoveInventoryItemPayload,
   type InventorySlotMovePayload,
   type InventorySlot,
@@ -22,39 +26,51 @@ export default function GameScreen() {
   const [inventorySlots, setInventorySlots] = useState<InventorySlot[]>([]);
   const [quickSlots, setQuickSlots] = useState<QuickSlotsSnapshot | undefined>(undefined);
   const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [lifeState, setLifeState] = useState(PlayerLifeState.Alive);
   const [statsOpen, setStatsOpen] = useState(false);
 
   const handleInventoryUpdate = useCallback((snapshot: InventorySnapshot) => {
     setInventorySlots(snapshot.slots);
   }, []);
 
+  const handleLifeStateChange = useCallback(({ state }: PlayerLifeStatePayload) => {
+    setLifeState(state);
+    if (state === PlayerLifeState.Dead) {
+      setInventoryOpen(false);
+      setStatsOpen(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!appRef.current) return;
     const game = createGame(appRef.current);
     gameRef.current = game;
-    game.events.on('stats-update', setStats);
+    game.events.on(PlayerEvent.StatsUpdate, setStats);
+    game.events.on(PlayerEvent.LifeStateChange, handleLifeStateChange);
     game.events.on(InventoryEvent.Update, handleInventoryUpdate);
     game.events.on(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
     game.events.emit(InventoryEvent.Request);
     game.events.emit(InventoryEvent.QuickSlotsRequest);
     return () => {
-      game.events.off('stats-update', setStats);
+      game.events.off(PlayerEvent.StatsUpdate, setStats);
+      game.events.off(PlayerEvent.LifeStateChange, handleLifeStateChange);
       game.events.off(InventoryEvent.Update, handleInventoryUpdate);
       game.events.off(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
       gameRef.current = null;
       game.destroy(true);
     };
-  }, [handleInventoryUpdate]);
+  }, [handleInventoryUpdate, handleLifeStateChange]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setInventoryOpen(false);
+      if (lifeState === PlayerLifeState.Dead) return;
       if (e.key === 'i' || e.key === 'I') setInventoryOpen(prev => !prev);
       if (e.key === 'u' || e.key === 'U') setStatsOpen(prev => !prev);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [lifeState]);
 
   const requestInventory = useCallback(() => {
     gameRef.current?.events.emit(InventoryEvent.Request);
@@ -80,6 +96,10 @@ export default function GameScreen() {
     gameRef.current?.events.emit(InventoryEvent.QuickSlotAssign, payload);
   }, []);
 
+  const requestRespawn = useCallback(() => {
+    gameRef.current?.events.emit(PlayerEvent.RespawnRequest);
+  }, []);
+
   return (
     <>
       <div ref={appRef} className="app" />
@@ -103,6 +123,7 @@ export default function GameScreen() {
           onQuickSlotSetSelect={selectQuickSlotSet}
         />
       )}
+      {lifeState === PlayerLifeState.Dead && <DeathScreen onRespawn={requestRespawn} />}
     </>
   );
 }
