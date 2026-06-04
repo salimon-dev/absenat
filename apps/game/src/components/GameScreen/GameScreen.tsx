@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Game } from 'phaser';
 import { createGame } from '@game/index';
+import { attachDebugGame, detachDebugGame } from '@game/debug';
 import HUD, { type HUDStats } from '@components/HUD';
 import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
@@ -37,6 +38,7 @@ export default function GameScreen() {
     if (!appRef.current) return;
     const game = createGame(appRef.current);
     gameRef.current = game;
+    attachDebugGame(game);
     game.events.on('stats-update', setStats);
     game.events.on(InventoryEvent.Update, handleInventoryUpdate);
     game.events.on(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
@@ -48,6 +50,7 @@ export default function GameScreen() {
       game.events.off(InventoryEvent.Update, handleInventoryUpdate);
       game.events.off(InventoryEvent.QuickSlotsUpdate, setQuickSlots);
       game.events.off(BuildEvent.StateUpdate, setBuildState);
+      detachDebugGame(game);
       gameRef.current = null;
       game.destroy(true);
     };

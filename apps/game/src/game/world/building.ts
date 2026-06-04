@@ -8,10 +8,9 @@ import type { BuildableName } from '../building/types';
 import BuildingObject from '../building/building-object';
 import { ResourceType } from '../../utils/resources';
 import { isRaftTile } from './raft';
+import { type Bounds, BuildValidationReason, validateBuildPlacement } from './building-placement';
 
-const BUILD_HINT_TEXT = 'Build on the raft';
-const BLOCKED_HINT_TEXT = 'Space is occupied';
-const LACKING_HINT_TEXT = 'Not enough wood';
+const BUILD_HINT_TEXT = BuildValidationReason.BuildOnRaft;
 const HINT_TEXT_STYLE = {
   backgroundColor: '#20140a',
   color: '#fff3d4',
@@ -100,53 +99,33 @@ function validatePlacement(
   tileX: number,
   tileY: number
 ): { valid: boolean; reason?: string } {
-  if (!hasBuildCost(world, buildable)) return { valid: false, reason: LACKING_HINT_TEXT };
-  if (!isPlacementInsideRaft(buildable, tileX, tileY)) return { valid: false, reason: BUILD_HINT_TEXT };
-  if (isStructureOccupied(world, buildable, tileX, tileY)) return { valid: false, reason: BLOCKED_HINT_TEXT };
-  if (isPlayerInPlacement(world, buildable, tileX, tileY)) return { valid: false, reason: BLOCKED_HINT_TEXT };
-  return { valid: true };
+  return validateBuildPlacement({
+    buildable,
+    isRaftTile,
+    playerBounds: rectangleToBounds(world.player.getCollisionBounds()),
+    structureBounds: world.structures.map(getStructureBounds),
+    tileX,
+    tileY,
+    woodCount: world.player.inventory.getItemCount(ResourceType.Wood)
+  });
 }
 
-function hasBuildCost(world: World, buildable: BuildableName): boolean {
-  const wood = world.player.inventory.getItemCount(ResourceType.Wood);
-  return wood >= BUILDABLE_DEFINITIONS[buildable].cost.count;
+function getStructureBounds(structure: BuildingObject): Bounds {
+  return {
+    left: structure.x,
+    right: structure.x + structure.width * TILE_SIZE,
+    top: structure.y - structure.height * TILE_SIZE,
+    bottom: structure.y
+  };
 }
 
-function isPlacementInsideRaft(buildable: BuildableName, tileX: number, tileY: number): boolean {
-  const definition = BUILDABLE_DEFINITIONS[buildable];
-  return Array.from({ length: definition.width }).every((_, dx) =>
-    Array.from({ length: definition.height }).every((__, dy) => isRaftTile(tileX + dx, tileY - dy))
-  );
-}
-
-function isStructureOccupied(world: World, buildable: BuildableName, tileX: number, tileY: number): boolean {
-  const bounds = getFootprintBounds(buildable, tileX, tileY);
-  return world.structures.some(structure => Phaser.Geom.Intersects.RectangleToRectangle(bounds, getStructureBounds(structure)));
-}
-
-function isPlayerInPlacement(world: World, buildable: BuildableName, tileX: number, tileY: number): boolean {
-  const player = world.player.getCollisionBounds();
-  const bounds = getFootprintBounds(buildable, tileX, tileY);
-  return Phaser.Geom.Intersects.RectangleToRectangle(player, bounds);
-}
-
-function getFootprintBounds(buildable: BuildableName, tileX: number, tileY: number): Phaser.Geom.Rectangle {
-  const definition = BUILDABLE_DEFINITIONS[buildable];
-  return new Phaser.Geom.Rectangle(
-    tileX * TILE_SIZE,
-    (tileY - definition.height + 1) * TILE_SIZE,
-    definition.width * TILE_SIZE,
-    definition.height * TILE_SIZE
-  );
-}
-
-function getStructureBounds(structure: BuildingObject): Phaser.Geom.Rectangle {
-  return new Phaser.Geom.Rectangle(
-    structure.x,
-    structure.y - structure.height * TILE_SIZE,
-    structure.width * TILE_SIZE,
-    structure.height * TILE_SIZE
-  );
+function rectangleToBounds(rectangle: Phaser.Geom.Rectangle): Bounds {
+  return {
+    left: rectangle.left,
+    right: rectangle.right,
+    top: rectangle.top,
+    bottom: rectangle.bottom
+  };
 }
 
 function updateBuildHint(world: World, pointer: Phaser.Input.Pointer, reason?: string): void {
