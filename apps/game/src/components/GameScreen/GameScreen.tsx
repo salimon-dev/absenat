@@ -11,6 +11,7 @@ import Toolbar from '@components/Toolbar';
 import InventoryDialog from '@components/InventoryDialog';
 import DeathScreen from '@components/DeathScreen/DeathScreen';
 import BuildMenuDialog from '@components/BuildMenuDialog/BuildMenuDialog';
+import SaveLog from '@components/SaveLog/SaveLog';
 import {
   InventoryEvent,
   PlayerEvent,
@@ -29,6 +30,7 @@ import type { BuildPlacementPayload, BuildStateSnapshot } from '@game/building/t
 import { ResourceType } from '../../utils/resources';
 
 const AUTOSAVE_INTERVAL_MS = 15000;
+const SAVE_LOG_VISIBLE_MS = 2400;
 
 interface GameScreenProps {
   initialSave?: GameSaveData;
@@ -49,6 +51,14 @@ export default function GameScreen({ initialSave }: GameScreenProps) {
   const [lifeState, setLifeState] = useState(PlayerLifeState.Alive);
   const [buildMenuOpen, setBuildMenuOpen] = useState(false);
   const [buildState, setBuildState] = useState<BuildStateSnapshot>({});
+  const [saveLogVisible, setSaveLogVisible] = useState(false);
+  const saveLogTimeoutRef = useRef<number | undefined>(undefined);
+
+  const showSaveLog = useCallback(() => {
+    setSaveLogVisible(true);
+    window.clearTimeout(saveLogTimeoutRef.current);
+    saveLogTimeoutRef.current = window.setTimeout(() => setSaveLogVisible(false), SAVE_LOG_VISIBLE_MS);
+  }, []);
 
   const handleInventoryUpdate = useCallback((snapshot: InventorySnapshot) => {
     setInventorySlots(snapshot.slots);
@@ -75,10 +85,11 @@ export default function GameScreen({ initialSave }: GameScreenProps) {
     game.events.on(BuildEvent.StateUpdate, setBuildState);
     game.events.emit(InventoryEvent.Request);
     game.events.emit(InventoryEvent.QuickSlotsRequest);
-    const autosave = startAutosave(game);
+    const autosave = startAutosave(game, showSaveLog);
     return () => {
       window.clearInterval(autosave.intervalId);
       window.clearTimeout(autosave.timeoutId);
+      window.clearTimeout(saveLogTimeoutRef.current);
       game.events.off(PlayerEvent.StatsUpdate, setStats);
       game.events.off(PlayerEvent.LifeStateChange, handleLifeStateChange);
       game.events.off(InventoryEvent.Update, handleInventoryUpdate);
@@ -88,7 +99,7 @@ export default function GameScreen({ initialSave }: GameScreenProps) {
       gameRef.current = null;
       game.destroy(true);
     };
-  }, [handleInventoryUpdate, handleLifeStateChange, initialSave]);
+  }, [handleInventoryUpdate, handleLifeStateChange, initialSave, showSaveLog]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -178,6 +189,7 @@ export default function GameScreen({ initialSave }: GameScreenProps) {
         />
       )}
       {lifeState === PlayerLifeState.Dead && <DeathScreen onRespawn={requestRespawn} />}
+      <SaveLog visible={saveLogVisible} />
     </>
   );
 }
@@ -186,18 +198,19 @@ function getInventoryItemCount(slots: InventorySlot[], name: string): number {
   return slots.find(slot => slot.item?.name === name)?.item?.count ?? 0;
 }
 
-function startAutosave(game: Game): AutosaveHandle {
+function startAutosave(game: Game, onSaved: () => void): AutosaveHandle {
   return {
-    intervalId: window.setInterval(() => void writeCurrentSave(game), AUTOSAVE_INTERVAL_MS),
-    timeoutId: window.setTimeout(() => void writeCurrentSave(game), 0)
+    intervalId: window.setInterval(() => void writeCurrentSave(game, onSaved), AUTOSAVE_INTERVAL_MS),
+    timeoutId: window.setTimeout(() => void writeCurrentSave(game, onSaved), 0)
   };
 }
 
-async function writeCurrentSave(game: Game): Promise<void> {
+async function writeCurrentSave(game: Game, onSaved: () => void): Promise<void> {
   const world = game.scene.getScene('world');
   if (!(world instanceof World)) return;
   try {
     await writeSave(createGameSave(world));
+    onSaved();
   } catch (error) {
     console.error('Unable to autosave game state', error);
   }
