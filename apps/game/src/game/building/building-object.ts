@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import { TILE_SIZE } from '../world/tiles';
 import { BUILDABLE_DEFINITIONS } from './definitions';
+import { getBuildablePixelSize } from './building-size';
 import { BuildableType, type BuildableName } from './types';
 
 const CAMPFIRE_BASE_COLOR = 0x5b4434;
@@ -11,8 +12,6 @@ const INVALID_TINT = 0xff8b8b;
 
 export default class BuildingObject extends Phaser.GameObjects.Container {
   readonly buildable: BuildableName;
-  readonly width: number;
-  readonly height: number;
   private readonly sprite: Phaser.GameObjects.Sprite;
 
   static ensureTextures(scene: Phaser.Scene): void {
@@ -23,13 +22,12 @@ export default class BuildingObject extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, x: number, y: number, buildable: BuildableName) {
     super(scene, x, y);
-    const definition = BUILDABLE_DEFINITIONS[buildable];
     this.buildable = buildable;
-    this.width = definition.width;
-    this.height = definition.height;
     this.sprite = scene.add.sprite(0, 0, getTextureKey(buildable)).setOrigin(0, 1);
+    const pixelSize = getBuildablePixelSize(buildable);
+    this.sprite.setDisplaySize(pixelSize.width, pixelSize.height);
     this.add(this.sprite);
-    this.setSize(definition.width * TILE_SIZE, definition.height * TILE_SIZE);
+    this.setSize(pixelSize.width, pixelSize.height);
     this.setDepth(y + 2);
     scene.add.existing(this);
   }
