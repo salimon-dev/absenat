@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { ToolType } from '../../utils/tools';
+import { getActiveToolDepth, getActorDepth } from '../world/render-depth';
 
 export const TOOL_TEXTURE_KEY = 'tools';
 const TOOL_ASSET_PATH = 'assets/tools.png';
@@ -36,7 +37,7 @@ export default class Tool extends Phaser.GameObjects.Sprite {
     super(scene, x, y, TOOL_TEXTURE_KEY, getToolFrame(type));
 
     this.setOrigin(0.5, 1);
-    this.setDepth(y);
+    this.setDepth(getActorDepth(y));
     scene.add.existing(this);
   }
 
@@ -96,5 +97,5 @@ function createSwingTween(tool: Tool, pose: SwingPose): Phaser.Types.Tweens.Twee
 }
 
 function createSwingPose(x: number, y: number): SwingPose {
-  return { x, y, depth: y + 1, startAngle: 0, endAngle: 360 };
+  return { x, y, depth: getActiveToolDepth(y), startAngle: 0, endAngle: 360 };
 }

@@ -10,6 +10,7 @@ import { ResourceType } from '../../utils/resources';
 import { isRaftTile } from './raft';
 import { type Bounds, BuildValidationReason, validateBuildPlacement } from './building-placement';
 import { getBuildablePixelSize } from '../building/building-size';
+import { getSceneOverlayDepth } from './render-depth';
 
 const BUILD_HINT_TEXT = BuildValidationReason.BuildOnRaft;
 const HINT_TEXT_STYLE = {
@@ -23,7 +24,11 @@ const HINT_TEXT_STYLE = {
 export function setupBuilding(this: World): void {
   BuildingObject.ensureTextures(this);
   this.input.mouse?.disableContextMenu();
-  this.buildHint = this.add.text(0, 0, BUILD_HINT_TEXT, HINT_TEXT_STYLE).setDepth(1000).setScrollFactor(0).setVisible(false);
+  this.buildHint = this.add
+    .text(0, 0, BUILD_HINT_TEXT, HINT_TEXT_STYLE)
+    .setDepth(getSceneOverlayDepth())
+    .setScrollFactor(0)
+    .setVisible(false);
   this.input.on('pointermove', this.handleBuildPointerMove, this);
   this.input.on('pointerdown', this.handleBuildPointerDown, this);
   this.game.events.on(BuildEvent.StartPlacement, this.handleBuildStart, this);

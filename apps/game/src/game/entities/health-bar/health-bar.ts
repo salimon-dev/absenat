@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import { getWorldOverlayDepth } from '../../world/render-depth';
 import type { HealthBarConfig, HealthBarValue } from './types';
 
 const DEFAULT_HEALTH_BAR_CONFIG: HealthBarConfig = {
@@ -8,7 +9,7 @@ const DEFAULT_HEALTH_BAR_CONFIG: HealthBarConfig = {
   backgroundColor: 0x1f1f1f,
   borderColor: 0x000000,
   fillColor: 0xd94a38,
-  depth: 30
+  depth: getWorldOverlayDepth()
 };
 
 export default class HealthBar extends Phaser.GameObjects.Graphics {
