@@ -1,6 +1,8 @@
-import type { PlayerStat } from '@absenat/specs';
+import type { PlayerConfig, PlayerStat } from '@absenat/specs';
 import type { ItemName } from '../../utils/items';
 import type { ToolName } from '../../utils/tools';
+import type { PlayerSpawnState } from './state';
+import type { Direction } from './movement';
 
 export enum InventoryEvent {
   Add = 'inventory-add',
@@ -107,4 +109,13 @@ export interface QuickSlotMovePayload {
 export interface InventoryCountByName {
   name: ItemName;
   count: number;
+}
+
+export interface PlayerSnapshot {
+  config: PlayerConfig;
+  inventory: InventorySnapshot;
+  lastDirection: Direction;
+  lifeState: PlayerLifeStateType;
+  quickSlots: QuickSlotsSnapshot;
+  spawnState: PlayerSpawnState;
 }

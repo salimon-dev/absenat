@@ -16,6 +16,7 @@ import {
   PlayerEvent,
   PlayerLifeState,
   type PlayerLifeStatePayload,
+  type PlayerSnapshot,
   type PlayerStatsSnapshot
 } from './types';
 import { createPlayerSpawnState, resetPlayerConfig, type PlayerSpawnState } from './state';
@@ -89,6 +90,32 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   emitInventory(): void {
+    this.inventory.emitUpdate();
+  }
+
+  getSnapshot(): PlayerSnapshot {
+    return {
+      config: clonePlayerConfig(this.config),
+      inventory: this.inventory.getSnapshot(),
+      lastDirection: this.lastDirection,
+      lifeState: this.lifeState,
+      quickSlots: this.inventory.getQuickSlotsSnapshot(),
+      spawnState: cloneSpawnState(this.spawnState)
+    };
+  }
+
+  restoreSnapshot(snapshot: PlayerSnapshot): void {
+    this.config = clonePlayerConfig(snapshot.config);
+    this.speed = snapshot.config.speed;
+    this.x = snapshot.config.position.x;
+    this.y = snapshot.config.position.y;
+    this.lastDirection = snapshot.lastDirection;
+    this.lifeState = snapshot.lifeState;
+    this.spawnState = cloneSpawnState(snapshot.spawnState);
+    this.inventory.destroy();
+    this.inventory = createInventoryFromSnapshot(this.scene.game.events, snapshot);
+    this.emitStatsUpdate();
+    this.emitLifeState();
     this.inventory.emitUpdate();
   }
 
@@ -227,4 +254,51 @@ function getPressedToolKey(keys: ToolKeys): string | undefined {
   if (keys.e.isDown) return 'e';
   if (keys.r.isDown) return 'r';
   return undefined;
+}
+
+function createInventoryFromSnapshot(
+  events: Phaser.Events.EventEmitter,
+  snapshot: PlayerSnapshot
+): InventoryManager {
+  const items = snapshot.inventory.slots.map(slot => slot.item);
+  return new InventoryManager(
+    events,
+    snapshot.inventory.slotCount,
+    items,
+    snapshot.quickSlots.sets,
+    snapshot.quickSlots.selectedSetId
+  );
+}
+
+function clonePlayerConfig(config: PlayerConfig): PlayerConfig {
+  return {
+    position: { ...config.position },
+    speed: config.speed,
+    attackSpeed: config.attackSpeed,
+    inventorySlots: config.inventorySlots,
+    health: clonePlayerStat(config.health),
+    thirst: clonePlayerStat(config.thirst),
+    hunger: clonePlayerStat(config.hunger),
+    fatigue: clonePlayerStat(config.fatigue)
+  };
+}
+
+function cloneSpawnState(spawnState: PlayerSpawnState): PlayerSpawnState {
+  return {
+    position: { ...spawnState.position },
+    stats: {
+      health: clonePlayerStat(spawnState.stats.health),
+      thirst: clonePlayerStat(spawnState.stats.thirst),
+      hunger: clonePlayerStat(spawnState.stats.hunger),
+      fatigue: clonePlayerStat(spawnState.stats.fatigue)
+    }
+  };
+}
+
+function clonePlayerStat(stat: PlayerConfig['health']): PlayerConfig['health'] {
+  return {
+    current: stat.current,
+    total: stat.total,
+    drainRate: stat.drainRate
+  };
 }

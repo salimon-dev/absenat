@@ -1,0 +1,58 @@
+.log {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 900;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffe9ac;
+  text-transform: uppercase;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(40, 26, 15, 0.94), rgba(18, 13, 9, 0.94)),
+    repeating-linear-gradient(90deg, rgba(255, 219, 128, 0.09) 0 2px, transparent 2px 8px);
+  border: 3px solid #d09a45;
+  box-shadow:
+    0 0 0 3px #23140c,
+    inset 0 2px 0 rgba(255, 238, 170, 0.22),
+    0 8px 0 rgba(0, 0, 0, 0.32);
+  image-rendering: pixelated;
+  animation: logIn 140ms steps(2, end);
+}
+
+.marker {
+  width: 10px;
+  height: 10px;
+  background: #8ee36f;
+  border: 2px solid #24421f;
+  box-shadow:
+    0 0 0 2px #ffe19a,
+    0 0 10px rgba(142, 227, 111, 0.46);
+}
+
+@keyframes logIn {
+  from {
+    opacity: 0;
+    transform: translate(0, 8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@media (max-width: 520px) {
+  .log {
+    right: 14px;
+    bottom: 14px;
+    max-width: calc(100vw - 28px);
+  }
+}
