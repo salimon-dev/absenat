@@ -9,6 +9,7 @@ import BuildingObject from '../building/building-object';
 import { ResourceType } from '../../utils/resources';
 import { isRaftTile } from './raft';
 import { type Bounds, BuildValidationReason, validateBuildPlacement } from './building-placement';
+import { getBuildablePixelSize } from '../building/building-size';
 
 const BUILD_HINT_TEXT = BuildValidationReason.BuildOnRaft;
 const HINT_TEXT_STYLE = {
@@ -111,10 +112,11 @@ function validatePlacement(
 }
 
 function getStructureBounds(structure: BuildingObject): Bounds {
+  const pixelSize = getBuildablePixelSize(structure.buildable);
   return {
     left: structure.x,
-    right: structure.x + structure.width * TILE_SIZE,
-    top: structure.y - structure.height * TILE_SIZE,
+    right: structure.x + pixelSize.width,
+    top: structure.y - pixelSize.height,
     bottom: structure.y
   };
 }

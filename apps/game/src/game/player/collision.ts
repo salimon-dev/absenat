@@ -2,6 +2,7 @@ import type Tile from '../entities/tile/tile';
 import type { World } from '../world';
 import { TILE_SIZE, WORLD_SIZE } from '../world/tiles';
 import type BuildingObject from '../building/building-object';
+import { getBuildablePixelSize } from '../building/building-size';
 
 const PLAYER_RADIUS = 6;
 
@@ -84,10 +85,11 @@ function getTileBounds(tile: Tile): Bounds {
 }
 
 function getStructureBounds(structure: BuildingObject): Bounds {
+  const pixelSize = getBuildablePixelSize(structure.buildable);
   return {
     left: structure.x,
-    right: structure.x + structure.width * TILE_SIZE,
-    top: structure.y - structure.height * TILE_SIZE,
+    right: structure.x + pixelSize.width,
+    top: structure.y - pixelSize.height,
     bottom: structure.y
   };
 }
