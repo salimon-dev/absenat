@@ -2,7 +2,8 @@ import { Biome } from '@absenat/specs';
 import { describe, expect, it } from 'vitest';
 import { BuildableType } from '../building/types';
 import type Player from '../player';
-import { PlayerLifeState, type PlayerSnapshot } from '../player/types';
+import { Direction } from '../player/movement';
+import { PlayerLifeState, QuickSlotKey, type PlayerSnapshot } from '../player/types';
 import type { World } from '../world';
 import { WorldEntityKind } from '../world/types';
 import { ResourceType } from '../../utils/resources';
@@ -61,11 +62,11 @@ function createPlayer(): Player {
         slotCount: 16,
         slots: [{ item: { count: 3, name: ResourceType.Wood } }]
       },
-      lastDirection: 'down',
+      lastDirection: Direction.Down,
       lifeState: PlayerLifeState.Alive,
       quickSlots: {
         selectedSetId: 2,
-        sets: [{ id: 2, slots: [{ itemName: ToolType.Axe, key: 'q' }] }]
+        sets: [{ id: 2, slots: [{ itemName: ToolType.Axe, key: QuickSlotKey.Q }] }]
       },
       spawnState: {
         position: { x: 12, y: 34 },

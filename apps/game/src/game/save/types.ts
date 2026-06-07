@@ -4,7 +4,7 @@ import type { TilePlacement } from '../entities/types';
 import type { EntityPlacement } from '../world/types';
 import type { InventorySnapshot, PlayerLifeStateType, QuickSlotsSnapshot } from '../player/types';
 import type { PlayerSpawnState } from '../player/state';
-import type { Direction } from '../player/movement';
+import type { DirectionType } from '../player/movement';
 
 export const SAVE_SCHEMA_VERSION = 1;
 export const ACTIVE_SAVE_ID = 'active';
@@ -34,7 +34,7 @@ export interface SavePlayerSnapshot {
   attackSpeed: number;
   config: PlayerConfig;
   inventory: InventorySnapshot;
-  lastDirection: Direction;
+  lastDirection: DirectionType;
   lifeState: PlayerLifeStateType;
   quickSlots: QuickSlotsSnapshot;
   spawnState: PlayerSpawnState;
