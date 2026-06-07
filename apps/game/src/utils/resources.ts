@@ -7,7 +7,11 @@ export enum ResourceType {
   Gold = 'gold',
   RedMushroom = 'red-mushroom',
   BlueMushroom = 'blue-mushroom',
-  GreenMushroom = 'green-mushroom'
+  GreenMushroom = 'green-mushroom',
+  BlueBerries = 'blue-berries',
+  Wheat = 'wheat',
+  Watermelon = 'watermelon',
+  Pumpkin = 'pumpkin'
 }
 
 export type ResourceName = ResourceType;
@@ -21,7 +25,11 @@ export const RESOURCE_NAMES = [
   ResourceType.Gold,
   ResourceType.RedMushroom,
   ResourceType.BlueMushroom,
-  ResourceType.GreenMushroom
+  ResourceType.GreenMushroom,
+  ResourceType.BlueBerries,
+  ResourceType.Wheat,
+  ResourceType.Watermelon,
+  ResourceType.Pumpkin
 ] as const;
 
 export function isResourceName(name: string): name is ResourceName {
@@ -76,6 +84,22 @@ export const RESOURCE_SPECS: Record<ResourceName, ResourceSpec> = {
   [ResourceType.GreenMushroom]: {
     description: 'An earthy mushroom that fills the stomach with little downside.',
     effects: { health: 1, fatigue: 0, hunger: 12, thirst: 2 }
+  },
+  [ResourceType.BlueBerries]: {
+    description: 'A handful of tart blue berries gathered from low island bushes.',
+    effects: { health: 1, fatigue: 0, hunger: 8, thirst: 4 }
+  },
+  [ResourceType.Wheat]: {
+    description: 'A bundle of grain stalks ready for simple food crafting.',
+    effects: { health: 0, fatigue: 0, hunger: 6, thirst: -1 }
+  },
+  [ResourceType.Watermelon]: {
+    description: 'A juicy melon that restores thirst and takes the edge off hunger.',
+    effects: { health: 0, fatigue: 0, hunger: 10, thirst: 12 }
+  },
+  [ResourceType.Pumpkin]: {
+    description: 'A dense orange squash that can become filling survival food.',
+    effects: { health: 0, fatigue: 0, hunger: 14, thirst: 1 }
   }
 };
 

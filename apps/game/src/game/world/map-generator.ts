@@ -1,4 +1,5 @@
 import { Biome } from '@absenat/specs';
+import { getResourceNodeDefinition } from '../entities/resource-node-definitions';
 import { getRandomTileVariant } from '../entities/tile/tile-variants';
 import type { TilePlacement } from '../entities/types';
 import { MAP_GEN_CONFIG } from './map-generator.config';
@@ -8,6 +9,12 @@ import { WorldEntityKind } from './types';
 import type { EntityPlacement, MapResult } from './types';
 
 const TREE_VARIANT_COUNT = 4;
+const ORE_VARIANT_BY_KIND = {
+  stone: 0,
+  iron: 1,
+  copper: 2,
+  gold: 3
+} as const;
 const BACKGROUND_DIRT_CHANCE = 0.03;
 const SHORE_WIDTH = 1;
 const TILE_BIOME_ALIASES: Record<Biome, Biome> = {
@@ -147,31 +154,51 @@ function isWaterBorderTile(x: number, y: number, waterBorder: number): boolean {
 
 function placeEntities(corners: Biome[][], waterBorder: number): EntityPlacement[] {
   const placements: EntityPlacement[] = [];
-  for (let y = 0; y < WORLD_SIZE; y++) addRowEntities(placements, corners, y, waterBorder);
+  const occupiedTiles = new Set<string>();
+  for (let y = 0; y < WORLD_SIZE; y++) addRowEntities(placements, occupiedTiles, corners, y, waterBorder);
   return placements;
 }
 
 function addRowEntities(
   placements: EntityPlacement[],
+  occupiedTiles: Set<string>,
   corners: Biome[][],
   y: number,
   waterBorder: number
 ): void {
   for (let x = 0; x < WORLD_SIZE; x++) {
-    if (canPlaceTree(corners, x, y, waterBorder)) placements.push(createTreePlacement(x, y));
+    const placement = createEntityPlacement(corners, occupiedTiles, x, y, waterBorder);
+    if (placement) addEntityPlacement(placements, occupiedTiles, placement);
   }
 }
 
-function canPlaceTree(corners: Biome[][], x: number, y: number, waterBorder: number): boolean {
+function createEntityPlacement(
+  corners: Biome[][],
+  occupiedTiles: Set<string>,
+  x: number,
+  y: number,
+  waterBorder: number
+): EntityPlacement | undefined {
+  if (!canPlaceResource(corners, occupiedTiles, x, y, waterBorder)) return undefined;
+  return selectResourcePlacement(corners[y][x], x, y);
+}
+
+function canPlaceResource(
+  corners: Biome[][],
+  occupiedTiles: Set<string>,
+  x: number,
+  y: number,
+  waterBorder: number
+): boolean {
   if (isRaftFloorTile(x, y) || isRaftWaterTile(x, y)) return false;
   if (isRaftLandingTile(x, y)) return false;
   if (isWaterBorderTile(x, y, waterBorder)) return false;
-  if (hasWaterInTreeFootprint(corners, x, y)) return false;
-  const biome = corners[y][x];
-  return biome === Biome.Grass && Math.random() < MAP_GEN_CONFIG.tree.spawnChance;
+  if (occupiedTiles.has(createTileKey(x, y))) return false;
+  if (hasWaterInResourceFootprint(corners, x, y)) return false;
+  return !hasWaterInTileCorners(corners, x, y);
 }
 
-function hasWaterInTreeFootprint(corners: Biome[][], x: number, y: number): boolean {
+function hasWaterInResourceFootprint(corners: Biome[][], x: number, y: number): boolean {
   if (y === 0) return true;
   return hasWaterInTileCorners(corners, x, y - 1) || hasWaterInTileCorners(corners, x, y);
 }
@@ -184,13 +211,83 @@ function getTileCorners(corners: Biome[][], x: number, y: number): Biome[] {
   return [corners[y][x], corners[y][x + 1], corners[y + 1][x], corners[y + 1][x + 1]];
 }
 
+function selectResourcePlacement(biome: Biome, tileX: number, tileY: number): EntityPlacement | undefined {
+  return getPlacementCandidates(tileX, tileY).find(candidate => canSelectCandidate(candidate, biome));
+}
+
+function getPlacementCandidates(tileX: number, tileY: number): EntityPlacement[] {
+  return [
+    createTreePlacement(tileX, tileY),
+    createVariantPlacement(WorldEntityKind.Mushroom, tileX, tileY, randomInt(0, 2)),
+    ...createOrePlacements(tileX, tileY),
+    createVariantPlacement(WorldEntityKind.BlueBerries, tileX, tileY, 0),
+    createVariantPlacement(WorldEntityKind.Wheat, tileX, tileY, 0),
+    createVariantPlacement(WorldEntityKind.Watermelon, tileX, tileY, 0),
+    createVariantPlacement(WorldEntityKind.Pumpkin, tileX, tileY, 0)
+  ];
+}
+
+function canSelectCandidate(placement: EntityPlacement, biome: Biome): boolean {
+  return getResourceNodeDefinition(placement.kind).allowedBiomes.includes(biome) && Math.random() < getSpawnChance(placement);
+}
+
+function getSpawnChance(placement: EntityPlacement): number {
+  if (placement.kind === WorldEntityKind.Tree) return MAP_GEN_CONFIG.tree.spawnChance;
+  if (placement.kind === WorldEntityKind.OreRock) return getOreSpawnChance(placement.variant);
+  return getResourceSpawnChance(placement.kind);
+}
+
+function getResourceSpawnChance(kind: WorldEntityKind): number {
+  const { resources } = MAP_GEN_CONFIG;
+  if (kind === WorldEntityKind.Mushroom) return resources.mushrooms.spawnChance;
+  if (kind === WorldEntityKind.BlueBerries) return resources.blueBerries.spawnChance;
+  if (kind === WorldEntityKind.Wheat) return resources.wheat.spawnChance;
+  if (kind === WorldEntityKind.Watermelon) return resources.watermelon.spawnChance;
+  if (kind === WorldEntityKind.Pumpkin) return resources.pumpkin.spawnChance;
+  return 0;
+}
+
+function getOreSpawnChance(variant: number): number {
+  const { ore } = MAP_GEN_CONFIG.resources;
+  if (variant === ORE_VARIANT_BY_KIND.iron) return ore.iron.spawnChance;
+  if (variant === ORE_VARIANT_BY_KIND.copper) return ore.copper.spawnChance;
+  if (variant === ORE_VARIANT_BY_KIND.gold) return ore.gold.spawnChance;
+  return ore.stone.spawnChance;
+}
+
 function createTreePlacement(tileX: number, tileY: number): EntityPlacement {
+  return createVariantPlacement(WorldEntityKind.Tree, tileX, tileY, randomInt(0, TREE_VARIANT_COUNT - 1));
+}
+
+function createOrePlacements(tileX: number, tileY: number): EntityPlacement[] {
+  return Object.values(ORE_VARIANT_BY_KIND).map(variant => createVariantPlacement(WorldEntityKind.OreRock, tileX, tileY, variant));
+}
+
+function createVariantPlacement(
+  kind: WorldEntityKind,
+  tileX: number,
+  tileY: number,
+  variant: number
+): EntityPlacement {
   return {
     x: tileX * TILE_SIZE,
     y: (tileY + 1) * TILE_SIZE,
-    kind: WorldEntityKind.Tree,
-    variant: randomInt(0, TREE_VARIANT_COUNT - 1)
+    kind,
+    variant
   };
+}
+
+function addEntityPlacement(
+  placements: EntityPlacement[],
+  occupiedTiles: Set<string>,
+  placement: EntityPlacement
+): void {
+  placements.push(placement);
+  occupiedTiles.add(createTileKey(placement.x / TILE_SIZE, placement.y / TILE_SIZE - 1));
+}
+
+function createTileKey(x: number, y: number): string {
+  return `${x},${y}`;
 }
 
 function randomInt(min: number, max: number): number {

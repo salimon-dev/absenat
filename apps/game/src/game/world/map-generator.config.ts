@@ -16,6 +16,29 @@ export const MAP_GEN_CONFIG = {
   tree: {
     spawnChance: 0.05
   },
+  resources: {
+    mushrooms: {
+      spawnChance: 0.012
+    },
+    ore: {
+      stone: { spawnChance: 0.01 },
+      iron: { spawnChance: 0.006 },
+      copper: { spawnChance: 0.006 },
+      gold: { spawnChance: 0.002 }
+    },
+    blueBerries: {
+      spawnChance: 0.01
+    },
+    wheat: {
+      spawnChance: 0.008
+    },
+    watermelon: {
+      spawnChance: 0.004
+    },
+    pumpkin: {
+      spawnChance: 0.004
+    }
+  },
   water: {
     borderMin: 1,
     borderMax: 3

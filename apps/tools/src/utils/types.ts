@@ -98,3 +98,29 @@ export type TreeAssetData = {
     walkable: boolean;
   }[];
 };
+
+export enum ResourceNodeAsset {
+  RedMushroom = 'red-mushroom',
+  BlueMushroom = 'blue-mushroom',
+  GreenMushroom = 'green-mushroom',
+  StoneOre = 'stone-ore',
+  IronOre = 'iron-ore',
+  CopperOre = 'copper-ore',
+  GoldOre = 'gold-ore',
+  BlueBerries = 'blue-berries',
+  Wheat = 'wheat',
+  Watermelon = 'watermelon',
+  Pumpkin = 'pumpkin',
+}
+
+export type ResourceNodeAssetType = ResourceNodeAsset;
+
+export type ResourceNodeVariant = {
+  id: ResourceNodeAssetType;
+  pixels: PixelRect[];
+};
+
+export type ResourceNodeAssetData = {
+  id: ResourceNodeAssetType;
+  frame: number;
+};

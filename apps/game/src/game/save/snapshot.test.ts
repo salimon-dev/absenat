@@ -20,8 +20,8 @@ describe('createGameSave', () => {
     expect(save.world.tiles[0][0]).toEqual({ biome: Biome.Grass, variant: 2 });
     expect(save.world.entities[0]).toEqual({
       hp: 4,
-      kind: WorldEntityKind.Tree,
-      variant: 1,
+      kind: WorldEntityKind.Pumpkin,
+      variant: 0,
       x: 32,
       y: 48
     });
@@ -37,7 +37,7 @@ describe('createGameSave', () => {
 
 function createWorld(): World {
   return {
-    entities: [{ hp: 4, variant: 1, x: 32, y: 48 }],
+    entities: [{ hp: 4, kind: WorldEntityKind.Pumpkin, variant: 0, x: 32, y: 48 }],
     getTilePlacements: () => [[{ biome: Biome.Grass, variant: 2 }]],
     player: createPlayer(),
     structures: [{ buildable: BuildableType.SmallChest, x: 16, y: 32 }]

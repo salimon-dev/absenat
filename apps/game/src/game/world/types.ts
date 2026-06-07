@@ -1,7 +1,13 @@
 import type { TilePlacement } from '../entities/types';
 
 export enum WorldEntityKind {
-  Tree = 'tree'
+  BlueBerries = 'blue-berries',
+  Mushroom = 'mushroom',
+  OreRock = 'ore-rock',
+  Pumpkin = 'pumpkin',
+  Tree = 'tree',
+  Watermelon = 'watermelon',
+  Wheat = 'wheat'
 }
 
 export type WorldEntityKindType = WorldEntityKind;

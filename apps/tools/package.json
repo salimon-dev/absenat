@@ -6,6 +6,7 @@
   "scripts": {
     "tile-generator": "node --experimental-transform-types src/tile-generator.ts",
     "tree-generator": "node --experimental-transform-types src/tree-generator.ts",
+    "resource-node-generator": "node --experimental-transform-types src/resource-node-generator.ts",
     "tool-generator": "node --experimental-transform-types src/tool-generator.ts",
     "npc-generator": "node --experimental-transform-types src/npc-generator.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
