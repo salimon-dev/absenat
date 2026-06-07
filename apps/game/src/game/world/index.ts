@@ -2,11 +2,12 @@ import * as Phaser from 'phaser';
 import Player from '../player';
 import { createTilemap, getTilePlacements, preloadWorld, restoreSavedStructures, setupCamera, setupPlayer } from './setup-world';
 import { TREE_TEXTURE_KEY } from '../entities/tree';
-import Tree from '../entities/tree';
+import ResourceNode from '../entities/resource-node';
+import { RESOURCE_NODE_TEXTURE_KEY } from '../entities/resource-node-definitions';
 import { TILE_TEXTURE_KEY } from '../entities/tile/tile';
 import Tile from '../entities/tile/tile';
 import { TOOL_TEXTURE_KEY } from '../entities/tool';
-import { removeTreesInRange } from './remove-trees-in-range';
+import { removeResourcesInRange } from './remove-resources-in-range';
 import type BuildingObject from '../building/building-object';
 import type { BuildableName } from '../building/types';
 import type { GameSaveData } from '../save/types';
@@ -24,7 +25,7 @@ export class World extends Phaser.Scene {
   initialSave?: GameSaveData;
   player!: Player;
   tiles: Tile[] = [];
-  entities: Tree[] = [];
+  entities: ResourceNode[] = [];
   structures: BuildingObject[] = [];
   activeBuild?: BuildableName;
   buildPreview?: BuildingObject;
@@ -41,7 +42,7 @@ export class World extends Phaser.Scene {
   protected setupPlayer = setupPlayer;
   protected setupCamera = setupCamera;
   protected restoreSavedStructures = restoreSavedStructures;
-  removeTreesInRange = removeTreesInRange;
+  removeResourcesInRange = removeResourcesInRange;
   protected setupBuilding = setupBuilding;
   protected teardownBuilding = teardownBuilding;
   protected handleBuildStart = handleBuildStart;
@@ -60,6 +61,7 @@ export class World extends Phaser.Scene {
 
   create() {
     this.textures.get(TREE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
+    this.textures.get(RESOURCE_NODE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
     this.textures.get(TILE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
     this.textures.get(TOOL_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
 

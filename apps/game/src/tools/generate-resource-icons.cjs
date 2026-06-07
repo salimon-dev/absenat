@@ -16,6 +16,10 @@ const RESOURCES = [
   { name: 'red-mushroom', draw: drawRedMushroom },
   { name: 'blue-mushroom', draw: drawBlueMushroom },
   { name: 'green-mushroom', draw: drawGreenMushroom },
+  { name: 'blue-berries', draw: drawBlueBerries },
+  { name: 'wheat', draw: drawWheat },
+  { name: 'watermelon', draw: drawWatermelon },
+  { name: 'pumpkin', draw: drawPumpkin },
 ];
 
 const COLORS = {
@@ -41,6 +45,14 @@ const COLORS = {
   red: [202, 48, 54, 255],
   blue: [57, 100, 207, 255],
   green: [58, 157, 77, 255],
+  leaf: [46, 130, 74, 255],
+  berry: [47, 85, 203, 255],
+  wheat: [211, 165, 53, 255],
+  wheatLight: [244, 207, 94, 255],
+  melonDark: [39, 118, 61, 255],
+  melon: [77, 178, 86, 255],
+  pumpkinDark: [151, 78, 29, 255],
+  pumpkin: [220, 121, 37, 255],
   capLight: [245, 235, 194, 255],
 };
 
@@ -146,6 +158,43 @@ function drawMushroomSpots(buffer, width, originX, originY) {
   drawPixel(buffer, width, originX + 6, originY + 5, COLORS.capLight);
   drawPixel(buffer, width, originX + 10, originY + 6, COLORS.capLight);
   drawPixel(buffer, width, originX + 4, originY + 7, COLORS.capLight);
+}
+
+function drawBlueBerries(buffer, width, originX, originY) {
+  drawLine(buffer, width, originX, originY, 7, 5, 7, 12, COLORS.leaf);
+  drawLine(buffer, width, originX, originY, 4, 8, 10, 6, COLORS.leaf);
+  drawBerryCluster(buffer, width, originX, originY);
+}
+
+function drawBerryCluster(buffer, width, originX, originY) {
+  drawEllipse(buffer, width, originX, originY, 3, 7, 7, 11, COLORS.outline);
+  drawEllipse(buffer, width, originX, originY, 8, 5, 12, 9, COLORS.outline);
+  drawEllipse(buffer, width, originX, originY, 7, 10, 11, 14, COLORS.outline);
+  drawEllipse(buffer, width, originX, originY, 4, 8, 6, 10, COLORS.berry);
+  drawEllipse(buffer, width, originX, originY, 9, 6, 11, 8, COLORS.berry);
+  drawEllipse(buffer, width, originX, originY, 8, 11, 10, 13, COLORS.berry);
+}
+
+function drawWheat(buffer, width, originX, originY) {
+  drawLine(buffer, width, originX, originY, 8, 4, 8, 14, COLORS.wheat);
+  drawLine(buffer, width, originX, originY, 5, 5, 8, 8, COLORS.wheatLight);
+  drawLine(buffer, width, originX, originY, 11, 5, 8, 8, COLORS.wheatLight);
+  drawLine(buffer, width, originX, originY, 5, 8, 8, 10, COLORS.wheat);
+  drawLine(buffer, width, originX, originY, 11, 8, 8, 10, COLORS.wheat);
+}
+
+function drawWatermelon(buffer, width, originX, originY) {
+  drawEllipse(buffer, width, originX, originY, 2, 5, 14, 13, COLORS.outline);
+  drawEllipse(buffer, width, originX, originY, 3, 6, 13, 12, COLORS.melon);
+  drawLine(buffer, width, originX, originY, 5, 7, 7, 12, COLORS.melonDark);
+  drawLine(buffer, width, originX, originY, 10, 6, 9, 12, COLORS.melonDark);
+}
+
+function drawPumpkin(buffer, width, originX, originY) {
+  drawEllipse(buffer, width, originX, originY, 2, 4, 14, 14, COLORS.outline);
+  drawEllipse(buffer, width, originX, originY, 3, 5, 13, 13, COLORS.pumpkin);
+  drawLine(buffer, width, originX, originY, 8, 5, 8, 13, COLORS.pumpkinDark);
+  drawRect(buffer, width, originX, originY, 7, 3, 3, 3, COLORS.stemDark);
 }
 
 function drawRect(buffer, width, originX, originY, x, y, rectWidth, rectHeight, color) {

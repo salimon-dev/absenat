@@ -3,6 +3,7 @@ import type { World } from '../world';
 import { TILE_SIZE, WORLD_SIZE } from '../world/tiles';
 import type BuildingObject from '../building/building-object';
 import { getBuildablePixelSize } from '../building/building-size';
+import { getResourceCollisionBounds } from '../world/remove-resources-in-range';
 
 const PLAYER_RADIUS = 6;
 
@@ -17,7 +18,7 @@ export function canMove(world: World, nextX: number, nextY: number): boolean {
   return (
     isInsideWorld(nextX, nextY) &&
     canWalkOnTiles(world, nextX, nextY) &&
-    canAvoidTrees(world, nextX, nextY) &&
+    canAvoidResourceNodes(world, nextX, nextY) &&
     canAvoidStructures(world, nextX, nextY)
   );
 }
@@ -27,8 +28,8 @@ function isInsideWorld(nextX: number, nextY: number): boolean {
   return nextX >= PLAYER_RADIUS && nextX <= maxPosition - PLAYER_RADIUS && nextY >= 0 && nextY <= maxPosition;
 }
 
-function canAvoidTrees(world: World, nextX: number, nextY: number): boolean {
-  return world.entities.every(tree => !overlapsTree(nextX, nextY, tree.x, tree.y));
+function canAvoidResourceNodes(world: World, nextX: number, nextY: number): boolean {
+  return world.entities.every(node => !overlapsResourceNode(nextX, nextY, node));
 }
 
 function canWalkOnTiles(world: World, nextX: number, nextY: number): boolean {
@@ -45,10 +46,11 @@ function overlapsTile(playerX: number, playerY: number, tile: Tile): boolean {
   return overlapsBounds(player, tileBounds);
 }
 
-function overlapsTree(playerX: number, playerY: number, treeX: number, treeY: number): boolean {
+function overlapsResourceNode(playerX: number, playerY: number, node: World['entities'][number]): boolean {
+  const bounds = getResourceCollisionBounds(node);
+  if (!bounds) return false;
   const player = getPlayerBounds(playerX, playerY);
-  const root = getTreeRootBounds(treeX, treeY);
-  return overlapsBounds(player, root);
+  return overlapsBounds(player, bounds);
 }
 
 function overlapsStructure(playerX: number, playerY: number, structure: BuildingObject): boolean {
@@ -63,15 +65,6 @@ function getPlayerBounds(x: number, y: number): Bounds {
     right: x + PLAYER_RADIUS,
     top: y + 4,
     bottom: y + 12
-  };
-}
-
-function getTreeRootBounds(x: number, y: number): Bounds {
-  return {
-    left: x,
-    right: x + TILE_SIZE,
-    top: y - TILE_SIZE,
-    bottom: y
   };
 }
 

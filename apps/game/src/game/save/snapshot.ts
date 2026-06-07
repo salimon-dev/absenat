@@ -5,7 +5,6 @@ import type { InventorySlot, QuickSlotSet } from '../player/types';
 import { ACTIVE_SAVE_ID, SAVE_SCHEMA_VERSION } from './types';
 import type { GameSaveData, SaveStructureSnapshot, SaveWorldSnapshot } from './types';
 import type { World } from '../world';
-import { WorldEntityKind } from '../world/types';
 
 export function createGameSave(world: World, updatedAt = Date.now()): GameSaveData {
   return {
@@ -21,7 +20,7 @@ export function createWorldSnapshot(world: World): SaveWorldSnapshot {
   return {
     tiles: world.getTilePlacements(),
     entities: world.entities.map(entity => ({
-      kind: WorldEntityKind.Tree,
+      kind: entity.kind,
       x: entity.x,
       y: entity.y,
       variant: entity.variant,

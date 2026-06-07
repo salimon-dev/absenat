@@ -1,0 +1,46 @@
+[
+  {
+    "id": "red-mushroom",
+    "frame": 0
+  },
+  {
+    "id": "blue-mushroom",
+    "frame": 1
+  },
+  {
+    "id": "green-mushroom",
+    "frame": 2
+  },
+  {
+    "id": "stone-ore",
+    "frame": 3
+  },
+  {
+    "id": "iron-ore",
+    "frame": 4
+  },
+  {
+    "id": "copper-ore",
+    "frame": 5
+  },
+  {
+    "id": "gold-ore",
+    "frame": 6
+  },
+  {
+    "id": "blue-berries",
+    "frame": 7
+  },
+  {
+    "id": "wheat",
+    "frame": 8
+  },
+  {
+    "id": "watermelon",
+    "frame": 9
+  },
+  {
+    "id": "pumpkin",
+    "frame": 10
+  }
+]

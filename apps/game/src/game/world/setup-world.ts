@@ -2,6 +2,7 @@ import type { World } from '.';
 import Player from '../player';
 import Tile from '../entities/tile/tile';
 import Tree from '../entities/tree';
+import ResourceNode from '../entities/resource-node';
 import Tool from '../entities/tool';
 import type { TilePlacement } from '../entities/types';
 import { generateRandomMap, TILE_SIZE, WORLD_SIZE } from './tiles';
@@ -15,6 +16,7 @@ import { getRenderedTilePlacements } from '../save/world-snapshot';
 export function preloadWorld(this: World): void {
   Tile.preload(this);
   Tree.preload(this);
+  ResourceNode.preload(this);
   Tool.preload(this);
   BuildingObject.preload(this);
 }
@@ -49,12 +51,15 @@ function renderEntities(world: World, entities: (EntityPlacement | SaveEntitySna
 }
 
 function renderEntity(world: World, entity: EntityPlacement | SaveEntitySnapshot): void {
-  if (entity.kind === WorldEntityKind.Tree) {
-    const tree = new Tree(world, entity.x, entity.y, entity.variant);
-    const hp = getEntityHp(entity);
-    if (hp !== undefined) tree.setHp(hp);
-    world.entities.push(tree);
-  }
+  if (!isKnownEntityKind(entity.kind)) return;
+  const node = new ResourceNode(world, entity.x, entity.y, entity.kind, entity.variant);
+  const hp = getEntityHp(entity);
+  if (hp !== undefined) node.setHp(hp);
+  world.entities.push(node);
+}
+
+function isKnownEntityKind(kind: WorldEntityKind): boolean {
+  return Object.values(WorldEntityKind).includes(kind);
 }
 
 function getEntityHp(entity: EntityPlacement | SaveEntitySnapshot): number | undefined {
