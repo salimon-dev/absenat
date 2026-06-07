@@ -56,10 +56,10 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     if (world.input.keyboard) {
       this.keys = {
-        up: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-        down: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-        left: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-        right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+        up: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
+        down: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
+        left: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
+        right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
       };
       this.toolKeys = {
         [QuickSlotKey.Q]: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
