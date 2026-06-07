@@ -16,6 +16,7 @@ export function preloadWorld(this: World): void {
   Tile.preload(this);
   Tree.preload(this);
   Tool.preload(this);
+  BuildingObject.preload(this);
 }
 
 export function createTilemap(this: World): void {

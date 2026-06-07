@@ -8,7 +8,9 @@ export const BUILDABLE_DEFINITIONS: Record<BuildableName, BuildableDefinition> =
     width: 1,
     height: 1,
     cost: { name: ResourceType.Wood, count: 4 },
-    color: 0x9d6b37
+    asset: {
+      frames: [0]
+    }
   },
   [BuildableType.BigChest]: {
     label: 'Big Chest',
@@ -16,7 +18,9 @@ export const BUILDABLE_DEFINITIONS: Record<BuildableName, BuildableDefinition> =
     width: 2,
     height: 1,
     cost: { name: ResourceType.Wood, count: 6 },
-    color: 0xb57a3f
+    asset: {
+      frames: [1, 2]
+    }
   },
   [BuildableType.Campfire]: {
     label: 'Campfire',
@@ -24,7 +28,9 @@ export const BUILDABLE_DEFINITIONS: Record<BuildableName, BuildableDefinition> =
     width: 1,
     height: 1,
     cost: { name: ResourceType.Wood, count: 2 },
-    color: 0xc75d2c
+    asset: {
+      frames: [3]
+    }
   }
 };
 
