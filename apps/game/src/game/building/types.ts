@@ -13,8 +13,12 @@ export interface BuildCost {
   count: number;
 }
 
+export interface BuildableAsset {
+  frames: number[];
+}
+
 export interface BuildableDefinition {
-  color: number;
+  asset: BuildableAsset;
   cost: BuildCost;
   description: string;
   height: number;

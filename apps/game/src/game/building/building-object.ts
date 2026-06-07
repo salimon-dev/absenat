@@ -1,33 +1,37 @@
 import * as Phaser from 'phaser';
-import { TILE_SIZE } from '../world/tiles';
 import { getGroundObjectDepth } from '../world/render-depth';
+import { TILE_SIZE } from '../world/tiles';
 import { BUILDABLE_DEFINITIONS } from './definitions';
 import { getBuildablePixelSize } from './building-size';
-import { BuildableType, type BuildableName } from './types';
+import type { BuildableName } from './types';
 
-const CAMPFIRE_BASE_COLOR = 0x5b4434;
-const CAMPFIRE_FLAME_COLOR = 0xffb347;
+export const BUILDABLE_TEXTURE_KEY = 'buildables';
+const BUILDABLE_ASSET_PATH = 'assets/buildables.png';
 const PREVIEW_ALPHA = 0.72;
 const VALID_TINT = 0xffffff;
 const INVALID_TINT = 0xff8b8b;
 
 export default class BuildingObject extends Phaser.GameObjects.Container {
   readonly buildable: BuildableName;
-  private readonly sprite: Phaser.GameObjects.Sprite;
+  private readonly sprites: Phaser.GameObjects.Sprite[];
+
+  static preload(scene: Phaser.Scene): void {
+    scene.load.spritesheet(BUILDABLE_TEXTURE_KEY, BUILDABLE_ASSET_PATH, {
+      frameWidth: TILE_SIZE,
+      frameHeight: TILE_SIZE
+    });
+  }
 
   static ensureTextures(scene: Phaser.Scene): void {
-    createChestTexture(scene, BuildableType.SmallChest, 1, BUILDABLE_DEFINITIONS[BuildableType.SmallChest].color);
-    createChestTexture(scene, BuildableType.BigChest, 2, BUILDABLE_DEFINITIONS[BuildableType.BigChest].color);
-    createCampfireTexture(scene);
+    scene.textures.get(BUILDABLE_TEXTURE_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
   }
 
   constructor(scene: Phaser.Scene, x: number, y: number, buildable: BuildableName) {
     super(scene, x, y);
     this.buildable = buildable;
-    this.sprite = scene.add.sprite(0, 0, getTextureKey(buildable)).setOrigin(0, 1);
     const pixelSize = getBuildablePixelSize(buildable);
-    this.sprite.setDisplaySize(pixelSize.width, pixelSize.height);
-    this.add(this.sprite);
+    this.sprites = createFrameSprites(scene, buildable);
+    this.add(this.sprites);
     this.setSize(pixelSize.width, pixelSize.height);
     this.setDepth(getGroundObjectDepth(y));
     scene.add.existing(this);
@@ -40,50 +44,30 @@ export default class BuildingObject extends Phaser.GameObjects.Container {
   }
 
   setPreview(valid: boolean): this {
-    this.sprite.setAlpha(PREVIEW_ALPHA);
-    this.sprite.setTint(valid ? VALID_TINT : INVALID_TINT);
+    this.sprites.forEach(sprite => setPreviewFrame(sprite, valid));
     return this;
   }
 
   setPlaced(): this {
-    this.sprite.setAlpha(1);
-    this.sprite.setTint(VALID_TINT);
+    this.sprites.forEach(setPlacedFrame);
     return this;
   }
 }
 
-function createChestTexture(
-  scene: Phaser.Scene,
-  buildable: BuildableType.SmallChest | BuildableType.BigChest,
-  widthInTiles: number,
-  color: number
-): void {
-  const key = getTextureKey(buildable);
-  if (scene.textures.exists(key)) return;
-  const graphics = scene.make.graphics({ x: 0, y: 0 }, false);
-  const width = widthInTiles * TILE_SIZE;
-  graphics.fillStyle(0x4f3218).fillRect(0, 3, width, 13);
-  graphics.fillStyle(color).fillRect(1, 4, width - 2, 11);
-  graphics.fillStyle(0xd7b56d).fillRect(Math.floor(width / 2) - 1, 8, 2, 4);
-  graphics.lineStyle(1, 0x35210f).strokeRect(0.5, 3.5, width - 1, 12);
-  graphics.lineStyle(1, 0x71461f).lineBetween(1, 8, width - 2, 8);
-  graphics.generateTexture(key, width, TILE_SIZE);
-  graphics.destroy();
+function createFrameSprites(scene: Phaser.Scene, buildable: BuildableName): Phaser.GameObjects.Sprite[] {
+  return BUILDABLE_DEFINITIONS[buildable].asset.frames.map((frame, index) => createFrameSprite(scene, frame, index));
 }
 
-function createCampfireTexture(scene: Phaser.Scene): void {
-  const key = getTextureKey(BuildableType.Campfire);
-  if (scene.textures.exists(key)) return;
-  const graphics = scene.make.graphics({ x: 0, y: 0 }, false);
-  graphics.fillStyle(CAMPFIRE_BASE_COLOR).fillRect(3, 10, 10, 3);
-  graphics.fillStyle(CAMPFIRE_BASE_COLOR).fillRect(4, 6, 3, 7);
-  graphics.fillStyle(CAMPFIRE_BASE_COLOR).fillRect(9, 6, 3, 7);
-  graphics.fillStyle(CAMPFIRE_FLAME_COLOR).fillRect(6, 5, 4, 6);
-  graphics.fillStyle(0xffe27a).fillRect(7, 4, 2, 3);
-  graphics.generateTexture(key, TILE_SIZE, TILE_SIZE);
-  graphics.destroy();
+function createFrameSprite(scene: Phaser.Scene, frame: number, index: number): Phaser.GameObjects.Sprite {
+  return scene.add.sprite(index * TILE_SIZE, 0, BUILDABLE_TEXTURE_KEY, frame).setOrigin(0, 1);
 }
 
-function getTextureKey(buildable: BuildableName): string {
-  return `building-${buildable}`;
+function setPreviewFrame(sprite: Phaser.GameObjects.Sprite, valid: boolean): void {
+  sprite.setAlpha(PREVIEW_ALPHA);
+  sprite.setTint(valid ? VALID_TINT : INVALID_TINT);
+}
+
+function setPlacedFrame(sprite: Phaser.GameObjects.Sprite): void {
+  sprite.setAlpha(1);
+  sprite.setTint(VALID_TINT);
 }
