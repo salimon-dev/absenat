@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { ResourceType } from '../../utils/resources';
+import { getGroundObjectDepth, getTallObjectDepth } from '../world/render-depth';
 import HealthBar from './health-bar/health-bar';
 import type { EntityContent } from './types';
 
@@ -9,8 +10,6 @@ const TREE_FRAME_WIDTH = 16;
 const TREE_FRAME_HEIGHT = 16;
 const TREE_MAX_HP = 10;
 const TREE_VARIANT_COUNT = 4;
-const TREE_TOP_DEPTH = 20;
-const TREE_BOTTOM_DEPTH = 5;
 const TREE_HEALTH_BAR_OFFSET_X = 1;
 const TREE_HEALTH_BAR_OFFSET_Y = -5;
 
@@ -48,8 +47,8 @@ export default class Tree extends Phaser.GameObjects.Container {
 
   private loadFrames(x: number, y: number): TreeFrames {
     return {
-      top: createTreeFrame(this.scene, x, y - TREE_FRAME_HEIGHT, TREE_TOP_DEPTH),
-      bottom: createTreeFrame(this.scene, x, y, TREE_BOTTOM_DEPTH)
+      top: createTreeFrame(this.scene, x, y - TREE_FRAME_HEIGHT, getTallObjectDepth(y)),
+      bottom: createTreeFrame(this.scene, x, y, getGroundObjectDepth(y))
     };
   }
 

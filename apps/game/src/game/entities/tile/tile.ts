@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import { Biome } from '@absenat/specs';
 import { TILE_SIZE } from '../../world/tiles';
+import { getGroundTileDepth } from '../../world/render-depth';
 import { TileVariantKind } from '../types';
 import type { AnimatedTileVariant, TileVariant } from '../types';
 import { getTileFrame, getTileVariant } from './tile-variants';
@@ -28,7 +29,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     this.variant = variant;
     this.walkable = isWalkableBiome(biome);
     this.setOrigin(0, 1);
-    this.setDepth(0);
+    this.setDepth(getGroundTileDepth());
     scene.add.existing(this);
     this.applyVariant();
   }

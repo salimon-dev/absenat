@@ -10,6 +10,7 @@ import {
   type SurvivalPenaltyTimers
 } from './stats';
 import Tool from '../entities/tool';
+import { getActorDepth } from '../world/render-depth';
 import { TOOL_DEFINITIONS, ToolType, type ToolName } from '../../utils/tools';
 import InventoryManager from './inventory';
 import {
@@ -195,7 +196,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this.y = y;
     this.lastDirection = lastDirection;
 
-    this.setDepth(10);
+    this.setDepth(getActorDepth(this.y));
 
     if (moving) {
       this.play(`walk-${this.lastDirection}`, true);

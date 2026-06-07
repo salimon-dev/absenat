@@ -84,7 +84,7 @@ Use `docs/player-stats.md` for player stat definitions when the issue touches st
 The PR body must include:
 
 ```markdown
-Addresses #<number>
+Closes #<number>
 
 ## Summary
 - ...
@@ -93,7 +93,7 @@ Addresses #<number>
 - ...
 ```
 
-Include the issue number, a concise summary of completed work, and every validation command or manual/browser check performed. If a relevant validation could not be run, state why.
+Use `Closes #<number>` so GitHub closes the issue when the PR merges. Include the issue number, a concise summary of completed work, and every validation command or manual/browser check performed. If a relevant validation could not be run, state why.
 
 Do not add labels to the PR.
 

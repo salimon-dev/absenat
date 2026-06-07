@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { TILE_SIZE } from '../world/tiles';
+import { getGroundObjectDepth } from '../world/render-depth';
 import { BUILDABLE_DEFINITIONS } from './definitions';
 import { getBuildablePixelSize } from './building-size';
 import { BuildableType, type BuildableName } from './types';
@@ -28,13 +29,13 @@ export default class BuildingObject extends Phaser.GameObjects.Container {
     this.sprite.setDisplaySize(pixelSize.width, pixelSize.height);
     this.add(this.sprite);
     this.setSize(pixelSize.width, pixelSize.height);
-    this.setDepth(y + 2);
+    this.setDepth(getGroundObjectDepth(y));
     scene.add.existing(this);
   }
 
   setPlacement(x: number, y: number): this {
     this.setPosition(x, y);
-    this.setDepth(y + 2);
+    this.setDepth(getGroundObjectDepth(y));
     return this;
   }
 
