@@ -2,7 +2,7 @@ import * as Phaser from 'phaser';
 import { World } from '../world';
 import type { PlayerConfig } from '@absenat/specs';
 import { setupPlayerAnimations } from './animations';
-import { applyMovement, type Direction, type Keys } from './movement';
+import { applyMovement, Direction, type DirectionType, type Keys } from './movement';
 import {
   createSurvivalPenaltyTimers,
   drainStats,
@@ -16,18 +16,15 @@ import InventoryManager from './inventory';
 import {
   PlayerEvent,
   PlayerLifeState,
+  QuickSlotKey,
   type PlayerLifeStatePayload,
   type PlayerSnapshot,
-  type PlayerStatsSnapshot
+  type PlayerStatsSnapshot,
+  type QuickSlotKeyType
 } from './types';
 import { createPlayerSpawnState, resetPlayerConfig, type PlayerSpawnState } from './state';
 
-interface ToolKeys {
-  q: Phaser.Input.Keyboard.Key;
-  w: Phaser.Input.Keyboard.Key;
-  e: Phaser.Input.Keyboard.Key;
-  r: Phaser.Input.Keyboard.Key;
-}
+type ToolKeys = Record<QuickSlotKeyType, Phaser.Input.Keyboard.Key>;
 
 const MILLISECONDS_PER_SECOND = 1000;
 const AXE_RESOURCE_DAMAGE = 3;
@@ -40,7 +37,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   private keys: Keys;
   private toolKeys: ToolKeys;
   private activeTool: Tool;
-  private lastDirection: Direction = 'down';
+  private lastDirection: DirectionType = Direction.Down;
   private lifeState = PlayerLifeState.Alive;
   private nextToolUseAt = 0;
   private spawnState: PlayerSpawnState;
@@ -59,16 +56,16 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     if (world.input.keyboard) {
       this.keys = {
-        up: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
-        down: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-        left: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-        right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
+        up: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+        down: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+        left: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        right: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
       };
       this.toolKeys = {
-        q: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
-        w: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-        e: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-        r: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
+        [QuickSlotKey.Q]: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+        [QuickSlotKey.E]: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
+        [QuickSlotKey.R]: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
+        [QuickSlotKey.F]: world.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F)
       };
     } else {
       throw new Error('Keyboard input not available');
@@ -160,7 +157,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     resetSurvivalPenaltyTimers(this.survivalPenaltyTimers);
     this.x = this.spawnState.position.x;
     this.y = this.spawnState.position.y;
-    this.lastDirection = 'down';
+    this.lastDirection = Direction.Down;
     this.nextToolUseAt = 0;
     this.lifeState = PlayerLifeState.Alive;
     this.activeTool.follow(this.x, this.y);
@@ -208,7 +205,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
   }
 
   private playIdleAnimation(): void {
-    const idleKey = this.lastDirection === 'up' ? 'idle-up' : 'idle-down';
+    const idleKey = this.lastDirection === Direction.Up ? 'idle-up' : 'idle-down';
     this.play(idleKey, true);
   }
 
@@ -254,11 +251,11 @@ function getAttackInterval(attackSpeed: number): number {
   return MILLISECONDS_PER_SECOND / attackSpeed;
 }
 
-function getPressedToolKey(keys: ToolKeys): string | undefined {
-  if (keys.q.isDown) return 'q';
-  if (keys.w.isDown) return 'w';
-  if (keys.e.isDown) return 'e';
-  if (keys.r.isDown) return 'r';
+function getPressedToolKey(keys: ToolKeys): QuickSlotKeyType | undefined {
+  if (keys[QuickSlotKey.Q].isDown) return QuickSlotKey.Q;
+  if (keys[QuickSlotKey.E].isDown) return QuickSlotKey.E;
+  if (keys[QuickSlotKey.R].isDown) return QuickSlotKey.R;
+  if (keys[QuickSlotKey.F].isDown) return QuickSlotKey.F;
   return undefined;
 }
 

@@ -8,6 +8,8 @@ import {
   type InventorySlot,
   type InventorySnapshot,
   type QuickSlotAssignmentPayload,
+  QuickSlotKey,
+  type QuickSlotKeyType,
   type QuickSlotMovePayload,
   type QuickSlotSet,
   type QuickSlotsSnapshot,
@@ -78,7 +80,7 @@ export default class InventoryManager {
     this.emitQuickSlotsUpdate();
   }
 
-  getSelectedQuickSlotItemName(key: string): ToolName | undefined {
+  getSelectedQuickSlotItemName(key: QuickSlotKeyType): ToolName | undefined {
     const slot = this.getSelectedQuickSlot()?.slots.find(current => current.key === key);
     return slot?.itemName;
   }
@@ -262,6 +264,10 @@ function createInitialQuickSlotSets(): QuickSlotSet[] {
 function createQuickSlotSet(id: number, itemNames: ToolName[]): QuickSlotSet {
   return {
     id,
-    slots: ['q', 'w', 'e', 'r'].map((key, index) => ({ key, itemName: itemNames[index] }))
+    slots: getQuickSlotKeys().map((key, index) => ({ key, itemName: itemNames[index] }))
   };
+}
+
+function getQuickSlotKeys(): QuickSlotKeyType[] {
+  return [QuickSlotKey.Q, QuickSlotKey.E, QuickSlotKey.R, QuickSlotKey.F];
 }

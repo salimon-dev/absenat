@@ -2,7 +2,7 @@ import type { PlayerConfig, PlayerStat } from '@absenat/specs';
 import type { ItemName } from '../../utils/items';
 import type { ToolName } from '../../utils/tools';
 import type { PlayerSpawnState } from './state';
-import type { Direction } from './movement';
+import type { DirectionType } from './movement';
 
 export enum InventoryEvent {
   Add = 'inventory-add',
@@ -33,6 +33,15 @@ export enum PlayerLifeState {
 }
 
 export type PlayerLifeStateType = PlayerLifeState;
+
+export enum QuickSlotKey {
+  E = 'e',
+  F = 'f',
+  Q = 'q',
+  R = 'r'
+}
+
+export type QuickSlotKeyType = QuickSlotKey;
 
 export interface PlayerLifeStatePayload {
   state: PlayerLifeStateType;
@@ -76,7 +85,7 @@ export interface InventorySlotMovePayload {
 }
 
 export interface QuickSlot {
-  key: string;
+  key: QuickSlotKeyType;
   itemName?: ToolName;
 }
 
@@ -114,7 +123,7 @@ export interface InventoryCountByName {
 export interface PlayerSnapshot {
   config: PlayerConfig;
   inventory: InventorySnapshot;
-  lastDirection: Direction;
+  lastDirection: DirectionType;
   lifeState: PlayerLifeStateType;
   quickSlots: QuickSlotsSnapshot;
   spawnState: PlayerSpawnState;
